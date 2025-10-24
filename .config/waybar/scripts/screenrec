@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Detect common recorders
+if pgrep -x wf-recorder >/dev/null 2>&1 || pgrep -f 'gpu-screen-recorder' >/dev/null 2>&1 || pgrep -x obs >/dev/null 2>&1; then
+  echo '{"text":"● REC","class":"active","tooltip":"Screen recording running"}'
+else
+  echo '{"text":"●","class":"inactive","tooltip":"Not recording"}'
+fi

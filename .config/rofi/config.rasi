@@ -141,3 +141,13 @@ case-indicator {
    text-color:@maincolor;
    background-color:@blackwidget;
 }
+
+
+configuration {
+  modi: "drun,run,window,ssh,clipboard:~/.config/rofi/rofi-clipboard";
+  show-icons: true;
+  kb-accept-entry: "Return,KP_Enter";
+  kb-remove-to-eol: "Control+K";
+}
+
+
