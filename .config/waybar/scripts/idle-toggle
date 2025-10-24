@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+if systemctl --user is-active --quiet hypridle.service; then
+  systemctl --user stop hypridle.service
+  notify-send "Idle" "Disabled"
+else
+  systemctl --user start hypridle.service
+  notify-send "Idle" "Enabled"
+fi

@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+choice=$(printf " Lock\n Suspend\n Reboot\n Shutdown" | rofi -dmenu -p "Power")
+case "$choice" in
+  " Lock")    command -v hyprlock >/dev/null && hyprlock ;;
+  " Suspend") systemctl suspend ;;
+  " Reboot")  systemctl reboot ;;
+  " Shutdown")systemctl poweroff ;;
+esac

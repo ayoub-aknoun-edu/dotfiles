@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -e
+# pacman official updates
+PAC=$(checkupdates 2>/dev/null | wc -l | tr -d ' ')
+# AUR (yay) if available
+if command -v yay >/dev/null; then
+  AUR=$(yay -Qua 2>/dev/null | wc -l | tr -d ' ')
+else
+  AUR=0
+fi
+TOT=$((PAC + AUR))
+if [ "$TOT" -gt 0 ]; then
+  echo "{\"text\":\" ${TOT}\", \"tooltip\":\"Pacman: ${PAC}\\nAUR: ${AUR}\", \"class\":\"has\"}"
+else
+  echo "{\"text\":\"\", \"tooltip\":\"Up to date\", \"class\":\"none\"}"
+fi

@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+HIST="$(cliphist list)"
+if [ -z "$HIST" ]; then
+  rofi -e "Clipboard is empty"
+  exit 1
+fi
+printf "%s\n" "$HIST" \
+| rofi -dmenu -p "Clipboard" -theme ~/.config/rofi/config.rasi \
+| cliphist decode | wl-copy
