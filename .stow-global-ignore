@@ -1,0 +1,6 @@
+^\.git(/|$)
+^\.vscode(/|$)
+^\.gitignore$
+^stow\.sh$
+^Readme\.md$
+(^|/)\.config/windows11(/|$)

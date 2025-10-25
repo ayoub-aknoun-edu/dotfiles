@@ -1,6 +1,6 @@
 // -*- mode: jsonc -*-
 {
-    "relod_style_on_change": true,
+    "reload_style_on_change": true,
     "layer": "top", // Waybar at top layer
     "position": "top", // Waybar position (top|bottom|left|right)
     "height": 30, // Waybar height (to be removed for auto height)
@@ -72,7 +72,7 @@
         "format": "{text}",
         "exec": "~/.config/waybar/scripts/updates",
         "return-type": "json",
-        "on-click": "~/.local/bin/update-now",
+        "on-click": "~/.config/waybar/scripts/update-now",
         "interval": 1800,
         "signal": 7,
         "tooltip": true
@@ -243,13 +243,14 @@
         // "exec": "$HOME/.config/waybar/mediaplayer.py --player spotify 2> /dev/null" // Filter player based on name
     },
 
-    "wlr/taskbar": {
-        "format": "{icon}",
-        "tooltip-format": "{title}",
-        "on-click": "activate",
-        "on-click-middle": "close",
-        "icon-size": 15
-    },
+"wlr/taskbar": {
+  "format": "{icon}",
+  "tooltip-format": "{title}",
+  "on-click": "activate",
+  "on-click-middle": "close",
+  "icon-size": 15,   
+}
+,
   "custom/power": {
     "format": " ",
     "on-click": "~/.config/waybar/scripts/power",

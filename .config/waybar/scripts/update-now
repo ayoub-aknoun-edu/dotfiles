@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Pick the best update command available
+if command -v yay >/dev/null 2>&1; then
+  CMD="yay -Syu"
+elif command -v paru >/dev/null 2>&1; then
+  CMD="paru -Syu"
+else
+  CMD="sudo pacman -Syu"
+fi
+
+# Pick a terminal to run it in (first one found)
+pick_term() {
+  for t in "${TERMINAL:-}" foot kitty alacritty wezterm gnome-terminal konsole xterm; do
+    [ -n "$t" ] || continue
+    command -v "$t" >/dev/null 2>&1 && { echo "$t"; return; }
+  done
+  echo ""
+}
+
+TERM_APP="$(pick_term)"
+RUN_LINE='bash -lc "'"$CMD"'; echo; read -n1 -rp '\''Done. Press any key to close…'\''"'
+
+if [ -n "$TERM_APP" ]; then
+  case "$TERM_APP" in
+    foot)            foot -T "System Update" bash -lc "$CMD; echo; read -n1 -rp 'Done. Press any key to close…'" & ;;
+    kitty)           kitty --title "System Update" bash -lc "$CMD; echo; read -n1 -rp 'Done. Press any key to close…'" & ;;
+    alacritty)       alacritty -t "System Update" -e bash -lc "$CMD; echo; read -n1 -rp 'Done. Press any key to close…'" & ;;
+    wezterm)         wezterm start -- bash -lc "$CMD; echo; read -n1 -rp 'Done. Press any key to close…'" & ;;
+    gnome-terminal)  gnome-terminal -- bash -lc "$CMD; echo; read -n1 -rp 'Done. Press any key to close…'" & ;;
+    konsole)         konsole -e bash -lc "$CMD; echo; read -n1 -rp 'Done. Press any key to close…'" & ;;
+    xterm)           xterm -T "System Update" -e bash -lc "$CMD; echo; read -n1 -rp 'Done. Press any key to close…'" & ;;
+  esac
+else
+  # No terminal found—run in background (will still prompt for sudo if needed)
+  setsid bash -lc "$CMD" </dev/null &>/dev/null &
+fi
+
+# Refresh this Waybar module (signal 7 in your config)
+pkill -RTMIN+7 waybar 2>/dev/null || true
+
