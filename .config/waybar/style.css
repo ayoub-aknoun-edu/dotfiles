@@ -1,3 +1,8 @@
+@define-color background rgba(226, 139, 246, 0.6);
+@define-color foreground rgba(0, 0, 0, 1);
+@define-color primary rgba(194, 245, 112, 1);
+@define-color modules-foreground-blur rgba(50, 50, 50, 0);
+
 * {
     /* `otf-font-awesome` is required to be installed for icons */
     font-family: "JetBrainsMono Nerd Font", Roboto, Helvetica, Arial, sans-serif;
@@ -54,13 +59,25 @@ button:hover {
 }
 
 #workspaces button {
-    padding: 0 5px;
+    padding: 0 8px;
     background-color: transparent;
     color: #ffffff;
+    border-radius: 15px;
+}
+
+#custom-update {
+    background-color: transparent;
+    color: #ffffff;
+    padding: 0 10px 0 0;
+    border-radius: 15px;
 }
 
 #workspaces button:hover {
     background: rgba(0, 0, 0, 0.2);
+}
+
+#workspaces button.active {
+    background-color: #2980b9;
 }
 
 #workspaces button.focused {
@@ -93,6 +110,7 @@ button:hover {
 #idle_inhibitor,
 #scratchpad,
 #power-profiles-daemon,
+#bluetooth,
 #mpd {
     padding: 0 10px;
     color: #ffffff;
@@ -148,7 +166,8 @@ button:hover {
 }
 
 #power-profiles-daemon {
-    padding-right: 15px;
+    padding-right: 10px;
+    padding-left: 10px;
 }
 
 #power-profiles-daemon.performance {
@@ -188,7 +207,15 @@ label:focus {
 }
 
 #network {
-    background-color: #2980b9;
+    padding-left: 12px;
+    padding-right: 15px;
+    background-color: #ff7700;
+}
+
+#bluetooth {
+    padding-left: 15px;
+    padding-right: 15px;
+    background-color: #3498db;
 }
 
 #network.disconnected {

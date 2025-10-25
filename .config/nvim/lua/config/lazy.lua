@@ -1,3 +1,4 @@
+-- lua/config/lazy.lua
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
   local lazyrepo = "https://github.com/folke/lazy.nvim.git"
@@ -16,33 +17,32 @@ vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
   spec = {
-    -- add LazyVim and import its plugins
+    -- 1) Core LazyVim (must be first)
     { "LazyVim/LazyVim", import = "lazyvim.plugins" },
-    -- import/override with your plugins
+
+    -- 2) LazyVim EXTRAS (must come before your own plugins)
+    -- TypeScript/Angular/React ecosystem
+    { import = "lazyvim.plugins.extras.lang.typescript" },
+    -- JSON (schemastore, jsonls, treesitter tweaks)
+    { import = "lazyvim.plugins.extras.lang.json" },
+    -- Java / Spring (jdtls integration)
+    { import = "lazyvim.plugins.extras.lang.java" },
+    -- Optional: ESLint wiring (if you use eslint/eslint_d)
+    -- { import = "lazyvim.plugins.extras.linting.eslint" },
+
+    -- 3) Your own plugins (after all extras)
     { import = "plugins" },
   },
   defaults = {
-    -- By default, only LazyVim plugins will be lazy-loaded. Your custom plugins will load during startup.
-    -- If you know what you're doing, you can set this to `true` to have all your custom plugins lazy-loaded by default.
     lazy = false,
-    -- It's recommended to leave version=false for now, since a lot the plugin that support versioning,
-    -- have outdated releases, which may break your Neovim install.
-    version = false, -- always use the latest git commit
-    -- version = "*", -- try installing the latest stable version for plugins that support semver
+    version = false,
   },
   install = { colorscheme = { "tokyonight", "habamax" } },
-  checker = {
-    enabled = true, -- check for plugin updates periodically
-    notify = false, -- notify on update
-  }, -- automatically check for plugin updates
+  checker = { enabled = true, notify = false },
   performance = {
     rtp = {
-      -- disable some rtp plugins
       disabled_plugins = {
         "gzip",
-        -- "matchit",
-        -- "matchparen",
-        -- "netrwPlugin",
         "tarPlugin",
         "tohtml",
         "tutor",
