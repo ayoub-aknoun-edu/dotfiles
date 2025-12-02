@@ -6,51 +6,56 @@
       "alignment": "left",
       "segments": [
         {
-          "properties": {
-            "cache_duration": "none"
-          },
-          "template": "\u250f[<#ffffff>\ueb99</> {{ .UserName }} from <#ffffff>\uf108</> {{ .HostName }}]",
+          "template": "╭─[<#ffffff></> {{ .UserName }} <#666666>from</> <#ffffff></> {{ .HostName }}]",
           "foreground": "#7eb8da",
           "type": "session",
           "style": "plain"
         },
         {
           "properties": {
-            "cache_duration": "none",
-            "root_icon": "\uf292"
+            "root_icon": "󰞀"
           },
-          "template": "\uf0e7",
+          "template": " 󱐋",
           "type": "root",
-          "style": "diamond"
+          "style": "plain",
+          "foreground": "#ff6b6b"
         },
         {
-          "properties": {
-            "cache_duration": "none"
-          },
-          "template": "[<#ffffff>\ue266</> RAM: {{ (div ((sub .PhysicalTotalMemory .PhysicalFreeMemory)|float64) 1073741824.0) }}/{{ (div .PhysicalTotalMemory 1073741824.0) }}GB]",
+          "template": "[<#ffffff></> {{ (div ((sub .PhysicalTotalMemory .PhysicalFreeMemory)|float64) 1073741824.0) }}/{{ (div .PhysicalTotalMemory 1073741824.0) }}GB]",
           "foreground": "#be9ddf",
           "type": "sysinfo",
-          "style": "diamond"
+          "style": "plain",
+          "foreground_templates": [
+            "{{ if gt .PhysicalPercentUsed 80.0 }}#ff6b6b{{ else if gt .PhysicalPercentUsed 60.0 }}#ffd93d{{ else }}#be9ddf{{ end }}"
+          ]
         },
         {
           "properties": {
-            "cache_duration": "none",
             "style": "dallas",
-            "threshold": 0
+            "threshold": 500
           },
-          "template": "[<#ffffff>\uf252</> {{ .FormattedMs }}s]",
+          "template": "[<#ffffff>󱎫</> {{ .FormattedMs }}s]",
           "foreground": "#be9ddf",
           "type": "executiontime",
-          "style": "diamond"
+          "style": "plain"
         },
         {
           "properties": {
-            "cache_duration": "none"
+            "always_enabled": true
           },
-          "template": "[<#ffffff>\uea6c</> Error, check your command]",
+          "template": "[{{ if eq .Code 0 }}<#6bcf7f></> {{ .Code }}{{ else }}<#ff6b6b></> {{ .Code }}{{ end }}]",
           "foreground": "#ffa5d8",
           "type": "status",
-          "style": "powerline"
+          "style": "plain"
+        },
+        {
+          "type": "time",
+          "style": "plain",
+          "foreground": "#98bfad",
+          "properties": {
+            "time_format": "15:04:05"
+          },
+          "template": "[<#ffffff>󰥔</> {{ .CurrentDate | date .Format }}]"
         }
       ]
     },
@@ -60,58 +65,70 @@
       "segments": [
         {
           "properties": {
-            "cache_duration": "none",
-            "style": "full"
+            "style": "full",
+            "folder_separator_icon": " 󰅂 "
           },
-          "template": "\u2516[<#98bfad>{{ .Path }}</>]",
+          "template": "│ <#98bfad>{{ .Path }}</>",
           "foreground": "#7eb8da",
           "type": "path",
           "style": "plain"
         },
         {
-          "properties": {
-            "cache_duration": "none"
-          },
-          "template": " \ue235 {{ if .Error }}{{ .Error }}{{ else }}{{ if .Venv }}{{ .Venv }} {{ end }}{{ .Full }}{{ end }} ",
-          "foreground": "blue",
+          "template": " <#4584b6></> {{ if .Error }}{{ .Error }}{{ else }}{{ if .Venv }}<#ffd93d>({{ .Venv }})</> {{ end }}{{ .Full }}{{ end }}",
+          "foreground": "#4584b6",
           "type": "python",
           "style": "plain"
         },
         {
-          "properties": {
-            "cache_duration": "none"
-          },
-          "template": " \ue718 {{ .Full }} ",
-          "foreground": "green",
+          "template": " <#68a063></> {{ .Full }}",
+          "foreground": "#68a063",
           "type": "node",
           "style": "plain"
         },
         {
           "properties": {
-            "cache_duration": "none"
+            "branch_icon": " ",
+            "fetch_status": true,
+            "fetch_upstream_icon": true
           },
-          "template": " \uf1d3 {{ .HEAD }} {{ .BranchStatus }}{{ if .Working.Changed }} \uf044 {{ .Working.String }}{{ end }}{{ if and (.Staging.Changed) (.Working.Changed) }} |{{ end }}{{ if .Staging.Changed }} \uf046 {{ .Staging.String }}{{ end }}{{ if gt .StashCount 0}} \uf692 {{ .StashCount }}{{ end }}{{ if gt .WorktreeCount 0}} \uf1bb {{ .WorktreeCount }}{{ end }} ",
-          "foreground": "yellow",
+          "template": "  {{ .HEAD }}{{if .BranchStatus }} {{ .BranchStatus }}{{ end }}{{ if .Working.Changed }}  {{ .Working.String }}{{ end }}{{ if and (.Staging.Changed) (.Working.Changed) }} |{{ end }}{{ if .Staging.Changed }}  {{ .Staging.String }}{{ end }}{{ if gt .StashCount 0}}  {{ .StashCount }}{{ end }}{{ if gt .WorktreeCount 0 }}  {{ .WorktreeCount }}{{ end }}",
+          "foreground": "#ffd93d",
           "type": "git",
           "style": "plain"
         },
         {
-          "properties": {
-            "cache_duration": "none"
-          },
-          "template": "[{{ .Profile }}{{if .Region}}@{{ .Region }}{{ end }}]",
-          "foreground": "#ffa5d8",
+          "template": " 󰸏 {{ .Profile }}{{if .Region}} @ {{ .Region }}{{ end }}",
+          "foreground": "#ff9900",
           "type": "aws",
           "style": "plain"
         },
         {
-          "properties": {
-            "cache_duration": "none"
-          },
-          "template": "[{{.Context}}{{if .Namespace}} :: {{.Namespace}}{{end}}]",
-          "foreground": "#ffa5d8",
+          "template": " 󱃾 {{.Context}}{{if .Namespace}} :: {{.Namespace}}{{end}}",
+          "foreground": "#326ce5",
           "type": "kubectl",
           "style": "plain"
+        },
+        {
+          "type": "docker",
+          "style": "plain",
+          "foreground": "#00acd7",
+          "properties": {
+            "display_mode": "context"
+          },
+          "template": "{{ if ne .Context \"desktop-linux\" }}  {{ .Context }}{{ end }}"
+        },
+        {
+          "type": "battery",
+          "style": "plain",
+          "foreground_templates": [
+            "{{if lt .Percentage 20}}#ff6b6b{{else if lt .Percentage 40}}#ffd93d{{else}}#6bcf7f{{end}}"
+          ],
+          "properties": {
+            "charged_icon": " 󰂄 ",
+            "charging_icon": " 󰂄 ",
+            "discharging_icon": " 󰂃 "
+          },
+          "template": "{{ if not .Error }}{{ .Icon }}{{ .Percentage }}%{{ end }}"
         }
       ],
       "newline": true
@@ -122,15 +139,23 @@
       "segments": [
         {
           "properties": {
-            "always_enabled": true,
-            "cache_duration": "none"
+            "always_enabled": true
           },
-          "template": "➜ ",
-          "foreground": "lightGreen",
+          "template": "╰─",
+          "foreground": "#7eb8da",
+          "type": "text",
+          "style": "plain"
+        },
+        {
+          "properties": {
+            "always_enabled": true
+          },
+          "template": "{{ if gt .Code 0 }}{{ else }}{{ end }} ",
+          "foreground": "#6bcf7f",
           "type": "exit",
-          "style": "powerline",
+          "style": "plain",
           "foreground_templates": [
-            "{{ if gt .Code 0 }}red{{ end }}"
+            "{{ if gt .Code 0 }}#ff6b6b{{ end }}"
           ]
         }
       ],
@@ -138,5 +163,6 @@
     }
   ],
   "version": 3,
-  "final_space": true
+  "final_space": true,
+  "console_title_template": "{{ .Shell }} in {{ .Folder }}"
 }
