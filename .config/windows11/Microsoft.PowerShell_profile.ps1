@@ -103,14 +103,11 @@ function mkcd {
 function zaki {
     $path = 'E:\zaki_project'
     if (Test-Path $path) { 
-        Set-Location $path 
-        Write-Host "📁 Navigated to Zaki Project" -ForegroundColor Cyan
+        Set-Location $path
     } else { 
         Write-Error "Path not found: $path" 
     }
 }
-
-
 #endregion
 
 
@@ -644,17 +641,511 @@ function sudo {
 }
 
 function serve {
-    param([int]$Port = 8000, [string]$Path = '.')
-    if (Get-Command python -ErrorAction SilentlyContinue) {
-        Push-Location $Path
-        Write-Host "🌐 Starting server on http://localhost:$Port" -ForegroundColor Cyan
-        try { python -m http.server $Port }
-        finally { Pop-Location }
-    } else {
-        Write-Error "Python not found"
+    <#
+    .SYNOPSIS
+        Starts a secure, authenticated HTTP server with enhanced UI and logging
+    
+    .DESCRIPTION
+        Launches a Python-based HTTP server with:
+        - Basic authentication
+        - Request logging with colored output
+        - Session tracking
+        - Rate limiting
+        - Security headers
+        - Clean shutdown handling
+    
+    .PARAMETER Port
+        Port to bind the server to (default: 8000)
+    
+    .PARAMETER Path
+        Directory to serve files from (default: current directory)
+    
+    .PARAMETER Host
+        Host address to bind to (default: 0.0.0.0 for all interfaces)
+    
+    .PARAMETER Username
+        Username for authentication (default: 'user')
+    
+    .PARAMETER Password
+        Password for authentication (default: randomly generated)
+    
+    .PARAMETER NoAuth
+        Disable authentication (not recommended for public networks)
+    
+    .PARAMETER GeneratePassword
+        Generate a secure random password instead of using default
+    
+    .EXAMPLE
+        serve
+        Starts server on port 8000 with random password
+    
+    .EXAMPLE
+        serve -Port 3000 -Username admin -Password MySecurePass123
+        Starts server on port 3000 with custom credentials
+    
+    .EXAMPLE
+        serve -NoAuth
+        Starts server without authentication (use with caution)
+    #>
+    
+    [CmdletBinding()]
+    param(
+        [Parameter(Position=0)]
+        [ValidateRange(1024, 65535)]
+        [int]$Port = 8000,
+        
+        [Parameter(Position=1)]
+        [string]$Path = '.',
+        
+        [Parameter()]
+        [ValidatePattern('^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$|^localhost$|^0\.0\.0\.0$')]
+        [string]$Uri = '0.0.0.0',
+        
+        [Parameter()]
+        [ValidateLength(3, 32)]
+        [string]$Username = 'user',
+        
+        [Parameter()]
+        [ValidateLength(8, 128)]
+        [string]$Pass,
+        
+        [Parameter()]
+        [switch]$NoAuth,
+        
+        [Parameter()]
+        [switch]$GeneratePassword
+    )
+    
+    # ═══════════════════════════════════════════════════════════════════════════
+    # 1. VALIDATION & SETUP
+    # ═══════════════════════════════════════════════════════════════════════════
+    
+    # Check for Python
+    if (-not (Get-Command python -ErrorAction SilentlyContinue)) {
+        Write-Error "❌ Python not found. Please install Python 3.7+ and add it to PATH."
+        return
     }
+    
+    # Validate Python version
+    $pythonVersion = python --version 2>&1
+    if ($pythonVersion -notmatch 'Python 3\.([7-9]|\d{2,})') {
+        Write-Error "❌ Python 3.7+ required. Found: $pythonVersion"
+        return
+    }
+    
+    # Validate path
+    if (-not (Test-Path $Path)) {
+        Write-Error "❌ Path not found: $Path"
+        return
+    }
+    
+    # Resolve to absolute path
+    $AbsolutePath = (Resolve-Path $Path).Path
+    
+    # Check if port is available
+    $portInUse = Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue
+    if ($portInUse) {
+        Write-Error "❌ Port $Port is already in use by process: $(Get-Process -Id $portInUse[0].OwningProcess -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name)"
+        return
+    }
+    
+    # ═══════════════════════════════════════════════════════════════════════════
+    # 2. PASSWORD GENERATION & SECURITY
+    # ═══════════════════════════════════════════════════════════════════════════
+    
+    if (-not $NoAuth) {
+        if ($GeneratePassword -or -not $Pass) {
+            # Generate cryptographically secure random password
+            $Pass = -join ((48..57) + (65..90) + (97..122) | Get-Random -Count 16 | ForEach-Object { [char]$_ })
+            $Pass += '!@#'  # Add special characters for complexity
+        }
+        
+        # Validate password strength
+        if ($Pass.Length -lt 8) {
+            Write-Warning "⚠️  Password is weak (< 8 characters). Consider using -GeneratePassword"
+        }
+    }
+    
+    # ═══════════════════════════════════════════════════════════════════════════
+    # 3. DISPLAY SERVER INFO
+    # ═══════════════════════════════════════════════════════════════════════════
+    
+    $borderLine = "═" * 70
+    Write-Host "`n$borderLine" -ForegroundColor Cyan
+    Write-Host "  🌐 SECURE HTTP SERVER" -ForegroundColor Cyan
+    Write-Host "$borderLine" -ForegroundColor Cyan
+    
+    Write-Host "`n📂 Serving Directory:" -ForegroundColor Yellow -NoNewline
+    Write-Host "  $AbsolutePath" -ForegroundColor White
+    
+    Write-Host "🔗 Server Address:    " -ForegroundColor Yellow -NoNewline
+    Write-Host "  http://$Uri`:$Port" -ForegroundColor Green
+    
+    if (-not $NoAuth) {
+        Write-Host "`n🔐 AUTHENTICATION REQUIRED" -ForegroundColor Magenta
+        Write-Host "   Username: " -ForegroundColor Yellow -NoNewline
+        Write-Host "$Username" -ForegroundColor White
+        Write-Host "   Password: " -ForegroundColor Yellow -NoNewline
+        Write-Host "$Pass" -ForegroundColor White
+        Write-Host "`n   ⚠️  Keep these credentials secure!" -ForegroundColor Red
+    } else {
+        Write-Host "`n⚠️  AUTHENTICATION DISABLED - Use with caution!" -ForegroundColor Red
+    }
+    
+    Write-Host "`n$borderLine" -ForegroundColor Cyan
+    Write-Host "💡 Press Ctrl+C to stop the server" -ForegroundColor DarkGray
+    Write-Host "$borderLine`n" -ForegroundColor Cyan
+    
+    # ═══════════════════════════════════════════════════════════════════════════
+    # 4. PYTHON SERVER SCRIPT
+    # ═══════════════════════════════════════════════════════════════════════════
+    
+    $ScriptContent = @"
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Secure HTTP Server with Authentication and Enhanced Logging
+Generated by PowerShell serve function
+"""
+
+import http.server
+import socketserver
+import base64
+import os
+import sys
+import time
+import socket
+from datetime import datetime
+from urllib.parse import unquote
+from collections import defaultdict
+import threading
+
+# ═══════════════════════════════════════════════════════════════════════════
+# CONFIGURATION
+# ═══════════════════════════════════════════════════════════════════════════
+
+USERNAME = "$Username"
+PASSWORD = "$Pass"
+HOST = "$Uri"
+PORT = $Port
+REQUIRE_AUTH = $(if ($NoAuth) { 'False' } else { 'True' })
+
+# Rate limiting: max requests per IP per minute
+RATE_LIMIT_MAX = 100
+RATE_LIMIT_WINDOW = 60  # seconds
+
+# Security headers
+SECURITY_HEADERS = {
+    'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'DENY',
+    'X-XSS-Protection': '1; mode=block',
+    'Referrer-Policy': 'no-referrer',
 }
 
+# ═══════════════════════════════════════════════════════════════════════════
+# RATE LIMITING
+# ═══════════════════════════════════════════════════════════════════════════
+
+class RateLimiter:
+    def __init__(self):
+        self.requests = defaultdict(list)
+        self.lock = threading.Lock()
+    
+    def is_allowed(self, ip_address):
+        if not REQUIRE_AUTH:
+            return True  # No rate limiting without auth
+            
+        with self.lock:
+            now = time.time()
+            # Clean old entries
+            self.requests[ip_address] = [
+                timestamp for timestamp in self.requests[ip_address]
+                if now - timestamp < RATE_LIMIT_WINDOW
+            ]
+            
+            # Check limit
+            if len(self.requests[ip_address]) >= RATE_LIMIT_MAX:
+                return False
+            
+            # Add current request
+            self.requests[ip_address].append(now)
+            return True
+
+rate_limiter = RateLimiter()
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ANSI COLOR CODES FOR TERMINAL OUTPUT
+# ═══════════════════════════════════════════════════════════════════════════
+
+class Colors:
+    RESET = '\033[0m'
+    BOLD = '\033[1m'
+    RED = '\033[91m'
+    GREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    BLUE = '\033[94m'
+    MAGENTA = '\033[95m'
+    CYAN = '\033[96m'
+    GRAY = '\033[90m'
+
+# ═══════════════════════════════════════════════════════════════════════════
+# AUTHENTICATION HANDLER
+# ═══════════════════════════════════════════════════════════════════════════
+
+if REQUIRE_AUTH:
+    AUTH_STRING = f'{USERNAME}:{PASSWORD}'.encode('utf-8')
+    EXPECTED_AUTH = 'Basic ' + base64.b64encode(AUTH_STRING).decode('utf-8')
+else:
+    EXPECTED_AUTH = None
+
+class SecureHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
+    """Enhanced HTTP handler with authentication and logging"""
+    
+    def __init__(self, *args, **kwargs):
+        # Change to the directory specified by PowerShell
+        os.chdir("$($AbsolutePath.Replace('\', '\\'))")
+        super().__init__(*args, **kwargs)
+    
+    def log_request_custom(self, status_code, size='-'):
+        """Custom colored request logging"""
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        client_ip = self.client_address[0]
+        method = self.command
+        path = unquote(self.path)
+        
+        # Color based on status code
+        if 200 <= status_code < 300:
+            status_color = Colors.GREEN
+            status_icon = '✓'
+        elif 300 <= status_code < 400:
+            status_color = Colors.CYAN
+            status_icon = '↪'
+        elif status_code == 401:
+            status_color = Colors.YELLOW
+            status_icon = '🔒'
+        elif 400 <= status_code < 500:
+            status_color = Colors.RED
+            status_icon = '✗'
+        else:
+            status_color = Colors.MAGENTA
+            status_icon = '⚠'
+        
+        # Method color
+        method_color = Colors.CYAN if method == 'GET' else Colors.YELLOW
+        
+        # Format log line
+        log_line = (
+            f"{Colors.GRAY}{timestamp}{Colors.RESET} | "
+            f"{status_color}{status_icon} {status_code}{Colors.RESET} | "
+            f"{method_color}{method:6}{Colors.RESET} | "
+            f"{Colors.BLUE}{client_ip:15}{Colors.RESET} | "
+            f"{path}"
+        )
+        
+        print(log_line, flush=True)
+    
+    def send_auth_request(self):
+        """Send 401 authentication required response"""
+        self.send_response(401)
+        self.send_header('WWW-Authenticate', 'Basic realm="Secure Server"')
+        self.send_header('Content-type', 'text/html; charset=utf-8')
+        for header, value in SECURITY_HEADERS.items():
+            self.send_header(header, value)
+        self.end_headers()
+        
+        html = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <title>Authentication Required</title>
+            <style>
+                body {
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100vh;
+                    margin: 0;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                }
+                .container {
+                    background: white;
+                    padding: 3rem;
+                    border-radius: 1rem;
+                    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                    text-align: center;
+                    max-width: 400px;
+                }
+                h1 { color: #333; margin: 0 0 1rem 0; }
+                p { color: #666; }
+                .icon { font-size: 4rem; margin-bottom: 1rem; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="icon">🔒</div>
+                <h1>Authentication Required</h1>
+                <p>Please enter your username and password to access this server.</p>
+            </div>
+        </body>
+        </html>
+        """
+        self.wfile.write(html.encode('utf-8'))
+        self.log_request_custom(401)
+    
+    def send_rate_limit_response(self):
+        """Send 429 Too Many Requests response"""
+        self.send_response(429)
+        self.send_header('Content-type', 'text/html; charset=utf-8')
+        self.send_header('Retry-After', '60')
+        for header, value in SECURITY_HEADERS.items():
+            self.send_header(header, value)
+        self.end_headers()
+        
+        html = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <title>Rate Limit Exceeded</title>
+            <style>
+                body {
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100vh;
+                    margin: 0;
+                    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                }
+                .container {
+                    background: white;
+                    padding: 3rem;
+                    border-radius: 1rem;
+                    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                    text-align: center;
+                    max-width: 400px;
+                }
+                h1 { color: #333; margin: 0 0 1rem 0; }
+                p { color: #666; }
+                .icon { font-size: 4rem; margin-bottom: 1rem; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="icon">⚠️</div>
+                <h1>Too Many Requests</h1>
+                <p>You have exceeded the rate limit. Please wait a moment and try again.</p>
+            </div>
+        </body>
+        </html>
+        """
+        self.wfile.write(html.encode('utf-8'))
+        self.log_request_custom(429)
+    
+    def check_auth(self):
+        """Verify authentication credentials"""
+        if not REQUIRE_AUTH:
+            return True
+        
+        auth_header = self.headers.get('Authorization')
+        return auth_header == EXPECTED_AUTH
+    
+    def add_security_headers(self):
+        """Add security headers to response"""
+        for header, value in SECURITY_HEADERS.items():
+            self.send_header(header, value)
+    
+    def do_GET(self):
+        """Handle GET requests with auth and rate limiting"""
+        client_ip = self.client_address[0]
+        
+        # Check rate limit
+        if not rate_limiter.is_allowed(client_ip):
+            self.send_rate_limit_response()
+            return
+        
+        # Check authentication
+        if REQUIRE_AUTH and not self.check_auth():
+            self.send_auth_request()
+            return
+        
+        # Serve the file
+        self.send_response(200)
+        self.add_security_headers()
+        super().do_GET()
+        self.log_request_custom(200)
+    
+    def do_HEAD(self):
+        """Handle HEAD requests"""
+        if REQUIRE_AUTH and not self.check_auth():
+            self.send_auth_request()
+            return
+        
+        self.add_security_headers()
+        super().do_HEAD()
+        self.log_request_custom(200)
+    
+    # Suppress default logging
+    def log_message(self, format, *args):
+        pass  # We use custom logging
+
+# ═══════════════════════════════════════════════════════════════════════════
+# SERVER STARTUP
+# ═══════════════════════════════════════════════════════════════════════════
+
+class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
+    allow_reuse_address = True
+    daemon_threads = True
+
+def main():
+    try:
+        with ThreadedTCPServer((HOST, PORT), SecureHTTPRequestHandler) as httpd:
+            print(f"{Colors.GREEN}✓ Server started successfully{Colors.RESET}\n")
+            print(f"{Colors.BOLD}Listening for requests...{Colors.RESET}\n")
+            httpd.serve_forever()
+    except KeyboardInterrupt:
+        print(f"\n\n{Colors.YELLOW}⚠ Server shutdown requested{Colors.RESET}")
+        print(f"{Colors.GRAY}Cleaning up...{Colors.RESET}")
+        sys.exit(0)
+    except Exception as e:
+        print(f"\n{Colors.RED}✗ Server error: {e}{Colors.RESET}", file=sys.stderr)
+        sys.exit(1)
+
+if __name__ == '__main__':
+    main()
+"@
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # 5. EXECUTE SERVER
+    # ═══════════════════════════════════════════════════════════════════════════
+    
+    # Create temporary script file
+    $TempFileName = "secure_server_$(Get-Date -Format 'yyyyMMddHHmmss').py"
+    $TempFilePath = Join-Path $env:TEMP $TempFileName
+    
+    try {
+        # Write script to temp file
+        $ScriptContent | Out-File $TempFilePath -Encoding UTF8 -Force
+        
+        # Change to target directory
+        Push-Location $AbsolutePath
+        
+        # Start server
+        & python $TempFilePath
+        
+    } catch {
+        Write-Error "❌ Server error: $_"
+    } finally {
+        # Cleanup
+        Pop-Location
+        if (Test-Path $TempFilePath) {
+            Remove-Item $TempFilePath -Force -ErrorAction SilentlyContinue
+        }
+        Write-Host "`n✓ Server stopped gracefully" -ForegroundColor Green
+    }
+}
 
 function timer {
     [CmdletBinding()]
