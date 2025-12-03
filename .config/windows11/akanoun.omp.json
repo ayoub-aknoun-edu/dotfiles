@@ -6,22 +6,22 @@
       "alignment": "left",
       "segments": [
         {
-          "template": "╭─[<#ffffff></> {{ .UserName }} <#666666>from</> <#ffffff></> {{ .HostName }}]",
+          "template": "╭─[<#ffffff> {{ .UserName }} <#666666>from</>  {{ .HostName }}]</>",
           "foreground": "#7eb8da",
           "type": "session",
           "style": "plain"
         },
         {
           "properties": {
-            "root_icon": "󰞀"
+            "root_icon": ""
           },
-          "template": " 󱐋",
+          "template": " {{ .Icon }}",
           "type": "root",
           "style": "plain",
           "foreground": "#ff6b6b"
         },
         {
-          "template": "[<#ffffff></> {{ (div ((sub .PhysicalTotalMemory .PhysicalFreeMemory)|float64) 1073741824.0) }}/{{ (div .PhysicalTotalMemory 1073741824.0) }}GB]",
+          "template": "[<#ffffff></> {{ (div ((sub .PhysicalTotalMemory .PhysicalFreeMemory)|float64) 1073741824.0) }}/{{ (div .PhysicalTotalMemory 1073741824.0) }}GB]",
           "foreground": "#be9ddf",
           "type": "sysinfo",
           "style": "plain",
@@ -34,7 +34,7 @@
             "style": "dallas",
             "threshold": 500
           },
-          "template": "[<#ffffff>󱎫</> {{ .FormattedMs }}s]",
+          "template": "[<#ffffff></> {{ .FormattedMs }}s]",
           "foreground": "#be9ddf",
           "type": "executiontime",
           "style": "plain"
@@ -43,7 +43,7 @@
           "properties": {
             "always_enabled": true
           },
-          "template": "[{{ if eq .Code 0 }}<#6bcf7f></> {{ .Code }}{{ else }}<#ff6b6b></> {{ .Code }}{{ end }}]",
+          "template": "[{{ if eq .Code 0 }}<#6bcf7f> {{ .Code }}</>{{ else }}<#ff6b6b> {{ .Code }}</>{{ end }}]",
           "foreground": "#ffa5d8",
           "type": "status",
           "style": "plain"
@@ -55,7 +55,7 @@
           "properties": {
             "time_format": "15:04:05"
           },
-          "template": "[<#ffffff>󰥔</> {{ .CurrentDate | date .Format }}]"
+          "template": "[<#ffffff></> {{ .CurrentDate | date .Format }}]"
         }
       ]
     },
@@ -68,42 +68,37 @@
             "style": "full",
             "folder_separator_icon": " 󰅂 "
           },
-          "template": "│ <#98bfad>{{ .Path }}</>",
+          "template": "│ <#98bfad> {{ .Path }}</>",
           "foreground": "#7eb8da",
           "type": "path",
           "style": "plain"
         },
         {
-          "template": " <#4584b6></> {{ if .Error }}{{ .Error }}{{ else }}{{ if .Venv }}<#ffd93d>({{ .Venv }})</> {{ end }}{{ .Full }}{{ end }}",
+          "template": " <#4584b6> </>{{ if .Error }}{{ .Error }}{{ else }}{{ if .Venv }}<#ffd93d>({{ .Venv }})</> {{ end }}{{ .Full }}{{ end }}",
           "foreground": "#4584b6",
           "type": "python",
           "style": "plain"
         },
         {
-          "template": " <#68a063></> {{ .Full }}",
-          "foreground": "#68a063",
-          "type": "node",
-          "style": "plain"
-        },
-        {
           "properties": {
-            "branch_icon": " ",
+            "branch_icon": " ",
             "fetch_status": true,
-            "fetch_upstream_icon": true
+            "fetch_upstream_icon": true,
+            "fetch_worktree_count": true
           },
-          "template": "  {{ .HEAD }}{{if .BranchStatus }} {{ .BranchStatus }}{{ end }}{{ if .Working.Changed }}  {{ .Working.String }}{{ end }}{{ if and (.Staging.Changed) (.Working.Changed) }} |{{ end }}{{ if .Staging.Changed }}  {{ .Staging.String }}{{ end }}{{ if gt .StashCount 0}}  {{ .StashCount }}{{ end }}{{ if gt .WorktreeCount 0 }}  {{ .WorktreeCount }}{{ end }}",
+          "template": " {{ .UpstreamIcon }}{{ .HEAD }}{{ if .BranchStatus }} {{ .BranchStatus }}{{ end }} +{{ add .Working.Added .Working.Untracked }} ~{{ .Working.Modified }} -{{ .Working.Deleted }} | ⧆+{{ add .Staging.Added .Staging.Untracked }} ~{{ .Staging.Modified }} -{{ .Staging.Deleted }}  {{ .StashCount }} ",
           "foreground": "#ffd93d",
           "type": "git",
           "style": "plain"
         },
         {
-          "template": " 󰸏 {{ .Profile }}{{if .Region}} @ {{ .Region }}{{ end }}",
+          "template": "  {{ .Profile }}{{if .Region}} @ {{ .Region }}{{ end }}",
           "foreground": "#ff9900",
           "type": "aws",
           "style": "plain"
         },
         {
-          "template": " 󱃾 {{.Context}}{{if .Namespace}} :: {{.Namespace}}{{end}}",
+          "template": " ☸ {{.Context}}{{if .Namespace}} :: {{.Namespace}}{{end}}",
           "foreground": "#326ce5",
           "type": "kubectl",
           "style": "plain"
@@ -115,7 +110,7 @@
           "properties": {
             "display_mode": "context"
           },
-          "template": "{{ if ne .Context \"desktop-linux\" }}  {{ .Context }}{{ end }}"
+          "template": "{{ if ne .Context \"desktop-linux\" }}   {{ .Context }}{{ end }}"
         },
         {
           "type": "battery",
@@ -124,9 +119,9 @@
             "{{if lt .Percentage 20}}#ff6b6b{{else if lt .Percentage 40}}#ffd93d{{else}}#6bcf7f{{end}}"
           ],
           "properties": {
-            "charged_icon": " 󰂄 ",
-            "charging_icon": " 󰂄 ",
-            "discharging_icon": " 󰂃 "
+            "charged_icon": "  ",
+            "charging_icon": "  ",
+            "discharging_icon": "  "
           },
           "template": "{{ if not .Error }}{{ .Icon }}{{ .Percentage }}%{{ end }}"
         }
@@ -141,7 +136,7 @@
           "properties": {
             "always_enabled": true
           },
-          "template": "╰─",
+          "template": "╰─❯",
           "foreground": "#7eb8da",
           "type": "text",
           "style": "plain"
