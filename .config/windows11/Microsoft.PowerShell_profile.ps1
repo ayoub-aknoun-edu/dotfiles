@@ -68,7 +68,8 @@ Set-Alias -Name cls -Value Clear-Host
 Set-Alias -Name c -Value Clear-Host
 Set-Alias -Name ..  Set-LocationParent
 Set-Alias -Name ... Set-LocationGrandParent
-Set-Alias -Name e -Value explorer
+Set-Alias -Name ex -Value explorer
+Set-Alias -Name ec -Value code
 
 
 # Prefer ripgrep & nvim when present
@@ -614,8 +615,52 @@ function jsonpp {
     }
 }
 
-function f {
-    fzf --preview 'bat --style=numbers --color=always --line-range :500 {}' $args
+
+function f {    
+    [CmdletBinding()]
+    param(
+        [Parameter(Position=0)]
+        [string]$Path = "."
+    )
+    if (-not (Get-Command fzf -ErrorAction SilentlyContinue)) {
+        Write-Error "❌ fzf is not installed. Install it with: winget install fzf"
+        return
+    }
+    try {
+        $AbsolutePath = (Resolve-Path $Path -ErrorAction Stop).Path
+    } catch {
+        Write-Error "❌ Path not found: $Path"
+        return
+    }
+    Push-Location $AbsolutePath
+    try {
+        $selected = fzf --preview 'bat --style=numbers --color=always --line-range :500 {}' `
+            --height 40% `
+            --layout reverse `
+            --border `
+            --preview-window right:50%:wrap `
+            --bind 'ctrl-/:toggle-preview' `
+            --bind 'ctrl-u:preview-half-page-up,ctrl-d:preview-half-page-down' `
+            --color 'border:#6272a4'
+        
+        if ($selected) {
+            # Convert the selected relative path to an absolute path
+            $SelectedFullPath = Join-Path $AbsolutePath $selected
+            
+            # Verify the file exists
+            if (Test-Path $SelectedFullPath) {
+                ec $SelectedFullPath
+                
+                # Return the full path for potential piping
+               } else {
+                Write-Error "❌ File not found: $SelectedFullPath"
+            }
+        } else {
+        }
+    } finally {
+        # Always return to the original directory
+        Pop-Location
+    }
 }
 
 function path { 
