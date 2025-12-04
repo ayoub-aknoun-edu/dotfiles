@@ -70,6 +70,7 @@ Set-Alias -Name ..  Set-LocationParent
 Set-Alias -Name ... Set-LocationGrandParent
 Set-Alias -Name e -Value explorer
 
+
 # Prefer ripgrep & nvim when present
 if (Get-Command rg -ErrorAction SilentlyContinue) { Set-Alias grep rg }
 if (Get-Command nvim -ErrorAction SilentlyContinue) { 
@@ -611,6 +612,10 @@ function jsonpp {
     } else {
         $Inp | ConvertFrom-Json | ConvertTo-Json -Depth 100
     }
+}
+
+function f {
+    fzf --preview 'bat --style=numbers --color=always --line-range :500 {}' $args
 }
 
 function path { 
