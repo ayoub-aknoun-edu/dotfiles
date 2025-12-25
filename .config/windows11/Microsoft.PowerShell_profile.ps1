@@ -29,6 +29,38 @@ foreach ($module in $modules) {
 }
 #endregion
 
+
+#region ── Zoxide  ───────────────────────────────────────────────────
+if (Get-Command zoxide -ErrorAction SilentlyContinue) {
+    # Adds `z` and `zi`, and tracks your directory history automatically
+    Invoke-Expression (& { (zoxide init powershell | Out-String) })
+}
+#endregion
+
+
+
+
+#region ── VSCMD linking ───────────────────────────────────────────────────
+if ($IsWindows -and -not $env:VSCMD_VER) {
+  $vswhere = Join-Path ${env:ProgramFiles(x86)} "Microsoft Visual Studio\Installer\vswhere.exe"
+
+  if (Test-Path $vswhere) {
+    $vsInstall = & $vswhere -latest -products * `
+      -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 `
+      -property installationPath
+
+    if ($vsInstall) {
+      $launch = Join-Path $vsInstall "Common7\Tools\Launch-VsDevShell.ps1"
+
+      if (Test-Path $launch) {
+        # -Arch/-HostArch supported in VS2022 17.1+; sets up proper toolchain env vars.
+        & $launch -SkipAutomaticLocation -Arch amd64 -HostArch amd64 | Out-Null
+      }
+    }
+  }
+}
+#endregion 
+
 #region ── PSReadLine tweaks ───────────────────────────────────────────────────
 try {
     Set-PSReadLineOption -PredictionSource HistoryAndPlugin
@@ -50,15 +82,15 @@ try {
     Set-PSReadLineKeyHandler -Key Ctrl+d -ScriptBlock { [Environment]::Exit(0) }
 } catch {}
 
-    Set-PSReadLineOption -Colors @{
-        Command   = 'Cyan'
-        Parameter = 'DarkCyan'
-        String    = 'Green'
-        Number    = 'Magenta'
-        Operator  = 'DarkGray'
-        Variable  = 'Yellow'
-        Comment   = 'DarkGreen'
-    }
+Set-PSReadLineOption -Colors @{
+    Command   = 'Cyan'
+    Parameter = 'DarkCyan'
+    String    = 'Green'
+    Number    = 'Magenta'
+    Operator  = 'DarkGray'
+    Variable  = 'Yellow'
+    Comment   = 'DarkGreen'
+}
 
 #endregion
 
@@ -70,6 +102,7 @@ Set-Alias -Name ..  Set-LocationParent
 Set-Alias -Name ... Set-LocationGrandParent
 Set-Alias -Name ex -Value explorer
 Set-Alias -Name ec -Value code
+Set-Alias -Name n -Value nvim
 
 
 # Prefer ripgrep & nvim when present
@@ -257,6 +290,49 @@ function uptime {
 }
 #endregion
 
+#region ── System Control (Restart / Shutdown) ─────────────────────────────────
+function restart {
+    [CmdletBinding(SupportsShouldProcess)]
+    param(
+        [switch]$Force,
+        [switch]$NoConfirm
+    )
+
+    $target = 'localhost'
+    $action = 'Restart computer' + ($(if ($Force) { ' (force)' } else { '' }))
+
+    if ($NoConfirm -or $PSCmdlet.ShouldProcess($target, $action)) {
+        if ($Force) {
+            Restart-Computer -Force
+        } else {
+            Restart-Computer
+        }
+    }
+}
+
+function shutdown {
+    [CmdletBinding(SupportsShouldProcess)]
+    param(
+        [switch]$Force,
+        [switch]$NoConfirm
+    )
+
+    $target = 'localhost'
+    $action = 'Shut down computer' + ($(if ($Force) { ' (force)' } else { '' }))
+
+    if ($NoConfirm -or $PSCmdlet.ShouldProcess($target, $action)) {
+        if ($Force) {
+            Stop-Computer -Force
+        } else {
+            Stop-Computer
+        }
+    }
+}
+
+Set-Alias -Name rr -Value restart
+Set-Alias -Name sd -Value shutdown
+#endregion
+
 
 #region ── Network Functions ───────────────────────────────────────────────────
 function myip {
@@ -412,7 +488,7 @@ function mkvenv {
     )
     
     # 1. Determine the Python executable path and arguments
-    # Initialize the command array to hold the executable and its arguments
+    # Initialize the command array to hold the executable and arguments
     $CmdArgs = @()
 
     if ($Python -eq 'py' -or ($Python -eq 'auto' -and (Get-Command py -ErrorAction SilentlyContinue))) {
@@ -430,7 +506,7 @@ function mkvenv {
     
     # Use the standard call operator (&) with the array of arguments
     # Arguments start from the second element ($CmdArgs[1])
-    & $CmdArgs[0] $CmdArgs[1..$CmdArgs.Count]
+    & $CmdArgs[0] $CmdArgs[1..$CmdArgs.Count -1]
     
     # Check if the command failed by looking at the last exit code
     if ($LASTEXITCODE -ne 0) {
@@ -454,8 +530,7 @@ function workon {
     param([string]$Name = 'venv')
     $activate = Join-Path $Name 'Scripts\Activate.ps1'
     if (Test-Path $activate) { 
-        & $activate
-        Write-Host "🐍 Activated: $Name" -ForegroundColor Green
+        . $activate
     } else { 
         Write-Error "Virtual environment not found: $Name" 
     }
@@ -572,7 +647,7 @@ function extract {
         }
 
         # Tar is built-in to modern Windows (tar.exe)
-        '\.(tar|tar\.gz|tgz|tar\.bz2|tbz)$'  { 
+        '\.(tar|tar\.gz|tgz|tar\.bz2|tbz)$'  { 
             Write-Host "  Using built-in 'tar' executable..."
             # Check for the compression flag and use appropriate combination
             if ($FullPath -match '\.gz$|\.tgz$') {
