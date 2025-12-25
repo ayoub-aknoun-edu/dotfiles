@@ -1,5 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/schema.json",
+  "pwd": "osc99",
+  "shell_integration": true,
   "blocks": [
     {
       "type": "prompt",
