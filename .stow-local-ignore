@@ -1,0 +1,21 @@
+# Ignore list for GNU Stow when stowing the whole repo as a single "package" (stow .)
+# Regex rules (Perl regex). See: info stow -> Ignore Lists.
+#
+# Repo metadata / helper files:
+\.git
+\.gitignore
+\.gitmodules
+\.github
+stow\.sh
+Readme\.md
+README\.md
+\.stow-global-ignore
+\.stow-local-ignore
+
+# Repo-only folders:
+^/packages
+^/docs
+^/scripts
+
+# Windows-specific config kept in repo:
+windows11

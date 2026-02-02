@@ -1,6 +1,19 @@
-^\.git(/|$)
-^\.vscode(/|$)
-^\.gitignore$
-^stow\.sh$
-^Readme\.md$
+# Global ignore list for GNU Stow.
+# Note: Stow reads this file only when it is located at ~/.stow-global-ignore. (see info stow)
+
+\.git
+\.gitignore
+\.gitmodules
+\.github
+\.vscode
+stow\.sh
+Readme\.md
+README\.md
+\.stow-global-ignore
+\.stow-local-ignore
+
+^/scripts
+^/packages
+^/docs
 (^|/)\.config/windows11(/|$)
+
