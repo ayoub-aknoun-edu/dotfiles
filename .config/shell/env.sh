@@ -18,8 +18,8 @@ export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
 
 #Make sure ~/.local / bin is in PATH(where your helper scripts live)
 case ":/home/ayoub/.local/share/sdk/android/cmdline-tools/latest/bin:/home/ayoub/.local/share/sdk/android/platform-tools:/home/ayoub/.local/share/sdk/android/emulator:/home/ayoub/.local/share/sdk/android/cmdline-tools/latest/bin:/home/ayoub/.local/share/sdk/android/platform-tools:/home/ayoub/.local/share/sdk/android/emulator:/home/ayoub/.local/share/sdk/android/cmdline-tools/latest/bin:/home/ayoub/.local/share/sdk/android/platform-tools:/home/ayoub/.local/share/sdk/android/emulator:/usr/local/sbin:/usr/local/bin:/usr/bin:/usr/lib/jvm/default/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl:" in
-  *":/home/ayoub/.local/bin:"*) ;;
-  *) PATH="/home/ayoub/.local/bin:/home/ayoub/.local/share/sdk/android/cmdline-tools/latest/bin:/home/ayoub/.local/share/sdk/android/platform-tools:/home/ayoub/.local/share/sdk/android/emulator:/home/ayoub/.local/share/sdk/android/cmdline-tools/latest/bin:/home/ayoub/.local/share/sdk/android/platform-tools:/home/ayoub/.local/share/sdk/android/emulator:/home/ayoub/.local/share/sdk/android/cmdline-tools/latest/bin:/home/ayoub/.local/share/sdk/android/platform-tools:/home/ayoub/.local/share/sdk/android/emulator:/usr/local/sbin:/usr/local/bin:/usr/bin:/usr/lib/jvm/default/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl" ;;
+*":/home/ayoub/.local/bin:"*) ;;
+*) PATH="/home/ayoub/.local/bin:/home/ayoub/.local/share/sdk/android/cmdline-tools/latest/bin:/home/ayoub/.local/share/sdk/android/platform-tools:/home/ayoub/.local/share/sdk/android/emulator:/home/ayoub/.local/share/sdk/android/cmdline-tools/latest/bin:/home/ayoub/.local/share/sdk/android/platform-tools:/home/ayoub/.local/share/sdk/android/emulator:/home/ayoub/.local/share/sdk/android/cmdline-tools/latest/bin:/home/ayoub/.local/share/sdk/android/platform-tools:/home/ayoub/.local/share/sdk/android/emulator:/usr/local/sbin:/usr/local/bin:/usr/bin:/usr/lib/jvm/default/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl" ;;
 esac
 export PATH
 
