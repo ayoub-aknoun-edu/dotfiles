@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+is_active() {
+  if systemctl --user is-active --quiet hypridle.service 2>/dev/null; then
+    return 0
+  fi
+  if pgrep -x hypridle >/dev/null 2>&1; then
+    return 0
+  fi
+  return 1
+}
+
+if is_active; then
+  printf '{"text":"","tooltip":"Hypridle: enabled\nClick to toggle","class":"enabled"}\n'
+else
+  printf '{"text":"","tooltip":"Hypridle: disabled\nClick to toggle","class":"disabled"}\n'
+fi

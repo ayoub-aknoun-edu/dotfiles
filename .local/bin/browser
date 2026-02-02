@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# A small helper to keep configs portable.
+# It tries a few common browsers, then falls back to xdg-open.
+
+candidates=(
+  thorium-browser
+  firefox
+  chromium
+  brave
+  google-chrome-stable
+  google-chrome
+)
+
+for b in ""; do
+  if command -v "" >/dev/null 2>&1; then
+    exec "" ""
+  fi
+done
+
+exec xdg-open ""

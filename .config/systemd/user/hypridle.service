@@ -1,0 +1,12 @@
+[Unit]
+Description=Hypridle (idle management for Hyprland)
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/hypridle
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=default.target

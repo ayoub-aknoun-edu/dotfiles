@@ -27,6 +27,7 @@
     "modules-right": [
         "network",
         "bluetooth",
+	        "custom/notification",
         "tray",
         "power-profiles-daemon",
         "memory",
@@ -152,7 +153,7 @@
     "clock": {
         "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
         "format-alt": "{:%Y-%m-%d}",
-        "on-click": "thorium-browser --new-window https://calendar.google.com" // optional
+        "on-click": "xdg-open https://calendar.google.com" // optional
     },
 
     "cpu": {
@@ -191,14 +192,14 @@
         "format-disabled": "󰂲",
         "format-connected": "",
         "tooltip-format": "Devices connected: {num_connections}",
-        "on-click": "blueberry"
+	        "on-click": "bash -lc 'command -v blueman-manager >/dev/null && exec blueman-manager || exec blueberry'"
     },
 
 
 
     "power-profiles-daemon": {
         "format": "{icon}",
-        "tooltip-format": "Power profile: {profile}\\nDriver: {driver}",
+        "tooltip-format": "Power profile: {profile}\nDriver: {driver}",
         "tooltip": true,
         "format-icons": { "default": "", "performance": "", "balanced": " ", "power-saver": " " }
     },
@@ -239,8 +240,8 @@
             "default": "🎜"
         },
         "escape": true,
-        "exec": "$HOME/.config/waybar/mediaplayer.py 2> /dev/null" // Script in resources folder
-        // "exec": "$HOME/.config/waybar/mediaplayer.py --player spotify 2> /dev/null" // Filter player based on name
+        "exec": "/home/ayoub/.config/waybar/mediaplayer.py 2> /dev/null" // Script in resources folder
+        // "exec": "/home/ayoub/.config/waybar/mediaplayer.py --player spotify 2> /dev/null" // Filter player based on name
     },
 
 "wlr/taskbar": {
@@ -257,9 +258,32 @@
     "tooltip-format": "Power Menu"
   },
 
-    "custom/idle": {
-    "format": " ",
-    "tooltip": false,
-    "on-click": "~/.config/waybar/scripts/idle-toggle"
-  }
+  "custom/notification": {
+    "tooltip": true,
+    "format": "<span size='14pt'>{icon}</span>",
+    "format-icons": {
+      "notification": "󱅫",
+      "none": "󰂜",
+      "dnd-notification": "󰂠",
+      "dnd-none": "󰪓",
+      "inhibited-notification": "󰂛",
+      "inhibited-none": "󰪑",
+      "dnd-inhibited-notification": "󰂛",
+      "dnd-inhibited-none": "󰪑"
+    },
+    "return-type": "json",
+    "exec-if": "which swaync-client",
+    "exec": "swaync-client -swb",
+    "on-click": "swaync-client -t -sw",
+    "on-click-right": "swaync-client -d -sw",
+    "escape": true
+  },
+
+	"custom/idle": {
+	  "return-type": "json",
+	  "exec": "~/.config/waybar/scripts/idle-status",
+	  "interval": 5,
+	  "format": "{}",
+	  "on-click": "~/.config/waybar/scripts/idle-toggle"
+	}
 }

@@ -1,8 +1,30 @@
 #!/usr/bin/env bash
-if systemctl --user is-active --quiet hypridle.service; then
-  systemctl --user stop hypridle.service
-  notify-send "Idle" "Disabled"
+set -euo pipefail
+
+notify() {
+  if command -v notify-send >/dev/null 2>&1; then
+    notify-send "Idle" ""
+  else
+    echo "Idle: "
+  fi
+}
+
+# Prefer systemd --user service if available. Otherwise fall back to toggling the process.
+if systemctl --user list-unit-files hypridle.service >/dev/null 2>&1; then
+  if systemctl --user is-active --quiet hypridle.service; then
+    systemctl --user stop hypridle.service
+    notify "Disabled"
+  else
+    systemctl --user start hypridle.service
+    notify "Enabled"
+  fi
 else
-  systemctl --user start hypridle.service
-  notify-send "Idle" "Enabled"
+  if pgrep -x hypridle >/dev/null 2>&1; then
+    pkill -x hypridle
+    notify "Disabled"
+  else
+    hypridle >/dev/null 2>&1 &
+    disown || true
+    notify "Enabled"
+  fi
 fi
