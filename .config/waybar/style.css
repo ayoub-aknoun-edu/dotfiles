@@ -1,13 +1,22 @@
-@define-color background rgba(226, 139, 246, 0.6);
-@define-color foreground rgba(0, 0, 0, 1);
-@define-color primary rgba(194, 245, 112, 1);
-@define-color modules-foreground-blur rgba(50, 50, 50, 0);
+/* ============================================================================
+ * Waybar Style Configuration
+ * ============================================================================
+ * A clean, modern Waybar theme with consistent styling and smooth animations
+ * ============================================================================ */
+
+@import "./colors.css";
+
+/* ============================================================================
+ * Global Styles
+ * ============================================================================ */
 
 * {
-  /*  is required to be installed for icons */
-  font-family: "JetBrainsMono Nerd Font", Roboto, Helvetica, Arial, sans-serif;
+  /* JetBrains Mono Nerd Font is required for icons */
+  font-family: "JetBrainsMono Nerd Font Propo", "JetBrainsMono Nerd Font", Roboto, Helvetica, Arial, sans-serif;
   font-size: 13px;
-  font-weight: bold;
+  box-shadow: none;
+  min-width: 28px;
+  border: none;
 }
 
 window#waybar {
@@ -21,355 +30,660 @@ window#waybar.hidden {
   opacity: 0.2;
 }
 
-/*
-window#waybar.empty {
-    background-color: transparent;
-}
-window#waybar.solo {
-    background-color: #FFFFFF;
-}
-*/
+/* ============================================================================
+ * Workspaces
+ * ============================================================================ */
 
-window#waybar.termite {
-  background-color: #3f3f3f;
-}
-
-window#waybar.chromium {
-  background-color: #000000;
-  border: none;
-}
-
-button {
-  /* Use box-shadow instead of border so the text isn't offset */
-  box-shadow: inset 0 -3px transparent;
-  /* Avoid rounded borders under each button name */
-  border: none;
-  border-radius: 0;
-}
-
-/* https://github.com/Alexays/Waybar/wiki/FAQ#the-workspace-buttons-have-a-strange-hover-effect */
-button:hover {
-  background: inherit;
-  box-shadow: inset 0 -3px #ffffff;
-}
-
-/* you can set a style on hover for any module like this */
-#pulseaudio:hover {
-  background-color: #a37800;
+#workspaces {
+  margin: 0;
+  padding: 0;
 }
 
 #workspaces button {
-  padding: 0 8px;
-  background-color: transparent;
-  color: #ffffff;
-  border-radius: 15px;
-}
-
-#custom-update {
-  background-color: transparent;
-  color: #ffffff;
-  padding: 0 10px 0 0;
-  border-radius: 15px;
+  color: @muted;
+  padding: 0 10px;
+  margin: 0 4px;
+  border-radius: 10px;
+  min-height: 30px;
+  transition: all 0.3s ease;
 }
 
 #workspaces button:hover {
-  background: rgba(0, 0, 0, 0.2);
+  background: @module-hover-bg;
+  color: @foreground;
 }
 
 #workspaces button.active {
-  background-color: #2980b9;
-}
-
-#workspaces button.focused {
-  background-color: #64727d;
-  box-shadow: inset 0 -3px #ffffff;
+  color: @foreground;
+  background: @module-active-bg;
+  font-weight: 600;
 }
 
 #workspaces button.urgent {
-  background-color: #eb4d4b;
+  color: #ffffff;
+  background: @error;
+  animation: blink 1s ease infinite;
 }
 
-#mode {
-  background-color: #64727d;
-  box-shadow: inset 0 -3px #ffffff;
+/* ============================================================================
+ * Window Title
+ * ============================================================================ */
+
+#window {
+  margin: 0 4px;
+  color: @foreground;
+  font-weight: 500;
+  padding: 0 8px;
 }
 
+/* ============================================================================
+ * Clock Module
+ * ============================================================================ */
+
+#clock {
+  padding: 0 14px;
+  margin: 0 4px;
+  border-radius: 10px;
+  color: @foreground;
+  background: @module-bg;
+  font-weight: 600;
+  min-height: 30px;
+  transition: all 0.3s ease;
+}
+
+#clock:hover {
+  background: @module-hover-bg;
+}
+
+/* ============================================================================
+ * Battery Module
+ * ============================================================================ */
+
+#battery {
+  color: @foreground;
+  background: @module-bg;
+  padding: 0 14px;
+  margin: 0 4px;
+  border-radius: 10px;
+  min-height: 30px;
+  transition: all 0.3s ease;
+}
+
+#battery:hover {
+  background: @module-hover-bg;
+}
+
+#battery.plugged,
+#battery.charging {
+  color: @success;
+  background: @connected-bg;
+}
+
+#battery.warning {
+  color: @warning;
+  background: @warning-bg;
+}
+
+#battery.critical,
+#battery.plugordie {
+  color: @error;
+  background: @disabled-bg;
+  animation: blink 0.5s steps(12) infinite alternate;
+}
+
+/* ============================================================================
+ * CPU Module
+ * ============================================================================ */
+
+#cpu {
+  color: @accent;
+  background: @module-bg;
+  padding: 0 14px;
+  margin: 0 4px;
+  border-radius: 10px;
+  min-height: 30px;
+  transition: all 0.3s ease;
+}
+
+#cpu:hover {
+  background: @module-hover-bg;
+  opacity: 0.9;
+}
+
+/* ============================================================================
+ * Network Module
+ * ============================================================================ */
+
+#network {
+  color: @foreground;
+  background: @module-bg;
+  padding: 0 14px;
+  margin: 0 4px;
+  border-radius: 10px;
+  min-height: 30px;
+  transition: all 0.3s ease;
+}
+
+#network:hover {
+  background: @module-hover-bg;
+  opacity: 0.9;
+}
+
+#network.disabled {
+  color: @error;
+  background: @disabled-bg;
+}
+
+#network.disconnected {
+  color: @warning;
+  background: @warning-bg;
+}
+
+/* ============================================================================
+ * Bluetooth Module
+ * ============================================================================ */
+
+#bluetooth {
+  color: @foreground;
+  background: @module-bg;
+  padding: 0 14px;
+  margin: 0 4px;
+  border-radius: 10px;
+  min-height: 30px;
+  transition: all 0.3s ease;
+}
+
+#bluetooth:hover {
+  background: @module-hover-bg;
+  opacity: 0.9;
+}
+
+#bluetooth.disabled {
+  color: @info;
+  background: @bluetooth-disabled-bg;
+}
+
+#bluetooth.connected {
+  color: @success;
+  background: @connected-bg;
+}
+
+/* ============================================================================
+ * Audio Modules (PulseAudio)
+ * ============================================================================ */
+
+#pulseaudio {
+  color: @foreground;
+  background: @module-bg;
+  padding: 0 14px;
+  margin: 0 4px;
+  border-radius: 10px;
+  min-height: 30px;
+  transition: all 0.3s ease;
+}
+
+#pulseaudio:hover {
+  background: @module-hover-bg;
+  opacity: 0.9;
+}
+
+#pulseaudio.sink-muted {
+  color: @warning;
+  background: @muted-bg;
+}
+
+#pulseaudio.microphone {
+  color: @foreground;
+  background: @module-bg;
+}
+
+#pulseaudio.microphone:hover {
+  background: @module-hover-bg;
+  opacity: 0.9;
+}
+
+#pulseaudio.microphone.source-muted {
+  color: @error;
+  background: @disabled-bg;
+}
+
+/* Audio Slider */
+#pulseaudio-slider {
+  background: @module-bg;
+  padding: 0 14px;
+  margin: 0 4px;
+  border-radius: 10px;
+  min-height: 30px;
+}
+
+#pulseaudio-slider slider {
+  min-height: 0;
+  min-width: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+#pulseaudio-slider trough {
+  min-height: 8px;
+  min-width: 100px;
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+#pulseaudio-slider highlight {
+  min-width: 8px;
+  min-height: 8px;
+  border-radius: 4px;
+  background: @accent;
+}
+
+/* ============================================================================
+ * Backlight Module
+ * ============================================================================ */
+
+#backlight {
+  color: @foreground;
+  background: @module-bg;
+  padding: 0 14px;
+  margin: 0 4px;
+  border-radius: 10px;
+  min-height: 30px;
+  transition: all 0.3s ease;
+}
+
+#backlight:hover {
+  background: @module-hover-bg;
+  opacity: 0.9;
+}
+
+/* Backlight Slider */
+#backlight-slider {
+  background: @module-bg;
+  padding: 0 14px;
+  margin: 0 4px;
+  border-radius: 10px;
+  min-height: 30px;
+}
+
+#backlight-slider slider {
+  min-height: 0;
+  min-width: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+#backlight-slider trough {
+  min-height: 8px;
+  min-width: 100px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+#backlight-slider highlight {
+  min-width: 8px;
+  min-height: 8px;
+  border-radius: 4px;
+  background: @color2;
+}
+
+/* ============================================================================
+ * System Tray
+ * ============================================================================ */
+
+#tray {
+  background: @module-bg;
+  padding: 0 14px;
+  margin: 0 4px;
+  border-radius: 10px;
+  min-height: 30px;
+}
+
+#tray>.passive {
+  -gtk-icon-effect: dim;
+}
+
+#tray>.needs-attention {
+  -gtk-icon-effect: highlight;
+  color: @error;
+}
+
+/* ============================================================================
+ * Privacy Indicator
+ * ============================================================================ */
+
+#privacy {
+  background: @muted-bg;
+  padding: 0 14px;
+  margin: 0 4px;
+  border-radius: 10px;
+  min-height: 30px;
+}
+
+#privacy-item {
+  color: @warning;
+  padding: 0 4px;
+}
+
+#privacy-item.screenshare {
+  color: #cf5700;
+}
+
+#privacy-item.audio-in {
+  color: #1ca000;
+}
+
+#privacy-item.audio-out {
+  color: #0069d4;
+}
+
+/* ============================================================================
+ * Custom Modules
+ * ============================================================================ */
+
+/* Menu Button */
+#custom-menu {
+  color: @foreground;
+  background: @module-bg;
+  padding: 0 14px;
+  margin: 0 4px;
+  border-radius: 10px;
+  min-height: 30px;
+  transition: all 0.3s ease;
+  font-size: 16px;
+}
+
+#custom-menu:hover {
+  background: @module-hover-bg;
+  opacity: 0.9;
+}
+
+/* Rofi Launcher */
+#custom-rofi {
+  color: @foreground;
+  background: @module-bg;
+  padding: 0 14px;
+  margin: 0 4px;
+  border-radius: 10px;
+  min-height: 30px;
+  transition: all 0.3s ease;
+  font-size: 16px;
+}
+
+#custom-rofi:hover {
+  background: @module-hover-bg;
+  /* transform: scale(1.05); */
+}
+
+/* Updates Module */
+#custom-updates {
+  color: @foreground;
+  background: @module-bg;
+  padding: 0 14px;
+  margin: 0 4px;
+  border-radius: 10px;
+  min-height: 30px;
+  transition: all 0.3s ease;
+}
+
+#custom-updates:hover {
+  background: @module-hover-bg;
+  opacity: 0.9;
+}
+
+#custom-updates.green {
+  color: @success;
+  background: @connected-bg;
+}
+
+#custom-updates.yellow {
+  color: @warning;
+  background: @warning-bg;
+}
+
+#custom-updates.red {
+  color: @error;
+  background: @disabled-bg;
+}
+
+#custom-updates.transparent {
+  opacity: 0.6;
+}
+
+/* Idle Inhibitor Module */
+#custom-idle {
+  color: @foreground;
+  background: @module-bg;
+  padding: 0 14px;
+  margin: 0 4px;
+  border-radius: 10px;
+  min-height: 30px;
+  transition: all 0.3s ease;
+}
+
+#custom-idle:hover {
+  background: @module-hover-bg;
+  opacity: 0.9;
+}
+
+#custom-idle.enabled {
+  color: @success;
+  background: @connected-bg;
+}
+
+#custom-idle.disabled {
+  color: @muted;
+  opacity: 0.7;
+}
+
+/* Notification Module (SwayNC) */
+#custom-notification {
+  color: @foreground;
+  background: @module-bg;
+  padding: 0 14px;
+  margin: 0 4px;
+  border-radius: 10px;
+  min-height: 30px;
+  transition: all 0.3s ease;
+}
+
+#custom-notification:hover {
+  background: @module-hover-bg;
+  opacity: 0.9;
+}
+
+#custom-notification.notification {
+  color: @warning;
+  background: @warning-bg;
+}
+
+#custom-notification.dnd-notification,
+#custom-notification.inhibited-notification {
+  color: @error;
+  background: @disabled-bg;
+}
+
+/* Power Menu */
+#custom-power {
+  color: @foreground;
+  background: @module-bg;
+  margin: 0 4px;
+  padding: 0 14px;
+  border-radius: 10px;
+  min-height: 30px;
+  transition: all 0.3s ease;
+}
+
+#custom-power:hover {
+  background: @error;
+  color: #ffffff;
+  /* transform: scale(1.05); */
+}
+
+/* ============================================================================
+ * Taskbar
+ * ============================================================================ */
+
+#taskbar {
+  background: transparent;
+}
+
+#taskbar button {
+  padding: 0 8px;
+  margin: 0 2px;
+  border-radius: 8px;
+  background: @module-bg;
+  transition: all 0.3s ease;
+}
+
+#taskbar button:hover {
+  background: @module-hover-bg;
+}
+
+#taskbar button.active {
+  background: @module-active-bg;
+}
+
+/* ============================================================================
+ * Hyprland Specific
+ * ============================================================================ */
+
+#hyprland-submap {
+  background: @background;
+  color: @foreground;
+  border-radius: 10px;
+  padding: 0 12px;
+  margin: 0 4px;
+  font-weight: bold;
+  min-height: 30px;
+}
+
+/* ============================================================================
+ * Tooltips
+ * ============================================================================ */
+
+tooltip {
+  color: @transparent-high;
+  background: rgba(0, 0, 0, 0.85);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 8px 12px;
+}
+
+tooltip * {
+  color: @transparent-high;
+  text-shadow: none;
+  background: transparent;
+  margin: 2px;
+}
+
+/* ============================================================================
+ * Animations
+ * ============================================================================ */
+
+/* @keyframes blink {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+} */
+
+/* Smooth transitions for all interactive elements */
+button,
+#workspaces button,
 #clock,
 #battery,
 #cpu,
-#memory,
-#disk,
-#temperature,
-#backlight,
 #network,
-#pulseaudio,
-#wireplumber,
-#custom-media,
-#tray,
-#mode,
-#idle_inhibitor,
-#scratchpad,
-#power-profiles-daemon,
 #bluetooth,
-#mpd {
-  padding: 0 10px;
-  color: #ffffff;
-  border-radius: 15px;
+#pulseaudio,
+#backlight,
+#custom-updates,
+#custom-notification,
+#custom-power,
+#custom-menu,
+#custom-rofi {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-#window,
-#workspaces {
-  margin: 0 4px;
+/* ============================================================================
+ * Drawer Groups (Grouped modules with expand functionality)
+ * ============================================================================ */
+
+.extras,
+.audio,
+.brightness {
+  margin: 0 2px;
 }
 
-/* If workspaces is the leftmost module, omit left margin */
-.modules-left > widget:first-child > #workspaces {
-  margin-left: 0;
-}
-
-/* If workspaces is the rightmost module, omit right margin */
-.modules-right > widget:last-child > #workspaces {
-  margin-right: 0;
-}
-
-#clock {
-  background-color: #64727d;
-}
-
-#battery {
-  background-color: #ffffff;
-  color: #000000;
-}
-
-#battery.charging,
-#battery.plugged {
-  color: #ffffff;
-  background-color: #26a65b;
-}
-
-@keyframes blink {
-  to {
-    background-color: #ffffff;
-    color: #000000;
-  }
-}
-
-/* Using steps() instead of linear as a timing function to limit cpu usage */
-#battery.critical:not(.charging) {
-  background-color: #f53c3c;
-  color: #ffffff;
-  animation-name: blink;
-  animation-duration: 0.5s;
-  animation-timing-function: steps(12);
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
-}
+/* ============================================================================
+ * Power Profiles Daemon (Optional)
+ * ============================================================================ */
 
 #power-profiles-daemon {
-  padding-right: 10px;
-  padding-left: 10px;
+  padding: 0 12px;
+  margin: 0 4px;
+  border-radius: 10px;
+  min-height: 30px;
+  transition: all 0.3s ease;
+}
+
+#power-profiles-daemon:hover {
+  opacity: 0.9;
 }
 
 #power-profiles-daemon.performance {
-  background-color: #f53c3c;
+  background: @error;
   color: #ffffff;
 }
 
 #power-profiles-daemon.balanced {
-  background-color: #2980b9;
+  background: @info;
   color: #ffffff;
 }
 
 #power-profiles-daemon.power-saver {
-  background-color: #2ecc71;
-  color: #000000;
+  background: @success;
+  color: #ffffff;
 }
 
-label:focus {
-  background-color: #000000;
-}
-
-#cpu {
-  background-color: #2ecc71;
-  color: #000000;
-}
-
-#memory {
-  background-color: #9b59b6;
-}
-
-#disk {
-  background-color: #964b00;
-}
-
-#backlight {
-  background-color: #90b1b1;
-}
-
-#network {
-  padding-left: 12px;
-  padding-right: 15px;
-  background-color: #ff7700;
-}
-
-#bluetooth {
-  padding-left: 15px;
-  padding-right: 15px;
-  background-color: #3498db;
-}
-
-#network.disconnected {
-  background-color: #f53c3c;
-}
-
-#pulseaudio {
-  background-color: #f1c40f;
-  color: #000000;
-}
-
-#pulseaudio.muted {
-  background-color: #90b1b1;
-  color: #2a5c45;
-}
-
-#wireplumber {
-  background-color: #fff0f5;
-  color: #000000;
-}
-
-#wireplumber.muted {
-  background-color: #f53c3c;
-}
-
-#custom-media {
-  background-color: #66cc99;
-  color: #2a5c45;
-  min-width: 100px;
-}
-
-#custom-media.custom-spotify {
-  background-color: #66cc99;
-}
-
-#custom-media.custom-vlc {
-  background-color: #ffa000;
-}
-
-#temperature {
-  background-color: #f0932b;
-}
-
-#temperature.critical {
-  background-color: #eb4d4b;
-}
-
-#tray {
-  background-color: #2980b9;
-}
-
-#tray > .passive {
-  -gtk-icon-effect: dim;
-}
-
-#tray > .needs-attention {
-  -gtk-icon-effect: highlight;
-  background-color: #eb4d4b;
-}
-
-#idle_inhibitor {
-  background-color: #2d3436;
-}
-
-#idle_inhibitor.activated {
-  background-color: #ecf0f1;
-  color: #2d3436;
-}
-
-#mpd {
-  background-color: #66cc99;
-  color: #2a5c45;
-}
-
-#mpd.disconnected {
-  background-color: #f53c3c;
-}
-
-#mpd.stopped {
-  background-color: #90b1b1;
-}
-
-#mpd.paused {
-  background-color: #51a37a;
-}
-
-#language {
-  background: #00b093;
-  color: #740864;
-  padding: 0 5px;
-  margin: 0 5px;
-  min-width: 16px;
-}
+/* ============================================================================
+ * Keyboard State (Optional)
+ * ============================================================================ */
 
 #keyboard-state {
-  background: #97e1ad;
-  color: #000000;
-  padding: 0 0px;
-  margin: 0 5px;
+  background: @module-bg;
+  color: @foreground;
+  padding: 0 8px;
+  margin: 0 4px;
+  border-radius: 10px;
   min-width: 16px;
 }
 
-#keyboard-state > label {
+#keyboard-state>label {
   padding: 0 5px;
 }
 
-#keyboard-state > label.locked {
-  background: rgba(0, 0, 0, 0.2);
+#keyboard-state>label.locked {
+  background: @module-active-bg;
+  border-radius: 6px;
 }
 
+/* ============================================================================
+ * Scratchpad (Optional)
+ * ============================================================================ */
+
 #scratchpad {
-  background: rgba(0, 0, 0, 0.2);
+  background: @module-bg;
+  padding: 0 12px;
+  margin: 0 4px;
+  border-radius: 10px;
 }
 
 #scratchpad.empty {
   background-color: transparent;
-}
-
-#privacy {
-  padding: 0;
-}
-
-#privacy-item {
-  padding: 0 5px;
-  color: white;
-}
-
-#privacy-item.screenshare {
-  background-color: #cf5700;
-}
-
-#privacy-item.audio-in {
-  background-color: #1ca000;
-}
-
-#privacy-item.audio-out {
-  background-color: #0069d4;
-}
-
-#hyprland-submap {
-  background-color: @background;
-  color: @foreground;
-  border-radius: 15px;
-  padding-left: 8px;
-  padding-right: 8px;
-  margin: 0 2px;
-  font-weight: bold;
-}
-/* SwayNC waybar module */
-#custom-notifications {
-  padding: 0 10px;
-  border-radius: 15px;
-  background: rgba(0, 0, 0, 0.2);
-}
-#custom-notifications:hover {
-  background: rgba(0, 0, 0, 0.3);
 }

@@ -1,151 +1,295 @@
 /* global settings and color variables */
-* {
-   maincolor:        #12afedff;
-   highlight:        bold #ed8712;
-   urgentcolor:      #e53714;
 
-   fgwhite:          #cfcfcf;
-   blackdarkest:     #1d1d1d;
-   blackwidget:      #262626;
-   blackentry:       #292929;
-   blackselect:      #303030;
-   darkgray:         #848484;
-   scrollbarcolor:   #505050;
-   font: "JetBrainsMono Nerd Font 13";
-   background-color: @blackdarkest;
+@import "colors.rasi"
+* {
+    border-colour:               var(selected);
+    handle-colour:               var(selected);
+    background-colour:           var(background);
+    foreground-colour:           var(foreground);
+    alternate-background:        var(background-alt);
+    normal-background:           var(background);
+    normal-foreground:           var(foreground);
+    urgent-background:           var(urgent);
+    urgent-foreground:           var(background);
+    active-background:           var(active);
+    active-foreground:           var(background);
+    selected-normal-background:  var(selected);
+    selected-normal-foreground:  var(background);
+    selected-urgent-background:  var(active);
+    selected-urgent-foreground:  var(background);
+    selected-active-background:  var(urgent);
+    selected-active-foreground:  var(background);
+    alternate-normal-background: var(background);
+    alternate-normal-foreground: var(foreground);
+    alternate-urgent-background: var(urgent);
+    alternate-urgent-foreground: var(background);
+    alternate-active-background: var(active);
+    alternate-active-foreground: var(background);
+    font: "JetBrainsMono Nerd Font Propo 13";
 }
 
 window {
-   background-color: @blackdarkest;
-   anchor: north;
-   location: north;
-   y-offset: 20%;
-   border-radius: 15px;
-   border-color: #72fff3ff;
+    /* properties for window widget */
+    transparency:                "real";
+    // location:                    center;
+    // anchor:                      center;
+    fullscreen:                  false;
+    // width:                       1366px;
+    // height:                      768px;
+    height: 800px;
+    width:600px;
+    anchor: center;
+    location: center;           
+    // y-offset: 20%;
+    /* properties for all widgets */
+    enabled:                     true;
+    margin:                      0px;
+    padding:                     0px;
+    border:                      0px solid;
+    border-radius:               20px;
+    border-color:                transparent;
+    cursor:                      "default";
+    background-color:            transparent;
 }
+
+// mainbox {
+//    background-color: @blackdarkest;
+//    spacing:0px;
+//    children: [inputbar, message, mode-switcher, listview];
+// }
 
 mainbox {
-   background-color: @blackdarkest;
-   spacing:0px;
-   children: [inputbar, message, mode-switcher, listview];
+    enabled:                     true;
+    spacing:                     20px;
+    margin:                      0px;
+    border:                      0px solid;
+    //padding:                     25% 35%;
+    padding:                     0px;
+    border-radius:               20px;
+    border-color:                @border-colour;
+    background-color:            transparent;
+    children:                    [ "inputbar", "mode-switcher","listview" ];
 }
 
-message {
-   padding: 6px 10px;
-   background-color:@blackwidget;
-}
 
-textbox {
-   text-color:@darkgray;
-   background-color:@blackwidget;
-}
-
-listview {
-   fixed-height: false;
-   dynamic: true;
-   scrollbar: true;
-   spacing: 0px;
-   padding: 1px 0px 0px 0px;
-   margin: 0px 0px 1px 0px;
-   background: @blackdarkest;
-}
-
-element {
-   padding: 2px 15px;
-}
-
-element normal.normal {
-   padding: 0px 15px;
-   background-color: @blackentry;
-   text-color: @fgwhite;
-}
-
-element normal.urgent {
-   background-color: @blackentry;
-   text-color: @urgentcolor;
-}
-
-element normal.active {
-   background-color: @blackentry;
-   text-color: @maincolor;
-}
-
-element selected.normal {
-    background-color: @blackselect;
-    text-color:       @fgwhite;
-}
-
-element selected.urgent {
-    background-color: @urgentcolor;
-    text-color:       @blackdarkest;
-}
-
-element selected.active {
-    background-color: @maincolor;
-    text-color:       @blackdarkest;
-}
-
-element alternate.normal {
-    background-color: @blackentry;
-    text-color:       @fgwhite;
-}
-
-element alternate.urgent {
-    background-color: @blackentry;
-    text-color:       @urgentcolor;
-}
-
-element alternate.active {
-    background-color: @blackentry;
-    text-color:       @maincolor;
-}
-
-scrollbar {
-   background-color: @blackwidget;
-   handle-color: @darkgray;
-   handle-width: 15px;
-}
-
-mode-switcher {
-   background-color: @blackwidget;
-}
-
-button {
-   background-color: @blackwidget;
-   text-color:       @darkgray;
-}
-
-button selected {
-    text-color:       @maincolor;
-}
 
 inputbar {
-   background-color: @blackdarkest;
-   spacing: 0px;
+    enabled:                     true;
+    spacing:                     10px;
+    margin:                      0px;
+    padding:                     20px;
+    border:                      0px;
+    border-radius:               20px;
+    border-color:                @border-colour;
+    background-color:            @alternate-background;
+    text-color:                  @foreground-colour;
+    children:                    [ "entry" ];
 }
 
 prompt {
-   padding:6px 9px;
-   background-color: @maincolor;
-   text-color:@blackwidget;
+    enabled:                     true;
+    background-color:            transparent;
+    text-color:                  inherit;
 }
 
+textbox-prompt-colon {
+    enabled:                     true;
+    expand:                      false;
+    str:                         "::";
+    background-color:            transparent;
+    text-color:                  inherit;
+}
 entry {
-   padding:6px 10px;
-   background-color:@blackwidget;
-   text-color:@fgwhite;
+    enabled:                     true;
+    background-color:            transparent;
+    text-color:                  inherit;
+    cursor:                      text;
+    placeholder:                 "Type here to search for apps";
+    placeholder-color:           inherit;
+    vertical-align:              0.5;
+    horizontal-align:            0.5;
+}
+
+listview {
+    enabled:                     true;
+    columns:                     1;
+    lines:                       12;
+    cycle:                       true;
+    dynamic:                     true;
+    scrollbar:                   false;
+    layout:                      vertical;
+    reverse:                     false;
+    fixed-height:                true;
+    fixed-columns:               true;
+    
+    spacing:                     10px;
+    margin:                      0px;
+    padding:                     30px;
+    border:                      0px solid;
+    border-radius:               20px;
+    border-color:                @border-colour;
+    background-color:            @alternate-background;
+    text-color:                  @foreground-colour;
+    cursor:                      "default";
+}
+
+scrollbar {
+    handle-width:                5px ;
+    handle-color:                @handle-colour;
+    border-radius:               0px;
+    background-color:            @alternate-background;
+}
+
+
+
+
+element {
+    enabled:                     true;
+    spacing:                     10px;
+    margin:                      0px;
+    padding:                     8px;
+    border:                      0px solid;
+    border-radius:               12px;
+    border-color:                @border-colour;
+    background-color:            transparent;
+    text-color:                  @foreground-colour;
+    cursor:                      pointer;
+}
+element normal.normal {
+    background-color:            transparent;
+    text-color:                  var(normal-foreground);
+}
+element normal.urgent {
+    background-color:            var(urgent-background);
+    text-color:                  var(urgent-foreground);
+}
+element normal.active {
+    background-color:            var(active-background);
+    text-color:                  var(active-foreground);
+}
+element selected.normal {
+    background-color:            white / 5%;
+    text-color:                  var(foreground-colour);
+}
+element selected.urgent {
+    background-color:            var(selected-urgent-background);
+    text-color:                  var(selected-urgent-foreground);
+}
+element selected.active {
+    background-color:            var(selected-active-background);
+    text-color:                  var(selected-active-foreground);
+}
+element alternate.normal {
+    background-color:            transparent;
+    text-color:                  var(alternate-normal-foreground);
+}
+element alternate.urgent {
+    background-color:            var(alternate-urgent-background);
+    text-color:                  var(alternate-urgent-foreground);
+}
+element alternate.active {
+    background-color:            var(alternate-active-background);
+    text-color:                  var(alternate-active-foreground);
+}
+element-icon {
+    background-color:            transparent;
+    text-color:                  inherit;
+    size:                        32px;
+    cursor:                      inherit;
+}
+element-text {
+    background-color:            transparent;
+    text-color:                  inherit;
+    highlight:                   inherit;
+    cursor:                      inherit;
+    vertical-align:              0.5;
+    horizontal-align:            0.0;
+}
+
+
+
+mode-switcher{
+    enabled:                     true;
+    spacing:                     10px;
+    margin:                      0px;
+    padding:                     0px;
+    border:                      0px solid;
+    border-radius:               0px;
+    border-color:                @border-colour;
+    background-color:            transparent;
+    text-color:                  @foreground-colour;
+}
+button {
+    padding:                     10px;
+    border:                      0px solid;
+    border-radius:               0px;
+    border-color:                @border-colour;
+    background-color:            @alternate-background;
+    text-color:                  inherit;
+    cursor:                      pointer;
+}
+button selected {
+    background-color:            var(selected-normal-background);
+    text-color:                  var(selected-normal-foreground);
+}
+
+
+message {
+    enabled:                     true;
+    margin:                      0px;
+    padding:                     0px;
+    border:                      0px solid;
+    border-radius:               0px 0px 0px 0px;
+    border-color:                @border-colour;
+    background-color:            transparent;
+    text-color:                  @foreground-colour;
+}
+textbox {
+    padding:                     100px;
+    border:                      0px solid;
+    border-radius:               0px;
+    border-color:                @border-colour;
+    background-color:            @alternate-background;
+    text-color:                  @foreground-colour;
+    vertical-align:              0.5;
+    horizontal-align:            0.0;
+    highlight:                   none;
+    placeholder-color:           @foreground-colour;
+    blink:                       true;
+    markup:                      true;
+}
+error-message {
+    padding:                     0px;
+    border:                      0px solid;
+    border-radius:               0px;
+    border-color:                @border-colour;
+    background-color:            @background-colour;
+    text-color:                  @foreground-colour;
 }
 
 case-indicator {
    padding:6px 10px;
-   text-color:@maincolor;
-   background-color:@blackwidget;
+   text-color:@foreground-colour;
+   background-color:@background-colour;
 }
 
 
+
+
 configuration {
-  modi: "drun,run,window,ssh,clipboard:~/.config/rofi/rofi-clipboard";
+  modi: "drun,run,window,ssh,clipboard:~/.config/rofi/rofi-clipboard";  
   show-icons: true;
+
+  display-drun: "drun :";
+  display-run: "";
+  display-filebrowser: "";
+  display-window: "";
+
+  display-ssh: "ssh";          
+  display-clipboard: "󰅌";    
+
+  drun-display-format: "{name} [<span weight='light' size='small'><i>({generic})</i></span>]";
+  window-format: "{w} · {c} · {t}";
   kb-accept-entry: "Return,KP_Enter";
   kb-remove-to-eol: "Control+K";
 }

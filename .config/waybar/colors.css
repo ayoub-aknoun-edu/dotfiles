@@ -1,0 +1,61 @@
+/* ============================================================================
+ * Waybar Color Variables
+ * ============================================================================
+ * This file defines all colors used in Waybar.
+ * Generated for use with wallust or similar tools.
+ * 
+ * To integrate with wallust, add to wallust.toml:
+ * waybar = { src = "waybar.css", dst = "~/.config/waybar/colors.css" }
+ * 
+ * Then import in your style.css:
+ * @import url("colors.css");
+ * ============================================================================ */
+
+/* --- Base Colors --- */
+@define-color cursor #B3B1AC;
+@define-color background #908e91;
+@define-color foreground #151416;
+
+/* --- Palette Colors --- */
+@define-color color0 #504D49;
+@define-color color1 #716D74;
+@define-color color2 #A27474;
+@define-color color3 #7D8078;
+@define-color color4 #BE8877;
+@define-color color5 #A8A597;
+@define-color color6 #FAE8D2;
+@define-color color7 #9B989D;
+@define-color color8 #6C6A6E;
+@define-color color9 #716D74;
+@define-color color10 #A27474;
+@define-color color11 #7D8078;
+@define-color color12 #BE8877;
+@define-color color13 #A8A597;
+@define-color color14 #FAE8D2;
+@define-color color15 #9B989D;
+
+/* --- Semantic Colors --- */
+/* These provide context-specific colors for UI states */
+@define-color success #8ec07c;
+@define-color warning #d79921;
+@define-color error #cc241d;
+@define-color info #458588;
+@define-color accent @color6;
+@define-color muted @color1;
+
+/* --- Module Background Colors --- */
+@define-color module-bg rgba(0, 0, 0, 0.1);
+@define-color module-hover-bg rgba(0, 0, 0, 0.15);
+@define-color module-active-bg rgba(0, 0, 0, 0.2);
+
+/* --- State-specific backgrounds --- */
+@define-color disabled-bg rgba(255, 0, 0, 0.1);
+@define-color muted-bg rgba(255, 255, 0, 0.1);
+@define-color connected-bg rgba(0, 255, 0, 0.05);
+@define-color warning-bg rgba(255, 165, 0, 0.1);
+@define-color bluetooth-disabled-bg rgba(69, 133, 136, 0.1);
+
+/* --- Transparency Levels --- */
+@define-color transparent-high rgba(255, 255, 255, 0.8);
+@define-color transparent-medium rgba(255, 255, 255, 0.5);
+@define-color transparent-low rgba(255, 255, 255, 0.2);

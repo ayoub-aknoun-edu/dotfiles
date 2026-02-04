@@ -1,289 +1,457 @@
-// -*- mode: jsonc -*-
+// ============================================================================
+// Waybar Configuration
+// ============================================================================
+// A clean, feature-rich Waybar configuration for Hyprland
+// ============================================================================
+
 {
-    "reload_style_on_change": true,
-    "layer": "top", // Waybar at top layer
-    "position": "top", // Waybar position (top|bottom|left|right)
-    "height": 30, // Waybar height (to be removed for auto height)
-    // "width": 1280, // Waybar width
-    "spacing": 4, // Gaps between modules (4px)
-    "margin-top": 10,
-    "margin-left": 10,
-    "margin-right": 10,
+  // General Settings
+  "reload_style_on_change": true,
+  "layer": "top",
+  "position": "top",
+  "height": 34,
+  "spacing": 4,
+  "margin-top": 10,
+  "margin-left": 10,
+  "margin-right": 10,
 
-    // Choose the order of the modules
-    "modules-left": [
-        "custom/rofi",
-        "wlr/taskbar",
-        "clock",
-        "hyprland/window"
-        ],
-    "modules-center": [
-        "custom/idle",
-        "hyprland/workspaces",
-        "custom/update",
-        "custom/screenrecording-indicator",
-         "hyprland/submap"
-    ],
-    "modules-right": [
-        "network",
-        "bluetooth",
-	        "custom/notification",
-        "tray",
-        "power-profiles-daemon",
-        "memory",
-        "cpu",
-        "backlight",
-        "pulseaudio",
-        "battery",
-        "custom/power"
-    ],
-    
-    "hyprland/workspaces": {
-      "on-click": "activate",
-      "format": "{icon}",
-      "format-icons": {
-        "default": "",
-        "1": "1","2": "2","3": "3","4": "4","5": "5","6": "6","7": "7","8": "8","9": "9"
-      },
-      "persistent-workspaces": { "1": [], "2": [], "3": [], "4": [], "5": [] }
+  // Module Layout
+  "modules-left": ["custom/rofi", "wlr/taskbar", "hyprland/window"],
+
+  "modules-center": ["custom/idle", "hyprland/workspaces", "clock"],
+
+  "modules-right": [
+    "tray",
+    "group/system-info",
+    "privacy",
+    "network",
+    "bluetooth",
+    "pulseaudio#microphone",
+    "group/audio",
+    "group/brightness",
+    "battery",
+    "custom/notification",
+    "custom/power",
+  ],
+
+  // ========================================================================
+  // Module Groups
+  // ========================================================================
+
+  "group/system-info": {
+    "orientation": "inherit",
+    "drawer": {
+      "transition-duration": 400,
+      "children-class": "system-info",
+      "transition-left-to-right": false,
     },
-
-    "hyprland/window": {
-        "format": "{title}",
-        "icon": true,
-        "max-length": 25,
-        "icon-size": 15
-    },
-
-
-    "custom/rofi": {
-        "format": "",
-        "tooltip": true,
-        "tooltip-format": "Apps menu (Rofi)",
-        "on-click": "rofi -show drun"
-    },
-
-    "hyprland/submap": {
-        "format": "{}",
-        "max-length": 12
-    },
-
-
-    "custom/update": {
-        "format": "{text}",
-        "exec": "~/.config/waybar/scripts/updates",
-        "return-type": "json",
-        "on-click": "~/.config/waybar/scripts/update-now",
-        "interval": 1800,
-        "signal": 7,
-        "tooltip": true
-    },
-
-    "custom/screenrecording-indicator": {
-        "exec": "~/.config/waybar/scripts/screenrec",
-        "return-type": "json",
-        "interval": 3,
-        "on-click": "notify-send 'Tip' 'Use wf-recorder or OBS to record'"
-    },
-
-    "group/tray-expander": {
-        "orientation": "inherit",
-        "drawer": { "transition-duration": 600, "children-class": "tray-group-item" },
-        "modules": ["custom/expand-icon", "tray"]
-    },
-
-  "custom/expand-icon": { "format": " ", "tooltip": false },
-
-
-
-    "keyboard-state": {
-        "numlock": true,
-        "capslock": true,
-        "format": "{name} {icon}",
-        "format-icons": {
-            "locked": "",
-            "unlocked": ""
-        }
-    },
-    "sway/mode": {
-        "format": "<span style=\"italic\">{}</span>"
-    },
-    "sway/scratchpad": {
-        "format": "{icon} {count}",
-        "show-empty": false,
-        "format-icons": ["", ""],
-        "tooltip": true,
-        "tooltip-format": "{app}: {title}"
-    },
-    "mpd": {
-        "format": "{stateIcon} {consumeIcon}{randomIcon}{repeatIcon}{singleIcon}{artist} - {album} - {title} ({elapsedTime:%M:%S}/{totalTime:%M:%S}) ⸨{songPosition}|{queueLength}⸩ {volume}% ",
-        "format-disconnected": "Disconnected ",
-        "format-stopped": "{consumeIcon}{randomIcon}{repeatIcon}{singleIcon}Stopped ",
-        "unknown-tag": "N/A",
-        "interval": 5,
-        "consume-icons": {
-            "on": " "
-        },
-        "random-icons": {
-            "off": "<span color=\"#f53c3c\"></span> ",
-            "on": " "
-        },
-        "repeat-icons": {
-            "on": " "
-        },
-        "single-icons": {
-            "on": "1 "
-        },
-        "state-icons": {
-            "paused": "",
-            "playing": ""
-        },
-        "tooltip-format": "MPD (connected)",
-        "tooltip-format-disconnected": "MPD (disconnected)"
-    },
-    "idle_inhibitor": {
-        "format": "{icon}",
-        "format-icons": {
-            "activated": "",
-            "deactivated": ""
-        }
-    },
-  "tray": { "icon-size": 12, "spacing": 12 },
-
-    "clock": {
-        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
-        "format-alt": "{:%Y-%m-%d}",
-        "on-click": "xdg-open https://calendar.google.com" // optional
-    },
-
-    "cpu": {
-        "interval": 5,
-        "format": "󰍛 {usage}%",
-        "on-click": "kitty -e btop"
-    },
-
-  "memory": { "format": " {used}GiB", "interval": 5, "tooltip-format": "{percentage}%" },
-
-
-    "backlight": {
-        "format": "{icon} {percent}%",
-        "format-icons": ["",""],
-        "tooltip": false,
-        "scroll-step": 5
-    },
-    "battery": {
-        "format": "{capacity}% {icon}",
-        "format-discharging": "{icon} {capacity}%",
-        "format-charging": "{icon} {capacity}%",
-        "format-plugged": "",
-        "format-icons": {
-        "charging": ["󰢜","󰂆","󰂇","󰂈","󰢝","󰂉","󰢞","󰂊","󰂋","󰂅"],
-        "default": ["󰁺","󰁻","󰁼","󰁽","󰁾","󰁿","󰂀","󰂁","󰂂","󰁹"]
-        },
-        "format-full": "󰂅",
-        "tooltip-format-discharging": "{power:>1.0f}W↓ {capacity}%",
-        "tooltip-format-charging": "{power:>1.0f}W↑ {capacity}%",
-        "interval": 5,
-        "states": { "warning": 20, "critical": 10 }
-    },
-
-    "bluetooth": {
-        "format": "",
-        "format-disabled": "󰂲",
-        "format-connected": "",
-        "tooltip-format": "Devices connected: {num_connections}",
-	        "on-click": "bash -lc 'command -v blueman-manager >/dev/null && exec blueman-manager || exec blueberry'"
-    },
-
-
-
-    "power-profiles-daemon": {
-        "format": "{icon}",
-        "tooltip-format": "Power profile: {profile}\nDriver: {driver}",
-        "tooltip": true,
-        "format-icons": { "default": "", "performance": "", "balanced": " ", "power-saver": " " }
-    },
-
-
-    "network": {
-        "format-icons": ["󰤯","󰤟","󰤢","󰤥","󰤨"],
-        "format": "{icon}",
-        "format-wifi": "{icon} ⇣{bandwidthDownBytes} ⇡{bandwidthUpBytes}",
-        "format-ethernet": "󰀂",
-        "format-disconnected": "󰤮",
-        "tooltip-format-wifi": "{essid} ({frequency} GHz)",
-        "tooltip-format-ethernet": "⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}",
-        "tooltip-format-disconnected": "Disconnected",
-        "interval": 3,
-        "spacing": 1,
-        "on-click": "nm-connection-editor"
-    },
-
-    "pulseaudio": {
-        "format": "{icon} {volume}%",
-        "on-click": "pavucontrol",
-        "on-click-right": "pamixer -t",
-        "tooltip-format": "Playing at {volume}%",
-        "scroll-step": 2,
-        "format-muted": "",
-        "format-icons": { "default": ["","",""] },
-        "on-scroll-up": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+",
-        "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"
-    },
-
-    "custom/media": {
-        "format": "{icon} {text}",
-        "return-type": "json",
-        "max-length": 40,
-        "format-icons": {
-            "spotify": "",
-            "default": "🎜"
-        },
-        "escape": true,
-        "exec": "/home/ayoub/.config/waybar/mediaplayer.py 2> /dev/null" // Script in resources folder
-        // "exec": "/home/ayoub/.config/waybar/mediaplayer.py --player spotify 2> /dev/null" // Filter player based on name
-    },
-
-"wlr/taskbar": {
-  "format": "{icon}",
-  "tooltip-format": "{title}",
-  "on-click": "activate",
-  "on-click-middle": "close",
-  "icon-size": 15,   
-}
-,
-  "custom/power": {
-    "format": " ",
-    "on-click": "~/.config/waybar/scripts/power",
-    "tooltip-format": "Power Menu"
+    "modules": ["custom/menu", "cpu", "custom/updates"],
   },
 
-  "custom/notification": {
+  "group/brightness": {
+    "orientation": "inherit",
+    "drawer": {
+      "transition-duration": 400,
+      "children-class": "brightness",
+      "transition-left-to-right": false,
+    },
+    "modules": ["backlight", "backlight/slider"],
+  },
+
+  "group/audio": {
+    "orientation": "inherit",
+    "drawer": {
+      "transition-duration": 400,
+      "children-class": "audio",
+      "transition-left-to-right": false,
+    },
+    "modules": ["pulseaudio", "pulseaudio/slider"],
+  },
+
+  // ========================================================================
+  // Hyprland Modules
+  // ========================================================================
+
+  "hyprland/workspaces": {
+    "format": "{icon}",
+  "format-icons": {
+    "1": "1",
+    "2": "2",
+    "3": "3",
+    "4": "4",
+    "5": "5",
+    "6": "6",
+    "7": "7",
+    "8": "8",
+    "9": "9",
+    "10": "10",
+    "default": "◯",
+    "empty": "○",
+    "urgent": "!"
+  },
+    "sort-by": "number",
+    "all-outputs": false,
+    "show-special": true,
+    "on-click": "activate",
+    "ignore-workspaces": ["scratch"],
+    "persistent-workspaces": {
+      "*": 5,
+    },
+  },
+
+  "hyprland/window": {
+    "format": "{title}",
+    "icon": true,
+    "max-length": 30,
+    "icon-size": 16,
+    "rewrite": {
+      "(.*) — Mozilla Firefox": "🌎 $1",
+      "(.*) - Google Chrome": "🌎 $1",
+      "(.*) - Visual Studio Code": "💻 $1",
+      "(.*) - Discord": "💬 $1",
+    },
+    "separate-outputs": false,
+  },
+
+  "hyprland/submap": {
+    "format": "{}",
+    "max-length": 12,
+    "tooltip": false,
+  },
+
+  // ========================================================================
+  // System Modules
+  // ========================================================================
+
+  "clock": {
+    "interval": 1,
+    "format": "{:%H:%M:%S}",
+    "format-alt": "{:%A, %B %d, %Y}",
+    "tooltip-format": "<tt><small>{calendar}</small></tt>",
+    "calendar": {
+      "mode": "month",
+      "mode-mon-col": 3,
+      "weeks-pos": "right",
+      "on-scroll": 1,
+      "format": {
+        "months": "<span color='#ffead3'><b>{}</b></span>",
+        "days": "<span color='#ecc6d9'><b>{}</b></span>",
+        "weeks": "<span color='#99ffdd'><b>W{}</b></span>",
+        "weekdays": "<span color='#ffcc66'><b>{}</b></span>",
+        "today": "<span color='#ff6699'><b><u>{}</u></b></span>",
+      },
+    },
+    "actions": {
+      "on-click-right": "mode",
+      "on-scroll-up": "shift_up",
+      "on-scroll-down": "shift_down",
+    },
+  },
+
+  "cpu": {
+    "format": "{icon}",
+    "format-icons": ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"],
+    "interval": 2,
     "tooltip": true,
-    "format": "<span size='14pt'>{icon}</span>",
+    "tooltip-format": "CPU: {usage}%\nFrequency: {avg_frequency} GHz",
+    "on-click": "kitty -e btop",
+  },
+
+  "memory": {
+    "format": "󰍛 {used:0.1f}G",
+    "interval": 5,
+    "tooltip-format": "Memory: {percentage}%\nUsed: {used:0.1f}GB / {total:0.1f}GB\nSwap: {swapUsed:0.1f}GB / {swapTotal:0.1f}GB",
+    "on-click": "kitty -e btop",
+  },
+
+  "battery": {
+    "interval": 10,
+    "states": {
+      "warning": 30,
+      "critical": 15,
+      "plugordie": 5,
+    },
+    "format": "{icon}",
+    "format-icons": [
+      "<span size='15pt' font='Material Symbols Outlined'>battery_0_bar</span>",
+      "<span size='15pt' font='Material Symbols Outlined'>battery_1_bar</span>",
+      "<span size='15pt' font='Material Symbols Outlined'>battery_2_bar</span>",
+      "<span size='15pt' font='Material Symbols Outlined'>battery_3_bar</span>",
+      "<span size='15pt' font='Material Symbols Outlined'>battery_4_bar</span>",
+      "<span size='15pt' font='Material Symbols Outlined'>battery_5_bar</span>",
+      "<span size='15pt' font='Material Symbols Outlined'>battery_6_bar</span>",
+      "<span size='15pt' font='Material Symbols Outlined'>battery_full</span>",
+    ],
+    "format-charging": "<span size='15pt' font='Material Symbols Outlined'>battery_charging_full</span>",
+    "format-plugged": "<span size='15pt' font='Material Symbols Outlined'>power</span>",
+    "format-plugordie": "<span size='15pt' font='Material Symbols Outlined'>battery_alert</span>",
+    "tooltip": true,
+    "tooltip-format": "{timeTo}\nCapacity: {capacity}%\nHealth: {health}%",
+  },
+
+  "tray": {
+    "icon-size": 15,
+    "spacing": 8,
+    "reverse-direction": true,
+    "show-passive-items": false,
+  },
+
+  "privacy": {
+    "icon-spacing": 8,
+    "icon-size": 14,
+    "transition-duration": 250,
+    "modules": [
+      {
+        "type": "screenshare",
+        "tooltip": true,
+        "tooltip-icon-size": 24,
+      },
+      {
+        "type": "audio-in",
+        "tooltip": true,
+        "tooltip-icon-size": 24,
+      },
+      {
+        "type": "audio-out",
+        "tooltip": true,
+        "tooltip-icon-size": 24,
+      },
+    ],
+  },
+
+  // ========================================================================
+  // Network & Connectivity
+  // ========================================================================
+
+  "network": {
     "format-icons": {
-      "notification": "󱅫",
-      "none": "󰂜",
-      "dnd-notification": "󰂠",
-      "dnd-none": "󰪓",
-      "inhibited-notification": "󰂛",
-      "inhibited-none": "󰪑",
-      "dnd-inhibited-notification": "󰂛",
-      "dnd-inhibited-none": "󰪑"
+      "wifi": [
+        "<span size='13pt' font='Material Symbols Outlined'>signal_wifi_0_bar</span>",
+        "<span size='13pt' font='Material Symbols Outlined'>network_wifi_1_bar</span>",
+        "<span size='13pt' font='Material Symbols Outlined'>network_wifi_2_bar</span>",
+        "<span size='13pt' font='Material Symbols Outlined'>network_wifi_3_bar</span>",
+        "<span size='13pt' font='Material Symbols Outlined'>signal_wifi_4_bar</span>",
+      ],
+      "ethernet": "<span size='13pt' font='Material Symbols Outlined'>settings_ethernet</span>",
+      "disabled": "<span size='13pt' font='Material Symbols Outlined'>wifi_off</span>",
+      "disconnected": "<span size='13pt' font='Material Symbols Outlined'>wifi_off</span>",
+    },
+    "format-wifi": "{icon}",
+    "format-ethernet": "{icon}",
+    "format-disconnected": "{icon}",
+    "format-disabled": "{icon}",
+    "interval": 5,
+    "tooltip-format": "{essid} ({signalStrength}%)\nIP: {ipaddr}\nGateway: {gwaddr}",
+    "tooltip-format-ethernet": "Ethernet\nIP: {ipaddr}\nGateway: {gwaddr}",
+    "tooltip-format-disconnected": "Disconnected",
+    "on-click": "rfkill toggle wifi",
+    "on-click-right": "~/.config/waybar/scripts/floating-run 900 600 nmtui",
+    "max-length": 25,
+  },
+
+  "bluetooth": {
+    "interval": 10,
+    "format-on": "<span size='14pt' font='Material Symbols Outlined'>bluetooth</span>",
+    "format-off": "<span size='14pt' font='Material Symbols Outlined'>bluetooth_disabled</span>",
+    "format-disabled": "<span size='14pt' font='Material Symbols Outlined'>bluetooth_disabled</span>",
+    "format-connected": "<span size='14pt' font='Material Symbols Outlined'>bluetooth_connected</span>",
+    "tooltip": true,
+    "tooltip-format": "Bluetooth: {status}\n{device_enumerate}",
+    "tooltip-format-enumerate-connected": "  {device_alias}",
+    "tooltip-format-enumerate-connected-battery": "  {device_alias} ({device_battery_percentage}%)",
+    "on-click": "rfkill toggle bluetooth",
+    "on-click-right": "blueman-manager",
+  },
+
+  // ========================================================================
+  // Audio Modules
+  // ========================================================================
+
+  "pulseaudio": {
+    "interval": 2,
+    "format": "{icon}",
+    "format-muted": "<span size='14pt' font='Material Symbols Outlined'>volume_off</span>",
+    "format-icons": {
+      "headphone": "<span size='14pt' font='Material Symbols Outlined'>headphones</span>",
+      "hands-free": "<span size='14pt' font='Material Symbols Outlined'>headset_mic</span>",
+      "headset": "<span size='14pt' font='Material Symbols Outlined'>headset</span>",
+      "phone": "<span size='14pt' font='Material Symbols Outlined'>smartphone</span>",
+      "portable": "<span size='14pt' font='Material Symbols Outlined'>speaker</span>",
+      "car": "<span size='14pt' font='Material Symbols Outlined'>directions_car</span>",
+      "default": [
+        "<span size='14pt' font='Material Symbols Outlined'>volume_mute</span>",
+        "<span size='14pt' font='Material Symbols Outlined'>volume_down</span>",
+        "<span size='14pt' font='Material Symbols Outlined'>volume_up</span>",
+      ],
+    },
+    "scroll-step": 5,
+    "on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
+    "on-click-right": "pavucontrol",
+    "on-scroll-up": "pactl set-sink-volume @DEFAULT_SINK@ +2%",
+    "on-scroll-down": "pactl set-sink-volume @DEFAULT_SINK@ -2%",
+    "tooltip": true,
+    "tooltip-format": "Volume: {volume}%\nDevice: {desc}",
+    "ignored-sinks": ["Easy Effects Sink"],
+  },
+
+  "pulseaudio#microphone": {
+    "format": "{format_source}",
+    "format-source": "<span size='14pt' font='Material Symbols Outlined'>mic</span>",
+    "format-source-muted": "<span size='14pt' font='Material Symbols Outlined'>mic_off</span>",
+    "on-click": "pactl set-source-mute @DEFAULT_SOURCE@ toggle",
+    "on-scroll-up": "pactl set-source-volume @DEFAULT_SOURCE@ +2%",
+    "on-scroll-down": "pactl set-source-volume @DEFAULT_SOURCE@ -2%",
+    "tooltip": true,
+    "tooltip-format": "Microphone: {volume}%",
+  },
+
+  "pulseaudio/slider": {
+    "min": 0,
+    "max": 100,
+    "orientation": "horizontal",
+  },
+
+  // ========================================================================
+  // Backlight
+  // ========================================================================
+
+  "backlight": {
+    "device": "intel_backlight",
+    "format": "{icon}",
+    "format-icons": [
+      "<span size='13pt' font='Material Symbols Outlined'>brightness_low</span>",
+      "<span size='13pt' font='Material Symbols Outlined'>brightness_medium</span>",
+      "<span size='13pt' font='Material Symbols Outlined'>brightness_high</span>",
+    ],
+    "on-scroll-up": "brightnessctl set +5%",
+    "on-scroll-down": "brightnessctl set 5%-",
+    "tooltip": true,
+    "tooltip-format": "Brightness: {percent}%",
+  },
+
+  "backlight/slider": {
+    "min": 5,
+    "max": 100,
+    "orientation": "horizontal",
+    "device": "intel_backlight",
+  },
+
+  // ========================================================================
+  // Taskbar
+  // ========================================================================
+
+  "wlr/taskbar": {
+    "format": "{icon}",
+    "tooltip-format": "{title} — {app_id}",
+    "icon-size": 16,
+    "icon-theme": "Papirus-Dark",
+    "on-click": "activate",
+    "on-click-middle": "close",
+    "on-click-right": "minimize",
+    "ignore-list": [],
+    "app_ids-mapping": {
+      "firefoxdeveloperedition": "firefox-developer-edition",
+    },
+    "rewrite": {
+      "Firefox Web Browser": "Firefox",
+      "Foot Server": "Terminal",
+    },
+  },
+
+  // ========================================================================
+  // Custom Modules
+  // ========================================================================
+
+  "custom/rofi": {
+    "format": "<span size='15pt' font='Material Symbols Outlined'>apps</span>",
+    "tooltip": true,
+    "tooltip-format": "Application Launcher",
+    "on-click": "rofi -show drun -show-icons",
+  },
+
+  "custom/menu": {
+    "format": "<span size='14pt' font='Material Symbols Outlined'>menu</span>",
+    "tooltip": false,
+  },
+
+  "custom/updates": {
+    "format": "<span size='14pt' font='Material Symbols Outlined'>system_update</span> {}",
+    "exec": "~/.config/waybar/scripts/updates",
+    "escape": true,
+    "return-type": "json",
+    "on-click": "~/.config/waybar/scripts/update-now",
+    "interval": 3600,
+    "signal": 7,
+  },
+
+  "custom/idle": {
+    "return-type": "json",
+    "exec": "~/.config/waybar/scripts/idle-status",
+    "interval": 5,
+    "format": "{icon}",
+    "format-icons": {
+      "enabled": "<span size='14pt' font='Material Symbols Outlined'>nest_eco_leaf</span>",
+      "disabled": "<span size='14pt' font='Material Symbols Outlined'>notifications_active</span>",
+    },
+    "on-click": "~/.config/waybar/scripts/idle-toggle",
+  },
+
+  "custom-notification": {
+    "tooltip": true,
+    "format": "{icon}",
+    "format-icons": {
+      "notification": "<span size='14pt' font='Material Symbols Outlined'>notifications_active</span>",
+      "none": "<span size='14pt' font='Material Symbols Outlined'>notifications</span>",
+      "dnd-notification": "<span size='14pt' font='Material Symbols Outlined'>do_not_disturb_on</span>",
+      "dnd-none": "<span size='14pt' font='Material Symbols Outlined'>do_not_disturb</span>",
+      "inhibited-notification": "<span size='14pt' font='Material Symbols Outlined'>notifications_paused</span>",
+      "inhibited-none": "<span size='14pt' font='Material Symbols Outlined'>notifications_off</span>",
     },
     "return-type": "json",
     "exec-if": "which swaync-client",
     "exec": "swaync-client -swb",
     "on-click": "swaync-client -t -sw",
     "on-click-right": "swaync-client -d -sw",
-    "escape": true
+    "escape": true,
   },
 
-	"custom/idle": {
-	  "return-type": "json",
-	  "exec": "~/.config/waybar/scripts/idle-status",
-	  "interval": 5,
-	  "format": "{}",
-	  "on-click": "~/.config/waybar/scripts/idle-toggle"
-	}
+  "custom/power": {
+    "format": "<span size='14pt' font='Material Symbols Outlined'>power_settings_new</span>",
+    "on-click": "~/.config/waybar/scripts/power",
+    "tooltip": true,
+    "tooltip-format": "Power Menu",
+  },
+
+  // ========================================================================
+  // Optional Modules (Keyboard State)
+  // ========================================================================
+
+  "keyboard-state": {
+    "numlock": true,
+    "capslock": true,
+    "format": {
+      "numlock": "N {icon}",
+      "capslock": "C {icon}",
+    },
+    "format-icons": {
+      "locked": "🔒",
+      "unlocked": "🔓",
+    },
+  },
+
+  // ========================================================================
+  // Power Profiles Daemon (Optional)
+  // ========================================================================
+
+  "power-profiles-daemon": {
+    "format": "{icon}",
+    "tooltip-format": "Power Profile: {profile}\nDriver: {driver}",
+    "tooltip": true,
+    "format-icons": {
+      "default": "⚡",
+      "performance": "🚀",
+      "balanced": "⚖️",
+      "power-saver": "🌿",
+    },
+  },
 }

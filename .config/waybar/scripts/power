@@ -1,8 +1,21 @@
 #!/usr/bin/env bash
-choice=$(printf " Lock\n Suspend\n Reboot\n Shutdown" | rofi -dmenu -p "Power")
-case "$choice" in
-  " Lock")    command -v hyprlock >/dev/null && hyprlock ;;
-  " Suspend") systemctl suspend ;;
-  " Reboot")  systemctl reboot ;;
-  " Shutdown")systemctl poweroff ;;
+set -euo pipefail
+
+# Prefer wlogout (graphical) if installed, fallback to the old rofi menu.
+if command -v wlogout >/dev/null 2>&1; then
+  ~/.config/wlogout/launch.sh
+  exit 0
+fi
+
+# Fallback: rofi power menu (original behavior)
+chosen=
+
+case "" in
+  Lock) loginctl lock-session ;;
+  Logout) hyprctl dispatch exit ;;
+  Suspend) systemctl suspend ;;
+  Reboot) systemctl reboot ;;
+  Shutdown) systemctl poweroff ;;
+  *) exit 0 ;;
 esac
+
