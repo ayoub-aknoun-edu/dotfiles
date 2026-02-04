@@ -3,19 +3,24 @@ set -euo pipefail
 
 # Prefer wlogout (graphical) if installed, fallback to the old rofi menu.
 if command -v wlogout >/dev/null 2>&1; then
-  ~/.config/wlogout/launch.sh
-  exit 0
+  exec ~/.config/wlogout/launch.sh
 fi
 
 # Fallback: rofi power menu (original behavior)
-chosen=
+if command -v rofi >/dev/null 2>&1; then
+  chosen="$(
+    printf 'Lock\nLogout\nSuspend\nReboot\nShutdown\n' | rofi -dmenu -i -p "Power"
+  )"
 
-case "" in
-  Lock) loginctl lock-session ;;
-  Logout) hyprctl dispatch exit ;;
-  Suspend) systemctl suspend ;;
-  Reboot) systemctl reboot ;;
-  Shutdown) systemctl poweroff ;;
-  *) exit 0 ;;
-esac
-
+  case "$chosen" in
+    Lock) loginctl lock-session ;;
+    Logout) hyprctl dispatch exit ;;
+    Suspend) systemctl suspend ;;
+    Reboot) systemctl reboot ;;
+    Shutdown) systemctl poweroff ;;
+    *) exit 0 ;;
+  esac
+else
+  echo "power: missing wlogout and rofi" >&2
+  exit 1
+fi

@@ -1,0 +1,92 @@
+# Base / build
+base-devel
+git
+stow
+sudo
+gcc
+make
+cmake
+perl
+
+# CLI tools
+curl
+wget
+fastfetch
+htop
+btop
+bottom
+ripgrep
+fd
+jq
+pacman-contrib
+
+# Shell / terminal
+zsh
+zsh-autosuggestions
+zsh-syntax-highlighting
+kitty
+
+# Hyprland session
+hyprland
+hyprpaper
+hypridle
+hyprlock
+swww
+wayland
+xorg-xwayland
+xdg-desktop-portal
+xdg-desktop-portal-hyprland
+xdg-desktop-portal-gtk
+xdg-utils
+polkit-gnome
+
+# Bar / launcher / logout
+waybar
+rofi
+wlogout
+
+# Notifications
+swaync
+libnotify
+
+# Clipboard
+wl-clipboard
+cliphist
+
+# Audio / media
+pipewire
+pipewire-alsa
+pipewire-pulse
+wireplumber
+playerctl
+pavucontrol
+pamixer
+alsa-utils
+
+# Brightness / power
+brightnessctl
+power-profiles-daemon
+
+# Network / bluetooth
+networkmanager
+nm-connection-editor
+bluez
+bluez-utils
+blueman
+
+# File manager
+dolphin
+
+# Theme / appearance
+qt6ct
+kvantum
+papirus-icon-theme
+gnome-themes-extra
+nwg-look
+
+# Fonts
+otf-font-awesome
+ttf-jetbrains-mono-nerd
+
+# Editor
+neovim

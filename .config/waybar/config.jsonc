@@ -316,7 +316,6 @@
   // ========================================================================
 
   "backlight": {
-    "device": "intel_backlight",
     "format": "{icon}",
     "format-icons": [
       "<span size='13pt' font='Material Symbols Outlined'>brightness_low</span>",
@@ -333,7 +332,6 @@
     "min": 5,
     "max": 100,
     "orientation": "horizontal",
-    "device": "intel_backlight",
   },
 
   // ========================================================================
@@ -396,7 +394,7 @@
     "on-click": "~/.config/waybar/scripts/idle-toggle",
   },
 
-  "custom-notification": {
+  "custom/notification": {
     "tooltip": true,
     "format": "{icon}",
     "format-icons": {

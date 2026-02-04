@@ -9,8 +9,8 @@
 # Shared config (bash + zsh)
 # ----------------------------
 # env.sh / aliases.sh / functions.sh / local.sh
-if [ -r "/home/ayoub/.config/shell/common.sh" ]; then
-  source "/home/ayoub/.config/shell/common.sh"
+if [ -r "$HOME/.config/shell/common.sh" ]; then
+  source "$HOME/.config/shell/common.sh"
 fi
 
 # ----------------------------
@@ -21,7 +21,7 @@ setopt AUTO_PUSHD
 setopt PUSHD_IGNORE_DUPS
 
 # History (good defaults)
-HISTFILE="/home/ayoub/.zsh_history"
+HISTFILE="$HOME/.zsh_history"
 HISTSIZE=10000
 SAVEHIST=10000
 setopt HIST_IGNORE_ALL_DUPS
@@ -35,9 +35,9 @@ setopt SHARE_HISTORY
 autoload -Uz compinit
 
 # Put compdump in cache
-_cache_dir="/home/ayoub/.cache/zsh"
-mkdir -p "/home/ayoub/.cache/zsh" 2>/dev/null
-compinit -d "/home/ayoub/.cache/zsh/zcompdump-5.9" 2>/dev/null
+_cache_dir="$HOME/.cache/zsh"
+mkdir -p "$HOME/.cache/zsh" 2>/dev/null
+compinit -d "$HOME/.cache/zsh/zcompdump-5.9" 2>/dev/null
 
 # Nicer completion menu
 zmodload zsh/complist 2>/dev/null || true
@@ -51,21 +51,21 @@ zstyle ':completion:*' list-colors "rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;
 # Manual install (no remote installer script):
 #   git clone --depth=1 https://github.com/ohmyzsh/ohmyzsh.git ~/.oh-my-zsh
 # Then open a new terminal.
-if [ -d "/home/ayoub/.oh-my-zsh" ]; then
-  export ZSH="/home/ayoub/.oh-my-zsh"
-elif [ -d "/home/ayoub/dotfiles/vendor/oh-my-zsh" ]; then
-  export ZSH="/home/ayoub/dotfiles/vendor/oh-my-zsh"
+if [ -d "$HOME/.oh-my-zsh" ]; then
+  export ZSH="$HOME/.oh-my-zsh"
+elif [ -d "$HOME/dotfiles/vendor/oh-my-zsh" ]; then
+  export ZSH="$HOME/dotfiles/vendor/oh-my-zsh"
 fi
 
 ZSH_THEME="robbyrussell"
 plugins=(git sudo archlinux)
 
-if [ -n "/home/ayoub/.oh-my-zsh" ] && [ -r "/home/ayoub/.oh-my-zsh/oh-my-zsh.sh" ]; then
-  source "/home/ayoub/.oh-my-zsh/oh-my-zsh.sh"
+if [ -n "${ZSH:-}" ] && [ -r "$ZSH/oh-my-zsh.sh" ]; then
+  source "$ZSH/oh-my-zsh.sh"
 
   # Re-apply your shared aliases/functions after OMZ so your preferences win.
-  if [ -r "/home/ayoub/.config/shell/common.sh" ]; then
-    source "/home/ayoub/.config/shell/common.sh"
+  if [ -r "$HOME/.config/shell/common.sh" ]; then
+    source "$HOME/.config/shell/common.sh"
   fi
 fi
 
@@ -111,4 +111,3 @@ fi
 if [ -r /usr/share/fzf/completion.zsh ]; then
   source /usr/share/fzf/completion.zsh
 fi
-

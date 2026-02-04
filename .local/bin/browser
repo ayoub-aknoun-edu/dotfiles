@@ -13,10 +13,10 @@ candidates=(
   google-chrome
 )
 
-for b in ""; do
-  if command -v "" >/dev/null 2>&1; then
-    exec "" ""
+for b in "${candidates[@]}"; do
+  if command -v "$b" >/dev/null 2>&1; then
+    exec "$b" "$@"
   fi
 done
 
-exec xdg-open ""
+exec xdg-open "$@"
