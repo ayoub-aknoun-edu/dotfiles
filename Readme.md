@@ -136,6 +136,17 @@ On **Windows**:
 1. **Install dependencies**
    Use your distro’s package manager to install Hyprland, Waybar, Rofi, Kitty, Neovim, GNU Stow, etc.
 
+   On Arch, you can use the bundled installer to grab everything in one go:
+
+   ```bash
+   ./scripts/install-packages.sh
+   ```
+
+   Package lists live in:
+   * `packages/pacman.txt` (official repos)
+   * `packages/aur.txt` (AUR via yay/paru)
+   The script will offer to install `yay` if no AUR helper is found.
+
 2. **Clone the repo**
 
    ```bash

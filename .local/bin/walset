@@ -1,1 +1,4 @@
-swww img $1
+#!/usr/bin/env bash
+set -euo pipefail
+
+swww img "$1"

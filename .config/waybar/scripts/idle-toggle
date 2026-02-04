@@ -2,10 +2,11 @@
 set -euo pipefail
 
 notify() {
+  local msg="${1:-}"
   if command -v notify-send >/dev/null 2>&1; then
-    notify-send "Idle" ""
+    notify-send "Idle" "$msg"
   else
-    echo "Idle: "
+    echo "Idle: $msg"
   fi
 }
 

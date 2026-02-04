@@ -1,0 +1,5 @@
+# Fonts / icons
+ttf-material-symbols-variable-git
+
+# Browser
+thorium-browser-bin
