@@ -12,7 +12,7 @@ is_active() {
 }
 
 if is_active; then
-  printf '{"text":"","tooltip":"Hypridle: enabled\nClick to toggle","class":"enabled"}\n'
+  printf '{"text":"","tooltip":"Hypridle: enabled\\nClick to toggle","class":"enabled"}\n'
 else
-  printf '{"text":"","tooltip":"Hypridle: disabled\nClick to toggle","class":"disabled"}\n'
+  printf '{"text":"","tooltip":"Hypridle: disabled\\nClick to toggle","class":"disabled"}\n'
 fi

@@ -24,8 +24,8 @@ RUN_LINE='bash -lc "'"$CMD"'; echo; read -n1 -rp '\''Done. Press any key to clos
 
 if [ -n "$TERM_APP" ]; then
   case "$TERM_APP" in
-    foot)            foot -T "System Update" bash -lc "$CMD; echo; read -n1 -rp 'Done. Press any key to close…'" & ;;
     kitty)           kitty --title "System Update" bash -lc "$CMD; echo; read -n1 -rp 'Done. Press any key to close…'" & ;;
+    foot)            foot -T "System Update" bash -lc "$CMD; echo; read -n1 -rp 'Done. Press any key to close…'" & ;;
     alacritty)       alacritty -t "System Update" -e bash -lc "$CMD; echo; read -n1 -rp 'Done. Press any key to close…'" & ;;
     wezterm)         wezterm start -- bash -lc "$CMD; echo; read -n1 -rp 'Done. Press any key to close…'" & ;;
     gnome-terminal)  gnome-terminal -- bash -lc "$CMD; echo; read -n1 -rp 'Done. Press any key to close…'" & ;;

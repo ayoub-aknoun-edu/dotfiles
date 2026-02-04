@@ -1,9 +1,75 @@
 #!/usr/bin/env bash
-HIST="$(cliphist list)"
-if [ -z "$HIST" ]; then
-  rofi -e "Clipboard is empty"
-  exit 1
+set -euo pipefail
+
+ROFI_THEME="${HOME}/.config/rofi/config.rasi"
+
+# Defaults:
+GUI_PASTE_SHORTCUT="${GUI_PASTE_SHORTCUT:-CTRL, V, activewindow}"
+TERM_PASTE_SHORTCUT="${TERM_PASTE_SHORTCUT:-CTRL SHIFT, V, activewindow}"
+PASTE_DELAY="${PASTE_DELAY:-0.08}"
+
+# Regex of terminal classes (extend if needed)
+TERMINAL_CLASSES_REGEX="${TERMINAL_CLASSES_REGEX:-^(kitty|Alacritty|foot|wezterm|konsole|gnome-terminal|org\\.wezfurlong\\.wezterm)$}"
+
+get_active_class() {
+  # Try JSON first (preferred)
+  if command -v hyprctl >/dev/null 2>&1; then
+    if hyprctl activewindow -j >/dev/null 2>&1; then
+      if command -v jq >/dev/null 2>&1; then
+        hyprctl activewindow -j | jq -r '.class // empty'
+        return 0
+      fi
+      # no jq: very small fallback
+      hyprctl activewindow -j | sed -n 's/.*"class":"\([^"]*\)".*/\1/p' | head -n1
+      return 0
+    fi
+    # Text fallback
+    hyprctl activewindow | sed -n 's/^class: //p' | head -n1
+    return 0
+  fi
+  echo ""
+}
+
+pick_paste_shortcut() {
+  local cls
+  cls="$(get_active_class)"
+  if [[ "$cls" =~ $TERMINAL_CLASSES_REGEX ]]; then
+    echo "$TERM_PASTE_SHORTCUT"
+  else
+    echo "$GUI_PASTE_SHORTCUT"
+  fi
+}
+
+# If run directly (from keybind), open rofi in "clipboard" mode.
+if [[ -z "${ROFI_RETV+x}" ]]; then
+  if [[ -f "$ROFI_THEME" ]]; then
+    exec rofi -show clipboard -theme "$ROFI_THEME"
+  else
+    exec rofi -show clipboard
+  fi
 fi
-printf "%s\n" "$HIST" \
-| rofi -dmenu -p "Clipboard" -theme ~/.config/rofi/config.rasi \
-| cliphist decode | wl-copy
+
+case "${ROFI_RETV}" in
+  0)
+    cliphist list
+    ;;
+  1|2)
+    sel="${1-}"
+    [[ -z "$sel" ]] && exit 0
+
+    if cliphist decode <<<"$sel" 2>/dev/null | wl-copy; then
+      :
+    else
+      printf '%s' "$sel" | wl-copy
+    fi
+
+    if command -v hyprctl >/dev/null 2>&1; then
+      shortcut="$(pick_paste_shortcut)"
+      (
+        sleep "$PASTE_DELAY"
+        hyprctl dispatch sendshortcut "$shortcut"
+      ) >/dev/null 2>&1 &
+    fi
+    ;;
+esac
+
