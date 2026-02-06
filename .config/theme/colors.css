@@ -2,7 +2,7 @@
 
 @define-color cursor #B3B1AC;
 @define-color background #908e91;
-@define-color foreground #151416;
+@define-color foreground #ffffff;
 
 @define-color color0 #504D49;
 @define-color color1 #716D74;
@@ -28,9 +28,9 @@
 @define-color accent @color6;
 @define-color muted @color1;
 
-@define-color module-bg rgba(0, 0, 0, 0.1);
+@define-color module-bg rgba(0, 0, 0, .3);
 @define-color module-hover-bg rgba(0, 0, 0, 0.15);
-@define-color module-active-bg rgba(0, 0, 0, 0.2);
+@define-color module-active-bg rgba(0, 0, 0, 0.4);
 
 @define-color disabled-bg rgba(255, 0, 0, 0.1);
 @define-color muted-bg rgba(255, 255, 0, 0.1);
@@ -41,3 +41,31 @@
 @define-color transparent-high rgba(255, 255, 255, 0.8);
 @define-color transparent-medium rgba(255, 255, 255, 0.5);
 @define-color transparent-low rgba(255, 255, 255, 0.2);
+
+/* Aliases for third-party themes (SwayNC themes, etc.) */
+@define-color fg @foreground;
+@define-color bg0 @background;
+@define-color bg1 @color1;
+@define-color blue @accent;
+@define-color red @error;
+
+
+/* Wlogout tokens */
+@define-color wlogout-bg rgba(15, 23, 42, 0.5);
+@define-color wlogout-text #e2e8f0;
+
+@define-color wlogout-button-bg rgba(30, 41, 59, 0.7);
+@define-color wlogout-button-border rgba(255, 255, 255, 0.1);
+
+@define-color wlogout-button-bg-hover rgba(51, 65, 85, 0.8);
+@define-color wlogout-button-border-hover rgba(255, 255, 255, 0.2);
+
+@define-color wlogout-button-bg-focus rgba(99, 102, 241, 0.4);
+@define-color wlogout-button-border-focus rgba(167, 139, 250, 0.5);
+
+@define-color wlogout-lock-hover rgba(99, 102, 241, 0.5);
+@define-color wlogout-logout-hover rgba(245, 158, 11, 0.5);
+@define-color wlogout-shutdown-hover rgba(244, 63, 94, 0.5);
+@define-color wlogout-reboot-hover rgba(16, 185, 129, 0.5);
+@define-color wlogout-hibernate-hover rgba(139, 92, 246, 0.5);
+@define-color wlogout-suspend-hover rgba(6, 182, 212, 0.5);

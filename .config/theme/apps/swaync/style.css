@@ -1,0 +1,6 @@
+/* Centralized SwayNC theme entrypoint.
+ * Palette: ~/.config/theme/colors.css
+ */
+@import "../../colors.css";
+@import "./notifications.css";
+@import "./central_control.css";
