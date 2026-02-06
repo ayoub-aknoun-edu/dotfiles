@@ -4,7 +4,7 @@
 
 export EDITOR="nvim"
 export VISUAL="nvim"
-
+export SUDO_EDITOR="nvim"
 # XDG base dirs (used by several tools)
 export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
@@ -16,8 +16,8 @@ export ANDROID_SDK_ROOT="$ANDROID_HOME"
 
 path_prepend() {
   case ":$PATH:" in
-    *":$1:"*) ;;
-    *) PATH="$1:$PATH" ;;
+  *":$1:"*) ;;
+  *) PATH="$1:$PATH" ;;
   esac
 }
 

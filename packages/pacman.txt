@@ -43,7 +43,6 @@ polkit-gnome
 # Bar / launcher / logout
 waybar
 rofi
-wlogout
 
 # Notifications
 swaync

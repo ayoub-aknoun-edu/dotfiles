@@ -1,0 +1,94 @@
+@import "../../colors.css";
+
+/* Reset and base font */
+window {
+  font-family: "Segoe UI", Roboto, sans-serif;
+  background-color: @wlogout-bg; /* Semi-transparent for compositor blur */
+}
+
+/* Main button styling */
+button {
+  color: @wlogout-text;
+  text-shadow: none;
+  background-color: @wlogout-button-bg;
+  border: 1px solid @wlogout-button-border;
+  border-radius: 15px; /* Default rounding */
+
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 25%; /* Adjust size as needed */
+
+  margin: 10px;
+  transition: all 0.2s ease-in-out;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* Hover States */
+button:hover {
+  background-color: @wlogout-button-bg-hover;
+  border: 1px solid @wlogout-button-border-hover;
+  background-size: 30%; /* Slight zoom on icon */
+}
+
+/* Active/Focus States */
+button:focus,
+button:active {
+  background-color: @wlogout-button-bg-focus;
+  border: 1px solid @wlogout-button-border-focus;
+}
+
+/* ----------------------------------------
+   Individual Button IDs
+   ---------------------------------------- */
+
+/* Lock */
+#lock {
+  background-image: url("../../../wlogout/icons/lock.png");
+  border-radius: 30px 10px 10px 10px;
+}
+#lock:hover {
+  background-color: @wlogout-lock-hover;
+}
+
+/* Logout */
+#logout {
+  background-image: url("../../../wlogout/icons/logout.png");
+  border-radius: 10px 30px 10px 10px;
+}
+#logout:hover {
+  background-color: @wlogout-logout-hover;
+}
+
+/* Shutdown */
+#shutdown {
+  background-image: url("../../../wlogout/icons/shutdown.png");
+  border-radius: 10px 10px 10px 30px;
+}
+#shutdown:hover {
+  background-color: @wlogout-shutdown-hover;
+}
+
+/* Reboot */
+#reboot {
+  background-image: url("../../../wlogout/icons/reboot.png");
+  border-radius: 10px 10px 30px 10px;
+}
+#reboot:hover {
+  background-color: @wlogout-reboot-hover;
+}
+
+/* Hibernate (Optional add-on) */
+#hibernate {
+  background-image: url("../../../wlogout/icons/hibernate.png");
+}
+#hibernate:hover {
+  background-color: @wlogout-hibernate-hover;
+}
+
+/* Suspend (Optional add-on) */
+#suspend {
+  background-image: url("../../../wlogout/icons/suspend.png");
+}
+#suspend:hover {
+  background-color: @wlogout-suspend-hover;
+}

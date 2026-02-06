@@ -74,21 +74,21 @@
 
   "hyprland/workspaces": {
     "format": "{icon}",
-  "format-icons": {
-    "1": "1",
-    "2": "2",
-    "3": "3",
-    "4": "4",
-    "5": "5",
-    "6": "6",
-    "7": "7",
-    "8": "8",
-    "9": "9",
-    "10": "10",
-    "default": "◯",
-    "empty": "○",
-    "urgent": "!"
-  },
+    "format-icons": {
+      "1": "1",
+      "2": "2",
+      "3": "3",
+      "4": "4",
+      "5": "5",
+      "6": "6",
+      "7": "7",
+      "8": "8",
+      "9": "9",
+      "10": "10",
+      "default": "◯",
+      "empty": "○",
+      "urgent": "!",
+    },
     "sort-by": "number",
     "all-outputs": false,
     "show-special": true,
@@ -186,7 +186,7 @@
     "format-plugged": "<span size='15pt' font='Material Symbols Outlined'>power</span>",
     "format-plugordie": "<span size='15pt' font='Material Symbols Outlined'>battery_alert</span>",
     "tooltip": true,
-    "tooltip-format": "{timeTo}\nCapacity: {capacity}%\nHealth: {health}%",
+    "tooltip-format": "{timeTo}\nCapacity: {capacity}%",
   },
 
   "tray": {
@@ -245,7 +245,7 @@
     "tooltip-format-ethernet": "Ethernet\nIP: {ipaddr}\nGateway: {gwaddr}",
     "tooltip-format-disconnected": "Disconnected",
     "on-click": "rfkill toggle wifi",
-    "on-click-right": "~/.config/waybar/scripts/floating-run 900 600 nmtui",
+    "on-click-right": "networkmanager_dmenu",
     "max-length": 25,
   },
 
