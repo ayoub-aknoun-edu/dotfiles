@@ -22,3 +22,9 @@ export PROMPT_DIRTRIM=3
 if [ -r /usr/share/bash-completion/bash_completion ]; then
   . /usr/share/bash-completion/bash_completion
 fi
+
+
+# Load Angular CLI autocompletion.
+source <(ng completion script)
+
+. "$HOME/.local/share/../bin/env"

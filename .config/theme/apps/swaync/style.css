@@ -2,5 +2,6 @@
  * Palette: ~/.config/theme/colors.css
  */
 @import "../../colors.css";
+@import "./common.css";
 @import "./notifications.css";
 @import "./central_control.css";

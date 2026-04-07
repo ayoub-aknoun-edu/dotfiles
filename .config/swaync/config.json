@@ -2,24 +2,28 @@
   "$schema": "/etc/xdg/swaync/configSchema.json",
   "positionX": "right",
   "positionY": "top",
-	"cssPriority": "user",
+  "layer": "overlay",
+  "cssPriority": "user",
+
+  "control-center-positionX": "right",
+  "control-center-positionY": "top",
+  "control-center-layer": "overlay",
 
   "control-center-width": 380,
-  "control-center-height": 860, 
+  "control-center-height": 800,
   "control-center-margin-top": 2,
   "control-center-margin-bottom": 2,
-  "control-center-margin-right": 1,
+  "control-center-margin-right": 2,
   "control-center-margin-left": 0,
 
   "notification-window-width": 400,
-  "notification-icon-size": 48,
   "notification-body-image-height": 160,
   "notification-body-image-width": 200,
 
   "timeout": 4,
   "timeout-low": 2,
-  "timeout-critical": 6,
-  
+  "timeout-critical": 0,
+
   "fit-to-screen": false,
   "keyboard-shortcuts": true,
   "image-visibility": "when-available",
@@ -27,28 +31,20 @@
   "hide-on-clear": false,
   "hide-on-action": false,
   "script-fail-notify": true,
-  "scripts": {
-    "example-script": {
-      "exec": "echo 'Do something...'",
-      "urgency": "Normal"
-    }
-  },
-  "notification-visibility": {
-    "example-name": {
-      "state": "muted",
-      "urgency": "Low",
-      "app-name": "Spotify"
-    }
-  },
+  "scripts": {},
+  "notification-visibility": {},
   "widgets": [
     "label",
+    "dnd",
     "buttons-grid",
     "mpris",
     "title",
-    "dnd",
     "notifications"
   ],
   "widget-config": {
+    "notifications": {
+      "timestamps": true
+    },
     "title": {
       "text": "Notifications",
       "clear-all-button": true,
@@ -62,12 +58,12 @@
       "text": " "
     },
     "mpris": {
-      "image-size": 96,
+      "image-size": 80,
       "image-radius": 12
     },
     "volume": {
       "label": "󰕾",
-        "show-per-app": true
+      "show-per-app": true
     },
     "buttons-grid": {
       "actions": [
@@ -91,7 +87,6 @@
           "label": "󰏘",
           "command": "nwg-look"
         }
-        
       ]
     }
   }

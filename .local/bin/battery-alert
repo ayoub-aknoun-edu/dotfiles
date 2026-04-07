@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+
+# Low battery notifications for Wayland (works with swaync / any notification daemon).
+# Triggers once per discharge cycle at 20% and 5%.
+
+set -euo pipefail
+
+THRESH_WARN=20
+THRESH_CRIT=5
+
+cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}"
+state_file="$cache_dir/battery-alert.state"
+
+mkdir -p "$cache_dir"
+
+get_battery_dir() {
+  local d
+  for d in /sys/class/power_supply/BAT*; do
+    [[ -d "$d" ]] || continue
+    [[ -f "$d/capacity" ]] || continue
+    echo "$d"
+    return 0
+  done
+  return 1
+}
+
+bat_dir="$(get_battery_dir || true)"
+[[ -n "$bat_dir" ]] || exit 0
+
+capacity="$(cat "$bat_dir/capacity" 2>/dev/null || echo "")"
+status="$(cat "$bat_dir/status" 2>/dev/null || echo "")"
+
+[[ "$capacity" =~ ^[0-9]+$ ]] || exit 0
+
+# Reset state whenever we're not discharging.
+if [[ "$status" != "Discharging" ]]; then
+  : > "$state_file"
+  exit 0
+fi
+
+last="$(cat "$state_file" 2>/dev/null || true)"
+
+notify() {
+  local pct="$1"; shift
+  local title="$1"; shift
+  local body="$1"; shift
+  local timeout_ms="$1"; shift
+
+  # notify-send (libnotify) is the most compatible across notification daemons.
+  command -v notify-send >/dev/null 2>&1 || return 0
+
+  notify-send \
+    -u critical \
+    -t "$timeout_ms" \
+    -i "battery-caution" \
+    "$title" \
+    "$body"
+}
+
+if (( capacity <= THRESH_CRIT )) && [[ "$last" != "$THRESH_CRIT" ]]; then
+  notify "$capacity" \
+    "⚠️ BATTERY CRITICAL (${capacity}%)" \
+    "Plug in NOW. The laptop can shut down at any moment." \
+    0
+  echo "$THRESH_CRIT" > "$state_file"
+  exit 0
+fi
+
+if (( capacity <= THRESH_WARN )) && [[ "$last" != "$THRESH_WARN" && "$last" != "$THRESH_CRIT" ]]; then
+  notify "$capacity" \
+    "⚠️ Low battery (${capacity}%)" \
+    "Please plug in soon to avoid an unexpected shutdown." \
+    15000
+  echo "$THRESH_WARN" > "$state_file"
+fi

@@ -1,0 +1,14 @@
+@define-color text @foreground;
+@define-color background-alt @color1;
+@define-color selected @accent;
+@define-color hover alpha(@selected, .4);
+@define-color urgent @error;
+/* @define-color background @background; */
+
+* {
+    all: unset;
+    color: @text;
+    font-size: 14px;
+    font-family: "JetBrainsMono Nerd Font Propo";
+    transition: 200ms ease-in-out;
+}
