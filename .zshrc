@@ -118,3 +118,5 @@ if [ -r /usr/share/fzf/completion.zsh ]; then
   source /usr/share/fzf/completion.zsh
 fi
 
+
+. "$HOME/.local/share/../bin/env"

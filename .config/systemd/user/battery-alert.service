@@ -1,0 +1,6 @@
+[Unit]
+Description=Low battery notification (20%% and 5%%)
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/battery-alert

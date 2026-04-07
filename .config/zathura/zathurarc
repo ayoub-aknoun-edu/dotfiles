@@ -1,0 +1,4 @@
+set save-history true
+set selection-clipboard clipboard
+set recolor true
+set render-loading false

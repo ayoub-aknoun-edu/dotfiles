@@ -6,6 +6,9 @@ alias cp='cp -i'
 alias mv='mv -i'
 alias rm='rm -I --preserve-root'
 
+# fastfetch
+alias ff='fastfetch'
+
 # clear
 alias cls='clear'
 alias c='clear'

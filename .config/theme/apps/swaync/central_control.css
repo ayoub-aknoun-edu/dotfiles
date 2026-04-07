@@ -1,19 +1,3 @@
-@define-color text @foreground;
-@define-color background-alt @color1;
-@define-color selected @accent;
-@define-color hover alpha(@selected, .4);
-@define-color urgent @error;
-@define-color background @background;
-
-* {
-  color: @text;
-
-  all: unset;
-  font-size: 14px;
-  font-family: "JetBrainsMono Nerd Font Propo ";
-  transition: 200ms;
-}
-
 /* Avoid 'annoying' backgroud */
 .blank-window {
   background: transparent;
@@ -22,18 +6,20 @@
 /* CONTROL CENTER ------------------------------------------------------------------------ */
 
 .control-center {
-  background: @background;
+  /* Slight transparency lets Hyprland blur show through */
+  background: alpha(@background, 0.8);
+
   border-radius: 24px;
-  border: 1px solid @selected;
-  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.6);
-  margin: 18px;
+  border: 1px solid alpha(@selected, 0.65);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5);
+  margin: 16px;
   padding: 12px;
 }
 
 /* Notifications  */
 .control-center .notification-row .notification-background,
 .control-center .notification-row .notification-background .notification.critical {
-  background-color: @background-alt;
+  background-color: alpha(@background-alt, 0.85);
   border-radius: 16px;
   margin: 4px 0px;
   padding: 4px;
@@ -201,7 +187,6 @@ progressbar {
 
 /* Music player */
 .widget-mpris {
-  background: @background-alt;
   border-radius: 16px;
   color: @text;
   margin: 20px 6px;
@@ -211,25 +196,14 @@ progressbar {
 .widget-mpris-player {
   background-color: @background;
   border-radius: 22px;
-  padding: 6px 14px;
   margin: 6px;
 }
 
-.widget-mpris>box>button {
-  color: @text;
-  border-radius: 20px;
-}
-
-.widget-mpris button {
-  color: alpha(@text, 0.6);
-}
-
-.widget-mpris button:hover {
-  color: @text;
-}
 
 .widget-mpris-album-art {
   border-radius: 16px;
+  margin-top: 20px;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
 }
 
 .widget-mpris-title {
@@ -242,9 +216,10 @@ progressbar {
   font-size: 0.8rem;
 }
 
+/* 
 picture.mpris-background {
   opacity: 0;
-}
+} */
 
 /* Volume */
 .widget-volume {

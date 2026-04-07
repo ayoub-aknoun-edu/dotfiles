@@ -12,7 +12,6 @@ perl
 curl
 wget
 fastfetch
-htop
 btop
 bottom
 ripgrep
@@ -28,7 +27,6 @@ kitty
 
 # Hyprland session
 hyprland
-hyprpaper
 hypridle
 hyprlock
 swww
