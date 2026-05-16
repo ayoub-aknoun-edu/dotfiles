@@ -18,11 +18,12 @@
   // Module Layout
   "modules-left": ["custom/rofi", "wlr/taskbar", "hyprland/window"],
 
-  "modules-center": ["custom/idle", "hyprland/workspaces", "clock"],
+  "modules-center": ["custom/idle", "group/workspaces", "clock"],
 
   "modules-right": [
     "tray",
     "group/system-info",
+    "custom/screenrec",
     "privacy",
     "network",
     "bluetooth",
@@ -45,7 +46,7 @@
       "children-class": "system-info",
       "transition-left-to-right": false,
     },
-    "modules": ["custom/menu", "cpu", "custom/updates"],
+    "modules": ["custom/menu", "cpu", "memory", "disk", "custom/updates"],
   },
 
   "group/brightness": {
@@ -72,31 +73,83 @@
   // Hyprland Modules
   // ========================================================================
 
-  "hyprland/workspaces": {
-    "format": "{icon}",
-    "format-icons": {
-      "1": "1",
-      "2": "2",
-      "3": "3",
-      "4": "4",
-      "5": "5",
-      "6": "6",
-      "7": "7",
-      "8": "8",
-      "9": "9",
-      "10": "10",
-      "default": "◯",
-      "empty": "○",
-      "urgent": "!",
-    },
-    "sort-by": "number",
-    "all-outputs": false,
-    "show-special": true,
-    "on-click": "activate",
-    "ignore-workspaces": ["scratch"],
-    "persistent-workspaces": {
-      "*": 5,
-    },
+  "group/workspaces": {
+    "orientation": "horizontal",
+    "modules": [
+      "custom/ws-1", "custom/ws-2", "custom/ws-3", "custom/ws-4", "custom/ws-5",
+      "custom/ws-6", "custom/ws-7", "custom/ws-8", "custom/ws-9", "custom/ws-10",
+    ],
+  },
+
+  "custom/ws-1": {
+    "exec": "~/.config/waybar/scripts/workspace-btn 1",
+    "return-type": "json",
+    "interval": 1,
+    "on-click": "hyprctl dispatch 'hl.dsp.focus({ workspace = 1 })'",
+    "format": "{}",
+  },
+  "custom/ws-2": {
+    "exec": "~/.config/waybar/scripts/workspace-btn 2",
+    "return-type": "json",
+    "interval": 1,
+    "on-click": "hyprctl dispatch 'hl.dsp.focus({ workspace = 2 })'",
+    "format": "{}",
+  },
+  "custom/ws-3": {
+    "exec": "~/.config/waybar/scripts/workspace-btn 3",
+    "return-type": "json",
+    "interval": 1,
+    "on-click": "hyprctl dispatch 'hl.dsp.focus({ workspace = 3 })'",
+    "format": "{}",
+  },
+  "custom/ws-4": {
+    "exec": "~/.config/waybar/scripts/workspace-btn 4",
+    "return-type": "json",
+    "interval": 1,
+    "on-click": "hyprctl dispatch 'hl.dsp.focus({ workspace = 4 })'",
+    "format": "{}",
+  },
+  "custom/ws-5": {
+    "exec": "~/.config/waybar/scripts/workspace-btn 5",
+    "return-type": "json",
+    "interval": 1,
+    "on-click": "hyprctl dispatch 'hl.dsp.focus({ workspace = 5 })'",
+    "format": "{}",
+  },
+  "custom/ws-6": {
+    "exec": "~/.config/waybar/scripts/workspace-btn 6",
+    "return-type": "json",
+    "interval": 1,
+    "on-click": "hyprctl dispatch 'hl.dsp.focus({ workspace = 6 })'",
+    "format": "{}",
+  },
+  "custom/ws-7": {
+    "exec": "~/.config/waybar/scripts/workspace-btn 7",
+    "return-type": "json",
+    "interval": 1,
+    "on-click": "hyprctl dispatch 'hl.dsp.focus({ workspace = 7 })'",
+    "format": "{}",
+  },
+  "custom/ws-8": {
+    "exec": "~/.config/waybar/scripts/workspace-btn 8",
+    "return-type": "json",
+    "interval": 1,
+    "on-click": "hyprctl dispatch 'hl.dsp.focus({ workspace = 8 })'",
+    "format": "{}",
+  },
+  "custom/ws-9": {
+    "exec": "~/.config/waybar/scripts/workspace-btn 9",
+    "return-type": "json",
+    "interval": 1,
+    "on-click": "hyprctl dispatch 'hl.dsp.focus({ workspace = 9 })'",
+    "format": "{}",
+  },
+  "custom/ws-10": {
+    "exec": "~/.config/waybar/scripts/workspace-btn 10",
+    "return-type": "json",
+    "interval": 1,
+    "on-click": "hyprctl dispatch 'hl.dsp.focus({ workspace = 10 })'",
+    "format": "{}",
   },
 
   "hyprland/window": {
@@ -158,10 +211,35 @@
   },
 
   "memory": {
-    "format": "󰍛 {used:0.1f}G",
+    "format": "󰍛 {percentage}%",
     "interval": 5,
-    "tooltip-format": "Memory: {percentage}%\nUsed: {used:0.1f}GB / {total:0.1f}GB\nSwap: {swapUsed:0.1f}GB / {swapTotal:0.1f}GB",
+    "states": {
+      "warning": 70,
+      "critical": 90,
+    },
+    "tooltip-format": "RAM: {used:0.1f}GB / {total:0.1f}GB ({percentage}%)\nSwap: {swapUsed:0.1f}GB / {swapTotal:0.1f}GB",
     "on-click": "kitty -e btop",
+  },
+
+  "disk": {
+    "format": "󰋊 {percentage_used}%",
+    "interval": 60,
+    "path": "/",
+    "states": {
+      "warning": 75,
+      "critical": 90,
+    },
+    "tooltip-format": "Disk ({path})\nUsed: {used} / {total} ({percentage_used}%)\nFree: {free}",
+    "on-click": "kitty -e btop",
+  },
+
+  "custom/screenrec": {
+    "exec": "~/.config/waybar/scripts/screenrec",
+    "return-type": "json",
+    "interval": 3,
+    "format": "{}",
+    "tooltip": true,
+    "tooltip-format": "Recording active",
   },
 
   "battery": {

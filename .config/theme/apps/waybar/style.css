@@ -68,6 +68,80 @@ window#waybar.hidden {
   animation: blink 1s ease infinite;
 }
 
+#custom-ws-1,
+#custom-ws-2,
+#custom-ws-3,
+#custom-ws-4,
+#custom-ws-5 {
+  color: @muted;
+  padding: 0 10px;
+  margin: 0 4px;
+  border-radius: 10px;
+  min-height: 30px;
+  background: transparent;
+  transition: all 0.3s ease;
+}
+
+#custom-ws-1:hover,
+#custom-ws-2:hover,
+#custom-ws-3:hover,
+#custom-ws-4:hover,
+#custom-ws-5:hover {
+  background: @module-hover-bg;
+  color: @foreground;
+}
+
+#custom-ws-1.active,
+#custom-ws-2.active,
+#custom-ws-3.active,
+#custom-ws-4.active,
+#custom-ws-5.active,
+#custom-ws-6.active,
+#custom-ws-7.active,
+#custom-ws-8.active,
+#custom-ws-9.active,
+#custom-ws-10.active {
+  color: @foreground;
+  background: @module-active-bg;
+  font-weight: 600;
+}
+
+#custom-ws-6,
+#custom-ws-7,
+#custom-ws-8,
+#custom-ws-9,
+#custom-ws-10 {
+  color: @muted;
+  padding: 0 10px;
+  margin: 0 4px;
+  border-radius: 10px;
+  min-height: 30px;
+  background: transparent;
+  transition: all 0.3s ease;
+}
+
+#custom-ws-6:hover,
+#custom-ws-7:hover,
+#custom-ws-8:hover,
+#custom-ws-9:hover,
+#custom-ws-10:hover {
+  background: @module-hover-bg;
+  color: @foreground;
+}
+
+#custom-ws-6.empty,
+#custom-ws-7.empty,
+#custom-ws-8.empty,
+#custom-ws-9.empty,
+#custom-ws-10.empty {
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  margin: 0;
+  opacity: 0;
+  font-size: 0;
+}
+
 /* ============================================================================
  * Window Title
  * ============================================================================ */
@@ -151,6 +225,92 @@ window#waybar.hidden {
 #cpu:hover {
   background: @module-hover-bg;
   opacity: 0.9;
+}
+
+/* ============================================================================
+ * Memory Module
+ * ============================================================================ */
+
+#memory {
+  color: @foreground;
+  background: @module-bg;
+  padding: 0 14px;
+  margin: 0 4px;
+  border-radius: 10px;
+  min-height: 30px;
+  transition: all 0.3s ease;
+}
+
+#memory:hover {
+  background: @module-hover-bg;
+  opacity: 0.9;
+}
+
+#memory.warning {
+  color: @warning;
+  background: @warning-bg;
+}
+
+#memory.critical {
+  color: @error;
+  background: @disabled-bg;
+  animation: blink 1s ease infinite;
+}
+
+/* ============================================================================
+ * Disk Module
+ * ============================================================================ */
+
+#disk {
+  color: @foreground;
+  background: @module-bg;
+  padding: 0 14px;
+  margin: 0 4px;
+  border-radius: 10px;
+  min-height: 30px;
+  transition: all 0.3s ease;
+}
+
+#disk:hover {
+  background: @module-hover-bg;
+  opacity: 0.9;
+}
+
+#disk.warning {
+  color: @warning;
+  background: @warning-bg;
+}
+
+#disk.critical {
+  color: @error;
+  background: @disabled-bg;
+  animation: blink 1s ease infinite;
+}
+
+/* ============================================================================
+ * Screen Recording Indicator
+ * ============================================================================ */
+
+#custom-screenrec {
+  padding: 0 10px;
+  margin: 0 4px;
+  border-radius: 10px;
+  min-height: 30px;
+  font-size: 10px;
+  transition: all 0.3s ease;
+}
+
+#custom-screenrec.active {
+  color: @error;
+  background: @disabled-bg;
+  animation: rec-pulse 1.2s ease infinite;
+}
+
+#custom-screenrec.inactive {
+  opacity: 0;
+  min-width: 0;
+  padding: 0;
+  margin: 0;
 }
 
 /* ============================================================================
@@ -583,17 +743,17 @@ tooltip * {
  * Animations
  * ============================================================================ */
 
-/* @keyframes blink {
+@keyframes blink {
+  0%   { opacity: 1; }
+  50%  { opacity: 0.4; }
+  100% { opacity: 1; }
+}
 
-  0%,
-  100% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0.5;
-  }
-} */
+@keyframes rec-pulse {
+  0%   { opacity: 1; }
+  50%  { opacity: 0.4; }
+  100% { opacity: 1; }
+}
 
 /* Smooth transitions for all interactive elements */
 button,
