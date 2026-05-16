@@ -1,0 +1,17 @@
+#!/bin/bash
+N=$1
+ACTIVE=$(hyprctl -j activeworkspace 2>/dev/null | python3 -c "import json,sys; print(json.load(sys.stdin)['id'])" 2>/dev/null)
+
+if [ "$ACTIVE" = "$N" ]; then
+    printf '{"text":"%s","class":"active"}\n' "$N"
+    exit
+fi
+
+HAS=$(hyprctl -j workspaces 2>/dev/null | python3 -c "
+import json,sys
+ws = json.load(sys.stdin)
+match = [w for w in ws if w['id'] == $N]
+print('occupied' if match and match[0]['windows'] > 0 else 'empty')
+" 2>/dev/null)
+
+printf '{"text":"%s","class":"%s"}\n' "$N" "${HAS:-empty}"
