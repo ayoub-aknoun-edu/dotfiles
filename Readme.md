@@ -1,208 +1,104 @@
-# 🧰 Dotfiles
+# Dotfiles
 
 Personal configuration files for my daily development environment.
 
-This repo is meant to:
-
-- Keep my configs version-controlled and portable
-- Reproduce my setup quickly on a fresh system (Linux + Windows)
-- Serve as a reference for my Hyprland / Waybar / Neovim setup
-- Share ideas with anyone looking for a similar workflow
+- Version-controlled and portable across machines
+- Full Arch Linux / Hyprland / Wayland setup
+- One-command bootstrap on a fresh install
 
 ---
 
-## ✨ What’s included
+## What's included
 
-### 🖥️ Linux (Wayland / Hyprland)
+### Linux (Wayland / Hyprland)
 
-All Linux configs live under `~/.config`:
+| App            | Config                                     | Notes                                                                               |
+| -------------- | ------------------------------------------ | ----------------------------------------------------------------------------------- |
+| **Hyprland**   | `.config/hypr/`                            | Lua-based config split by concern (monitors, bindings, rules, look&feel, autostart) |
+| **Hypridle**   | `.config/hypr/hypridle-{ac,battery}.conf`  | AC/battery-aware idle timeouts, lid-close locking                                   |
+| **Hyprlock**   | `.config/hypr/hyprlock/`                   | Custom lock screen with clock, avatar, power buttons                                |
+| **Waybar**     | `.config/waybar/`                          | Top bar with taskbar, clock, battery, updates, power menu                           |
+| **EWW**        | `.config/eww/`                             | Control center (quick settings, MPRIS, notifications)                               |
+| **Rofi**       | `.config/rofi/`                            | App launcher + clipboard picker                                                     |
+| **SwayNC**     | `.config/swaync/`                          | Notification center                                                                 |
+| **Kitty**      | `.config/kitty/`                           | Terminal — JetBrainsMono NF, 0.7 opacity                                            |
+| **Neovim**     | `.config/nvim/`                            | LazyVim-based, Go/Java/Angular/Flutter LSP                                          |
+| **Theme**      | `.config/theme/`                           | Catppuccin Macchiato across all apps                                                |
+| **Shell**      | `.bashrc`, `.zshrc`, `.config/shell/`      | Shared aliases/functions, Oh-My-Zsh + Powerlevel10k                                 |
 
-- **Hyprland** (`.config/hypr/`)
-  - Split into logical files: `monitors.conf`, `looknfeel.conf`, `input.conf`, `binding.conf`, `windowrules.conf`, etc.
-  - Tiling layout with gaps, rounded corners and animations
-  - Per-monitor configuration
-  - Wallpaper + hyprpaper integration
-  - Window rules and permissions tuned for daily dev use
+### Windows 11
 
-- **Waybar** (`.config/waybar/`)
-  - Top bar with:
-    - App launcher (Rofi)
-    - Taskbar, clock, Hyprland window title
-    - Idle toggle, power menu, screen recorder, updates indicator
-  - Custom scripts in `scripts/`:
-    - `power` – lock / suspend / reboot / shutdown via Rofi
-    - `screenrec` – screen recording helper
-    - `updates` / `update-now` – system update status & trigger
-    - `idle-toggle` – control idle behavior
-  - Styled via `style.css` with margins and spacing for a clean look
+| File                                                          | Notes                                    |
+| ------------------------------------------------------------- | ---------------------------------------- |
+| `.config/windows11/Microsoft.PowerShell_profile.ps1`          | PowerShell 7+ profile with Oh My Posh    |
+| `.config/windows11/akanoun.omp.json`                          | Custom Oh My Posh theme                  |
 
-- **Rofi** (`.config/rofi/`)
-  - Custom theme with:
-    - Accent colors
-    - Consistent background/foreground palette
-  - `rofi-clipboard` helper script for clipboard selection
-
-- **Kitty** (`.config/kitty/kitty.conf`)
-  - Uses **JetBrainsMono Nerd Font**
-  - Transparent background and padded window
-  - Clipboard integration (`copy_on_select`, keymaps)
-  - Opens URLs with `thorium-browser`
-  - Small QoL tweaks (no audio bell, URL detection, etc.)
-
-- **Neovim** (`.config/nvim/`)
-  - LazyVim-based setup with custom modules:
-    - `lua/config/` – core config (options, keymaps, autocmds, lazy.nvim)
-    - `lua/plugins/` – plugin definitions & per-language extras:
-      - `go.lua` – `gopls` config with analyses, staticcheck, placeholders
-      - `java.lua` – Java LSP tooling
-      - `angular.lua`, `flutter.lua` – framework-specific helpers
-      - `lsp.lua`, `linting.lua`, `formatting.lua`, `conform.lua`
-      - `copilot.lua` – GitHub Copilot integration
-      - `surround.lua` – text surrounding helpers
-      - `codesnap.lua` – code snapshot plugin config
-      - `windsurf.lua` – extra editor-related config
-  - `stylua.toml` for consistent Lua formatting
-  - `lazy-lock.json` to pin plugin versions
-
-- **Theming**  
-  - **GTK 3 / 4**: `.config/gtk-3.0/settings.ini`, `.config/gtk-4.0/settings.ini`
-  - **Kvantum**: `.config/Kvantum/kvantum.kvconfig` for Qt app theming
+> Update the hard-coded paths inside the PowerShell profile to match your Windows username.
 
 ---
 
-### 🪟 Windows 11
-
-Windows-specific configs live in `.config/windows11/`:
-
-- `Microsoft.PowerShell_profile.ps1`
-  - Sets up **PowerShell 7+** profile
-  - Integrates **Oh My Posh** with a custom theme
-
-- `akanoun.omp.json`
-  - Oh My Posh prompt theme used by the profile
-  - You may need to adjust the path inside the PowerShell profile to match your user directory and installation path.
-
----
-
-## 📁 Repository layout
+## Repository layout
 
 ```text
 dotfiles/
-├── .config/
-│   ├── Kvantum/
-│   ├── gtk-3.0/
-│   ├── gtk-4.0/
-│   ├── hypr/
-│   ├── kitty/
-│   ├── nvim/
-│   ├── rofi/
-│   ├── waybar/
-│   └── windows11/
-├── .gitignore
-├── .stow-global-ignore
-└── stow.sh
-````
-
-* `stow.sh` – helper script to apply the dotfiles using GNU Stow
-* `.stow-global-ignore` – excludes files from being symlinked (e.g. `.git`)
+├── .config/          # All app configs (stowed to ~/.config/)
+├── .local/bin/       # Custom scripts (stowed to ~/.local/bin/)
+├── packages/
+│   ├── pacman.txt    # Official repo packages
+│   └── aur.txt       # AUR packages
+├── scripts/
+│   ├── install-packages.sh   # Installs everything from packages/
+│   └── post-install.sh       # Post-stow steps (GTK bookmarks, systemd, Oh-My-Zsh, p10k)
+├── .bashrc
+├── .zshrc
+├── .zprofile
+├── stow.sh           # Symlinks repo into $HOME, then runs post-install.sh
+└── Readme.md
+```
 
 ---
 
-## 🔧 Requirements
+## Fresh install (Arch Linux)
 
-On **Linux** (Wayland / Hyprland setup), you’ll typically want:
+```bash
+# 1. Clone
+git clone https://github.com/ayoub-aknoun-edu/dotfiles.git ~/dotfiles
+cd ~/dotfiles
 
-* `hyprland`, `hyprpaper`
-* `waybar`
-* `rofi`
-* `kitty`
-* `neovim`
-* `git`, `stow` (GNU Stow)
-* JetBrainsMono Nerd Font (or adjust the font in `kitty.conf`)
-* A Wayland-compatible notification/lock solution (e.g. `hyprlock` if referenced)
+# 2. Install all packages (offers to install yay if needed)
+./scripts/install-packages.sh
 
-On **Windows**:
+# 3. Stow + post-install in one step
+./stow.sh
+```
 
-* PowerShell 7+
-* [Oh My Posh](https://ohmyposh.dev/) installed
-* Fonts with Nerd Font glyphs (for the prompt theme)
+`stow.sh` symlinks every config into `$HOME`, then automatically runs `scripts/post-install.sh` which:
 
-> Note: exact packages and install commands depend on your distro / OS; adjust accordingly.
+- Writes `~/.config/gtk-3.0/bookmarks` with the correct `$HOME` for this machine
+- Enables `hypridle.service`, `hypridle-power-watcher.service`, `battery-alert.timer` via systemd
+- Installs Oh-My-Zsh if not already present
+- Clones Powerlevel10k if not already present
+- Writes `/etc/systemd/logind.conf.d/lid.conf` so lid close locks before suspend
 
----
+After that, log out and back in (or start a fresh Hyprland session).
 
-## 🚀 Installation (Linux)
-
-1. **Install dependencies**
-   Use your distro’s package manager to install Hyprland, Waybar, Rofi, Kitty, Neovim, GNU Stow, etc.
-
-   On Arch, you can use the bundled installer to grab everything in one go:
-
-   ```bash
-   ./scripts/install-packages.sh
-   ```
-
-   Package lists live in:
-   * `packages/pacman.txt` (official repos)
-   * `packages/aur.txt` (AUR via yay/paru)
-   The script will offer to install `yay` if no AUR helper is found.
-
-2. **Clone the repo**
-
-   ```bash
-   cd ~
-   git clone https://github.com/ayoub-aknoun-edu/dotfiles.git
-   cd ~/dotfiles
-   ```
-
-3. **Apply configs with Stow**
-
-   The provided script assumes the repo lives in `~/dotfiles`:
-
-   ```bash
-   ./stow.sh
-   ```
-
-   Internally this runs:
-
-   ```bash
-   stow -d ~/dotfiles/ -t ~/ .
-   ```
-
-   which symlinks the contents of the repo into your home directory.
-
-4. **Log out / restart Hyprland**
-   After applying, restart your Hyprland session to load the new configs.
+> **First zsh launch:** run `p10k configure` to generate your prompt theme.
+> **Neovim:** plugins install automatically on first launch via Lazy.nvim.
+> **GitHub Copilot:** run `:Copilot auth` inside Neovim.
 
 ---
 
-## 🪟 Setup (Windows)
+## Customization
 
-1. Copy or link the PowerShell profile:
-
-   * Find your PowerShell profile path:
-
-     ```powershell
-     echo $PROFILE
-     ```
-
-   * Copy or symlink `.config/windows11/Microsoft.PowerShell_profile.ps1` to that path.
-
-2. Update any hard-coded paths inside the profile (e.g. the location of `oh-my-posh` and `akanoun.omp.json`) to match your Windows username and installation directories.
-
-3. Install **Oh My Posh** and set the font in your terminal to a Nerd Font for full glyph support.
-
----
-
-## 🧩 Customization
-
-* **Keybindings** – adjust in `.config/hypr/binding.conf`
-* **Gaps, borders, animations** – tweak in `.config/hypr/looknfeel.conf`
-* **Bar modules & styling** – edit `.config/waybar/config.jsonc` and `style.css`
-* **Launcher theme** – modify `.config/rofi/config.rasi`
-* **Neovim behavior** – use:
-
-  * `lua/config/*` for core settings
-  * `lua/plugins/*` to enable/disable or extend plugins
-
-Feel free to fork and adapt these dotfiles to your own taste.
+| What                      | Where                                              |
+| ------------------------- | -------------------------------------------------- |
+| Keybindings               | `.config/hypr/binding.lua`                         |
+| Gaps, borders, animations | `.config/hypr/looknfeel.lua`                       |
+| Colors / theme            | `.config/theme/hypr-colors.conf`                   |
+| Monitor layout            | `.config/hypr/monitors.lua`                        |
+| Bar modules & style       | `.config/waybar/config.jsonc`, `style.css`         |
+| Lock screen layout        | `.config/hypr/hyprlock/widgets.conf`               |
+| Idle timeouts (AC)        | `.config/hypr/hypridle-ac.conf`                    |
+| Idle timeouts (battery)   | `.config/hypr/hypridle-battery.conf`               |
+| Neovim plugins            | `.config/nvim/lua/plugins/`                        |
+| Shell aliases / functions | `.config/shell/aliases.sh`, `functions.sh`         |
