@@ -1,0 +1,12 @@
+[Unit]
+Description=Restart hypridle when AC power state changes
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/hypridle-power-watcher
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=default.target

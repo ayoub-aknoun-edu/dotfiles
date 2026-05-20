@@ -1,11 +1,8 @@
 // ============================================================================
 // Waybar Configuration
 // ============================================================================
-// A clean, feature-rich Waybar configuration for Hyprland
-// ============================================================================
 
 {
-  // General Settings
   "reload_style_on_change": true,
   "layer": "top",
   "position": "top",
@@ -21,15 +18,11 @@
   "modules-center": ["custom/idle", "group/workspaces", "clock"],
 
   "modules-right": [
-    "tray",
+    // "tray",
     "group/system-info",
     "custom/screenrec",
     "privacy",
-    "network",
-    "bluetooth",
-    "pulseaudio#microphone",
-    "group/audio",
-    "group/brightness",
+    "power-profiles-daemon",
     "battery",
     "custom/notification",
     "custom/power",
@@ -49,26 +42,6 @@
     "modules": ["custom/menu", "cpu", "memory", "disk", "custom/updates"],
   },
 
-  "group/brightness": {
-    "orientation": "inherit",
-    "drawer": {
-      "transition-duration": 400,
-      "children-class": "brightness",
-      "transition-left-to-right": false,
-    },
-    "modules": ["backlight", "backlight/slider"],
-  },
-
-  "group/audio": {
-    "orientation": "inherit",
-    "drawer": {
-      "transition-duration": 400,
-      "children-class": "audio",
-      "transition-left-to-right": false,
-    },
-    "modules": ["pulseaudio", "pulseaudio/slider"],
-  },
-
   // ========================================================================
   // Hyprland Modules
   // ========================================================================
@@ -76,8 +49,16 @@
   "group/workspaces": {
     "orientation": "horizontal",
     "modules": [
-      "custom/ws-1", "custom/ws-2", "custom/ws-3", "custom/ws-4", "custom/ws-5",
-      "custom/ws-6", "custom/ws-7", "custom/ws-8", "custom/ws-9", "custom/ws-10",
+      "custom/ws-1",
+      "custom/ws-2",
+      "custom/ws-3",
+      "custom/ws-4",
+      "custom/ws-5",
+      "custom/ws-6",
+      "custom/ws-7",
+      "custom/ws-8",
+      "custom/ws-9",
+      "custom/ws-10",
     ],
   },
 
@@ -213,10 +194,7 @@
   "memory": {
     "format": "󰍛 {percentage}%",
     "interval": 5,
-    "states": {
-      "warning": 70,
-      "critical": 90,
-    },
+    "states": { "warning": 70, "critical": 90 },
     "tooltip-format": "RAM: {used:0.1f}GB / {total:0.1f}GB ({percentage}%)\nSwap: {swapUsed:0.1f}GB / {swapTotal:0.1f}GB",
     "on-click": "kitty -e btop",
   },
@@ -225,10 +203,7 @@
     "format": "󰋊 {percentage_used}%",
     "interval": 60,
     "path": "/",
-    "states": {
-      "warning": 75,
-      "critical": 90,
-    },
+    "states": { "warning": 75, "critical": 90 },
     "tooltip-format": "Disk ({path})\nUsed: {used} / {total} ({percentage_used}%)\nFree: {free}",
     "on-click": "kitty -e btop",
   },
@@ -279,137 +254,22 @@
     "icon-size": 14,
     "transition-duration": 250,
     "modules": [
-      {
-        "type": "screenshare",
-        "tooltip": true,
-        "tooltip-icon-size": 24,
-      },
-      {
-        "type": "audio-in",
-        "tooltip": true,
-        "tooltip-icon-size": 24,
-      },
-      {
-        "type": "audio-out",
-        "tooltip": true,
-        "tooltip-icon-size": 24,
-      },
+      { "type": "screenshare", "tooltip": true, "tooltip-icon-size": 24 },
+      { "type": "audio-in", "tooltip": true, "tooltip-icon-size": 24 },
+      { "type": "audio-out", "tooltip": true, "tooltip-icon-size": 24 },
     ],
   },
 
-  // ========================================================================
-  // Network & Connectivity
-  // ========================================================================
-
-  "network": {
-    "format-icons": {
-      "wifi": [
-        "<span size='13pt' font='Material Symbols Outlined'>signal_wifi_0_bar</span>",
-        "<span size='13pt' font='Material Symbols Outlined'>network_wifi_1_bar</span>",
-        "<span size='13pt' font='Material Symbols Outlined'>network_wifi_2_bar</span>",
-        "<span size='13pt' font='Material Symbols Outlined'>network_wifi_3_bar</span>",
-        "<span size='13pt' font='Material Symbols Outlined'>signal_wifi_4_bar</span>",
-      ],
-      "ethernet": "<span size='13pt' font='Material Symbols Outlined'>settings_ethernet</span>",
-      "disabled": "<span size='13pt' font='Material Symbols Outlined'>wifi_off</span>",
-      "disconnected": "<span size='13pt' font='Material Symbols Outlined'>wifi_off</span>",
-    },
-    "format-wifi": "{icon}",
-    "format-ethernet": "{icon}",
-    "format-disconnected": "{icon}",
-    "format-disabled": "{icon}",
-    "interval": 5,
-    "tooltip-format": "{essid} ({signalStrength}%)\nIP: {ipaddr}\nGateway: {gwaddr}",
-    "tooltip-format-ethernet": "Ethernet\nIP: {ipaddr}\nGateway: {gwaddr}",
-    "tooltip-format-disconnected": "Disconnected",
-    "on-click": "rfkill toggle wifi",
-    "on-click-right": "networkmanager_dmenu",
-    "max-length": 25,
-  },
-
-  "bluetooth": {
-    "interval": 10,
-    "format-on": "<span size='14pt' font='Material Symbols Outlined'>bluetooth</span>",
-    "format-off": "<span size='14pt' font='Material Symbols Outlined'>bluetooth_disabled</span>",
-    "format-disabled": "<span size='14pt' font='Material Symbols Outlined'>bluetooth_disabled</span>",
-    "format-connected": "<span size='14pt' font='Material Symbols Outlined'>bluetooth_connected</span>",
-    "tooltip": true,
-    "tooltip-format": "Bluetooth: {status}\n{device_enumerate}",
-    "tooltip-format-enumerate-connected": "  {device_alias}",
-    "tooltip-format-enumerate-connected-battery": "  {device_alias} ({device_battery_percentage}%)",
-    "on-click": "rfkill toggle bluetooth",
-    "on-click-right": "blueman-manager",
-  },
-
-  // ========================================================================
-  // Audio Modules
-  // ========================================================================
-
-  "pulseaudio": {
-    "interval": 2,
+  "power-profiles-daemon": {
     "format": "{icon}",
-    "format-muted": "<span size='14pt' font='Material Symbols Outlined'>volume_off</span>",
+    "tooltip-format": "Power profile: {profile}\nDriver: {driver}",
+    "tooltip": true,
     "format-icons": {
-      "headphone": "<span size='14pt' font='Material Symbols Outlined'>headphones</span>",
-      "hands-free": "<span size='14pt' font='Material Symbols Outlined'>headset_mic</span>",
-      "headset": "<span size='14pt' font='Material Symbols Outlined'>headset</span>",
-      "phone": "<span size='14pt' font='Material Symbols Outlined'>smartphone</span>",
-      "portable": "<span size='14pt' font='Material Symbols Outlined'>speaker</span>",
-      "car": "<span size='14pt' font='Material Symbols Outlined'>directions_car</span>",
-      "default": [
-        "<span size='14pt' font='Material Symbols Outlined'>volume_mute</span>",
-        "<span size='14pt' font='Material Symbols Outlined'>volume_down</span>",
-        "<span size='14pt' font='Material Symbols Outlined'>volume_up</span>",
-      ],
+      "default": "<span size='14pt' font='Material Symbols Outlined'>bolt</span>",
+      "performance": "<span size='14pt' font='Material Symbols Outlined'>rocket_launch</span>",
+      "balanced": "<span size='14pt' font='Material Symbols Outlined'>balance</span>",
+      "power-saver": "<span size='14pt' font='Material Symbols Outlined'>eco</span>",
     },
-    "scroll-step": 5,
-    "on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
-    "on-click-right": "pavucontrol",
-    "on-scroll-up": "pactl set-sink-volume @DEFAULT_SINK@ +2%",
-    "on-scroll-down": "pactl set-sink-volume @DEFAULT_SINK@ -2%",
-    "tooltip": true,
-    "tooltip-format": "Volume: {volume}%\nDevice: {desc}",
-    "ignored-sinks": ["Easy Effects Sink"],
-  },
-
-  "pulseaudio#microphone": {
-    "format": "{format_source}",
-    "format-source": "<span size='14pt' font='Material Symbols Outlined'>mic</span>",
-    "format-source-muted": "<span size='14pt' font='Material Symbols Outlined'>mic_off</span>",
-    "on-click": "pactl set-source-mute @DEFAULT_SOURCE@ toggle",
-    "on-scroll-up": "pactl set-source-volume @DEFAULT_SOURCE@ +2%",
-    "on-scroll-down": "pactl set-source-volume @DEFAULT_SOURCE@ -2%",
-    "tooltip": true,
-    "tooltip-format": "Microphone: {volume}%",
-  },
-
-  "pulseaudio/slider": {
-    "min": 0,
-    "max": 100,
-    "orientation": "horizontal",
-  },
-
-  // ========================================================================
-  // Backlight
-  // ========================================================================
-
-  "backlight": {
-    "format": "{icon}",
-    "format-icons": [
-      "<span size='13pt' font='Material Symbols Outlined'>brightness_low</span>",
-      "<span size='13pt' font='Material Symbols Outlined'>brightness_medium</span>",
-      "<span size='13pt' font='Material Symbols Outlined'>brightness_high</span>",
-    ],
-    "on-scroll-up": "brightnessctl set +5%",
-    "on-scroll-down": "brightnessctl set 5%-",
-    "tooltip": true,
-    "tooltip-format": "Brightness: {percent}%",
-  },
-
-  "backlight/slider": {
-    "min": 5,
-    "max": 100,
-    "orientation": "horizontal",
   },
 
   // ========================================================================
@@ -486,7 +346,7 @@
     "return-type": "json",
     "exec-if": "which swaync-client",
     "exec": "swaync-client -swb",
-    "on-click": "swaync-client -t -sw",
+    "on-click": "~/.config/eww/scripts/toggle-control-center",
     "on-click-right": "swaync-client -d -sw",
     "escape": true,
   },
@@ -496,38 +356,5 @@
     "on-click": "~/.config/waybar/scripts/power",
     "tooltip": true,
     "tooltip-format": "Power Menu",
-  },
-
-  // ========================================================================
-  // Optional Modules (Keyboard State)
-  // ========================================================================
-
-  "keyboard-state": {
-    "numlock": true,
-    "capslock": true,
-    "format": {
-      "numlock": "N {icon}",
-      "capslock": "C {icon}",
-    },
-    "format-icons": {
-      "locked": "🔒",
-      "unlocked": "🔓",
-    },
-  },
-
-  // ========================================================================
-  // Power Profiles Daemon (Optional)
-  // ========================================================================
-
-  "power-profiles-daemon": {
-    "format": "{icon}",
-    "tooltip-format": "Power Profile: {profile}\nDriver: {driver}",
-    "tooltip": true,
-    "format-icons": {
-      "default": "⚡",
-      "performance": "🚀",
-      "balanced": "⚖️",
-      "power-saver": "🌿",
-    },
   },
 }

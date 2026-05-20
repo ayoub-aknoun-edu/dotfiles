@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Cycle: balanced → performance → power-saver → balanced
+current=$(powerprofilesctl get 2>/dev/null || echo "balanced")
+case "$current" in
+    balanced)     powerprofilesctl set performance ;;
+    performance)  powerprofilesctl set power-saver ;;
+    power-saver)  powerprofilesctl set balanced ;;
+    *)            powerprofilesctl set balanced ;;
+esac

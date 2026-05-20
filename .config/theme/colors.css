@@ -1,71 +1,100 @@
-/* Central palette used by Waybar, Wlogout, SwayNC (CSS-based apps) */
+/* Catppuccin Macchiato — central palette for Waybar, Wlogout, SwayNC */
 
-@define-color cursor #B3B1AC;
-@define-color background #908e91;
-@define-color foreground #ffffff;
+/* ── Base palette ──────────────────────────────────────────────────────────── */
+@define-color crust      #181926;
+@define-color mantle     #1e2030;
+@define-color base       #24273a;
+@define-color surface0   #363a4f;
+@define-color surface1   #494d64;
+@define-color surface2   #5b6078;
+@define-color overlay0   #6e738d;
+@define-color overlay1   #8087a2;
+@define-color overlay2   #939ab7;
+@define-color subtext0   #a5adcb;
+@define-color subtext1   #b8c0e0;
+@define-color text-col   #cad3f5;
 
-@define-color color0 #504D49;
-@define-color color1 #716D74;
-@define-color color2 #A27474;
-@define-color color3 #7D8078;
-@define-color color4 #BE8877;
-@define-color color5 #A8A597;
-@define-color color6 #FAE8D2;
-@define-color color7 #9B989D;
-@define-color color8 #6C6A6E;
-@define-color color9 #716D74;
-@define-color color10 #A27474;
-@define-color color11 #7D8078;
-@define-color color12 #BE8877;
-@define-color color13 #A8A597;
-@define-color color14 #FAE8D2;
-@define-color color15 #9B989D;
+/* ── Accent colors ─────────────────────────────────────────────────────────── */
+@define-color rosewater  #f4dbd6;
+@define-color flamingo   #f0c6c6;
+@define-color pink       #f5bde6;
+@define-color mauve      #c6a0f6;
+@define-color red-col    #ed8796;
+@define-color maroon     #ee99a0;
+@define-color peach      #f5a97f;
+@define-color yellow-col #eed49f;
+@define-color green-col  #a6da95;
+@define-color teal-col   #8bd5ca;
+@define-color sky        #91d7e3;
+@define-color sapphire   #7dc4e4;
+@define-color blue-col   #8aadf4;
+@define-color lavender   #b7bdf8;
 
-@define-color success #8ec07c;
-@define-color warning #d79921;
-@define-color error #cc241d;
-@define-color info #458588;
-@define-color accent @color6;
-@define-color muted @color1;
+/* ── Semantic tokens ───────────────────────────────────────────────────────── */
+@define-color background @base;
+@define-color foreground @text-col;
+@define-color cursor     @rosewater;
+@define-color accent     @mauve;
+@define-color muted      @overlay0;
+@define-color success    @green-col;
+@define-color warning    @yellow-col;
+@define-color error      @red-col;
+@define-color info       @blue-col;
 
-@define-color module-bg rgba(0, 0, 0, .3);
-@define-color module-hover-bg rgba(0, 0, 0, 0.15);
-@define-color module-active-bg rgba(0, 0, 0, 0.4);
+/* ── Legacy color0–color15 aliases ────────────────────────────────────────── */
+@define-color color0   @crust;
+@define-color color1   @surface0;
+@define-color color2   @red-col;
+@define-color color3   @yellow-col;
+@define-color color4   @blue-col;
+@define-color color5   @mauve;
+@define-color color6   @teal-col;
+@define-color color7   @subtext1;
+@define-color color8   @surface1;
+@define-color color9   @maroon;
+@define-color color10  @green-col;
+@define-color color11  @peach;
+@define-color color12  @sapphire;
+@define-color color13  @pink;
+@define-color color14  @sky;
+@define-color color15  @text-col;
 
-@define-color disabled-bg rgba(255, 0, 0, 0.1);
-@define-color muted-bg rgba(255, 255, 0, 0.1);
-@define-color connected-bg rgba(0, 255, 0, 0.05);
-@define-color warning-bg rgba(255, 165, 0, 0.1);
-@define-color bluetooth-disabled-bg rgba(69, 133, 136, 0.1);
+/* ── UI surface tokens ─────────────────────────────────────────────────────── */
+@define-color module-bg         rgba(0, 0, 0, 0.25);
+@define-color module-hover-bg   rgba(255, 255, 255, 0.06);
+@define-color module-active-bg  rgba(0, 0, 0, 0.40);
 
-@define-color transparent-high rgba(255, 255, 255, 0.8);
-@define-color transparent-medium rgba(255, 255, 255, 0.5);
-@define-color transparent-low rgba(255, 255, 255, 0.2);
+@define-color transparent-high   rgba(255, 255, 255, 0.80);
+@define-color transparent-medium rgba(255, 255, 255, 0.50);
+@define-color transparent-low    rgba(255, 255, 255, 0.20);
 
-/* Aliases for third-party themes (SwayNC themes, etc.) */
-@define-color fg @foreground;
-@define-color bg0 @background;
-@define-color bg1 @color1;
+/* ── State-indicator backgrounds ───────────────────────────────────────────── */
+@define-color disabled-bg            rgba(237, 135, 150, 0.10);
+@define-color muted-bg               rgba(238, 212, 159, 0.08);
+@define-color connected-bg           rgba(166, 218, 149, 0.07);
+@define-color warning-bg             rgba(238, 212, 159, 0.10);
+@define-color bluetooth-disabled-bg  rgba(125, 196, 228, 0.10);
+
+/* ── Wlogout tokens ────────────────────────────────────────────────────────── */
+@define-color wlogout-bg                   rgba(24, 25, 38, 0.60);
+@define-color wlogout-text                 @text-col;
+@define-color wlogout-button-bg            rgba(36, 39, 58, 0.75);
+@define-color wlogout-button-border        rgba(198, 160, 246, 0.15);
+@define-color wlogout-button-bg-hover      rgba(54, 58, 79, 0.85);
+@define-color wlogout-button-border-hover  rgba(198, 160, 246, 0.40);
+@define-color wlogout-button-bg-focus      rgba(198, 160, 246, 0.25);
+@define-color wlogout-button-border-focus  rgba(198, 160, 246, 0.60);
+
+@define-color wlogout-lock-hover       rgba(138, 173, 244, 0.50);
+@define-color wlogout-logout-hover     rgba(238, 212, 159, 0.50);
+@define-color wlogout-shutdown-hover   rgba(237, 135, 150, 0.50);
+@define-color wlogout-reboot-hover     rgba(166, 218, 149, 0.50);
+@define-color wlogout-hibernate-hover  rgba(198, 160, 246, 0.50);
+@define-color wlogout-suspend-hover    rgba(125, 196, 228, 0.50);
+
+/* ── Third-party theme aliases (SwayNC nova-dark, etc.) ───────────────────── */
+@define-color fg   @foreground;
+@define-color bg0  @background;
+@define-color bg1  @surface0;
 @define-color blue @accent;
-@define-color red @error;
-
-
-/* Wlogout tokens */
-@define-color wlogout-bg rgba(15, 23, 42, 0.5);
-@define-color wlogout-text #e2e8f0;
-
-@define-color wlogout-button-bg rgba(30, 41, 59, 0.7);
-@define-color wlogout-button-border rgba(255, 255, 255, 0.1);
-
-@define-color wlogout-button-bg-hover rgba(51, 65, 85, 0.8);
-@define-color wlogout-button-border-hover rgba(255, 255, 255, 0.2);
-
-@define-color wlogout-button-bg-focus rgba(99, 102, 241, 0.4);
-@define-color wlogout-button-border-focus rgba(167, 139, 250, 0.5);
-
-@define-color wlogout-lock-hover rgba(99, 102, 241, 0.5);
-@define-color wlogout-logout-hover rgba(245, 158, 11, 0.5);
-@define-color wlogout-shutdown-hover rgba(244, 63, 94, 0.5);
-@define-color wlogout-reboot-hover rgba(16, 185, 129, 0.5);
-@define-color wlogout-hibernate-hover rgba(139, 92, 246, 0.5);
-@define-color wlogout-suspend-hover rgba(6, 182, 212, 0.5);
+@define-color red  @error;

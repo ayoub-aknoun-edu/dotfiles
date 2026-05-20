@@ -62,6 +62,14 @@ hl.layer_rule({
     ignore_alpha = 0.5,
 })
 
+-- eww control center blur
+hl.layer_rule({
+    name         = "eww-control-center-blur",
+    match        = { namespace = "eww-control-center" },
+    blur         = true,
+    ignore_alpha = 0.05,
+})
+
 
 -- ─── Picture-in-Picture ───────────────────────────────────────────────────────
 -- Covers Firefox ("Picture-in-Picture") and Chromium-based ("Picture in Picture")

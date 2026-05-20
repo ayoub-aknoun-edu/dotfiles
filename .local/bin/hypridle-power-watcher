@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Watch UPower D-Bus events and restart hypridle whenever the AC state changes.
+# Runs as a persistent systemd user service alongside hypridle.service.
+
+set -euo pipefail
+
+AC_STATE_FILE="/sys/class/power_supply/AC/online"
+
+# Capture current state without triggering a restart on startup
+last_state=$(cat "$AC_STATE_FILE" 2>/dev/null || echo "1")
+
+restart_if_changed() {
+    local state
+    state=$(cat "$AC_STATE_FILE" 2>/dev/null || echo "1")
+    if [[ "$state" != "$last_state" ]]; then
+        last_state="$state"
+        systemctl --user restart hypridle.service
+    fi
+}
+
+# Block on UPower events; each event triggers a re-check of AC state
+upower --monitor 2>/dev/null | while IFS= read -r _; do
+    restart_if_changed
+done

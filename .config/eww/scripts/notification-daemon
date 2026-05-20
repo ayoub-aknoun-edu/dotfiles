@@ -1,0 +1,107 @@
+#!/usr/bin/env python3
+"""
+eww notification logger.
+Monitors D-Bus for org.freedesktop.Notifications Notify calls and writes
+a rolling JSON log to $XDG_RUNTIME_DIR/eww_notifications.json.
+
+Runs alongside swaync — does not replace it.
+"""
+import subprocess, json, os, re
+from datetime import datetime
+
+RUNTIME = os.environ.get('XDG_RUNTIME_DIR', f'/run/user/{os.getuid()}')
+CACHE   = os.path.join(RUNTIME, 'eww_notifications.json')
+MAX     = 20
+
+
+def load():
+    try:
+        with open(CACHE) as f:
+            return json.load(f)
+    except Exception:
+        return []
+
+
+def save(notifs):
+    tmp = CACHE + '.tmp'
+    with open(tmp, 'w') as f:
+        json.dump(notifs, f)
+    os.replace(tmp, CACHE)
+
+
+def next_id(existing):
+    ids = [n.get('id', 0) for n in existing if isinstance(n.get('id'), int)]
+    return (max(ids) + 1) if ids else 1
+
+
+def main():
+    existing = load()
+    save(existing)  # ensure file exists on startup
+
+    counter = next_id(existing)
+
+    proc = subprocess.Popen(
+        ['dbus-monitor', '--session',
+         "eavesdrop=true,type='method_call',"
+         "interface='org.freedesktop.Notifications',"
+         "member='Notify'"],
+        stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+        text=True, bufsize=1
+    )
+
+    # Notify(app_name:s, replaces_id:u, app_icon:s, summary:s, body:s, ...)
+    in_notify = False
+    args      = [None] * 5   # positions 0–4 of Notify args
+    field     = 0            # which positional arg we are on
+
+    for raw in proc.stdout:
+        line = raw.rstrip('\n')
+
+        # ── New Notify call ───────────────────────────────────
+        if 'member=Notify' in line:
+            in_notify = True
+            args      = [None] * 5
+            field     = 0
+            continue
+
+        if not in_notify:
+            continue
+
+        stripped = line.strip()
+
+        # ── First array = actions = end of scalar args ────────
+        if stripped.startswith('array [') and field >= 5:
+            notif = {
+                'id':      counter,
+                'app':     str(args[0] or ''),
+                'summary': str(args[3] or ''),
+                'body':    str(args[4] or ''),
+                'time':    datetime.now().strftime('%H:%M'),
+            }
+            if notif['summary'] or notif['body']:
+                notifs = load()
+                notifs.insert(0, notif)
+                save(notifs[:MAX])
+                counter += 1
+            in_notify = False
+            continue
+
+        if field >= 5:
+            continue
+
+        # ── Parse string argument ─────────────────────────────
+        m = re.match(r'^string "(.*)"$', stripped)
+        if m:
+            args[field] = m.group(1)
+            field += 1
+            continue
+
+        # ── Parse uint32 argument (replaces_id at position 1) ─
+        m = re.match(r'^uint32 (\d+)$', stripped)
+        if m:
+            args[field] = int(m.group(1))
+            field += 1
+
+
+if __name__ == '__main__':
+    main()

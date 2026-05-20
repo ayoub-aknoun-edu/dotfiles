@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Toggle the eww control center + its click-away overlay.
+# eww daemon must already be running (started via autostart.lua).
+
+if eww active-windows 2>/dev/null | grep -q "control-center"; then
+    eww close control-center
+    eww close cc-clickaway
+else
+    eww open cc-clickaway
+    eww open control-center
+fi

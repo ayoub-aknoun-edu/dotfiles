@@ -1,9 +1,10 @@
-@define-color text @foreground;
-@define-color background-alt @color1;
-@define-color selected @accent;
-@define-color hover alpha(@selected, .4);
-@define-color urgent @error;
-/* @define-color background @background; */
+/* Semantic aliases resolved from colors.css */
+@define-color text           @foreground;
+@define-color background-alt @surface0;
+@define-color selected       @accent;
+@define-color border         @surface1;
+@define-color hover          alpha(@accent, 0.20);
+@define-color urgent         @error;
 
 * {
     all: unset;

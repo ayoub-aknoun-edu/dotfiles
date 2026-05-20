@@ -1,0 +1,344 @@
+// ── Catppuccin Macchiato palette ─────────────────────────────
+$base:     #24273a;
+$mantle:   #1e2030;
+$surface0: #363a4f;
+$surface1: #494d64;
+$surface2: #5b6078;
+$overlay0: #6e738d;
+$text:     #cad3f5;
+$subtext0: #a5adcb;
+$subtext1: #b8c0e0;
+$accent:   #c6a0f6;   // mauve
+$red:      #ed8796;
+$yellow:   #eed49f;
+
+$font:     "JetBrainsMono Nerd Font Propo";
+
+// ── Click-away overlay ────────────────────────────────────────
+// Full-screen transparent surface behind the panel.
+
+.cc-clickaway {
+  background: transparent;
+}
+
+// ── Root window ──────────────────────────────────────────────
+// Background is semi-transparent so Hyprland can apply blur.
+
+.cc-root {
+  background-color: rgba(36, 39, 58, 0.88);
+  border-radius: 20px;
+  border: 1px solid rgba(73, 77, 100, 0.55);
+  padding: 14px 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
+}
+
+// ── Section card ─────────────────────────────────────────────
+
+.cc-section {
+  background-color: rgba(54, 58, 79, 0.65);
+  border-radius: 14px;
+  padding: 12px;
+}
+
+// ── Header ───────────────────────────────────────────────────
+
+.cc-header {
+  padding: 2px 4px 6px;
+}
+
+.cc-header-title {
+  font-family: $font;
+  font-size: 15px;
+  font-weight: bold;
+  color: rgba(202, 211, 245, 0.90);
+  letter-spacing: 0.3px;
+}
+
+.cc-header-close {
+  all: unset;
+  font-family: $font;
+  font-size: 16px;
+  color: $overlay0;
+  padding: 3px 8px;
+  border-radius: 8px;
+  transition: background-color 150ms ease, color 150ms ease;
+
+  label { all: unset; font-family: $font; font-size: 16px; }
+
+  &:hover  { background-color: rgba(237, 135, 150, 0.18); color: $red; }
+  &:active { background-color: rgba(237, 135, 150, 0.35); color: $red; }
+}
+
+// ── Toggle tiles ─────────────────────────────────────────────
+
+.cc-tile {
+  all: unset;
+  min-width: 96px;
+  min-height: 72px;
+  border-radius: 12px;
+  background-color: rgba(36, 39, 58, 0.60);
+  border: 1px solid rgba(73, 77, 100, 0.35);
+  transition: background-color 150ms ease, border-color 150ms ease;
+
+  box   { all: unset; }
+  label { all: unset; font-family: $font; }
+
+  &:hover {
+    background-color: rgba(73, 77, 100, 0.60);
+    border-color: rgba(91, 96, 120, 0.60);
+  }
+
+  &.active {
+    background-color: rgba(198, 160, 246, 0.22);
+    border-color: rgba(198, 160, 246, 0.45);
+
+    &:hover { background-color: rgba(198, 160, 246, 0.36); }
+
+    .cc-tile-icon  { color: $accent; }
+    .cc-tile-label { color: rgba(198, 160, 246, 0.80); }
+  }
+}
+
+.cc-tile-icon {
+  font-size: 22px;
+  color: $subtext0;
+}
+
+.cc-tile-label {
+  font-size: 10px;
+  color: $subtext0;
+  letter-spacing: 0.2px;
+}
+
+// ── Sliders ──────────────────────────────────────────────────
+
+.cc-slider-row { padding: 0 2px; }
+
+.cc-slider-icon {
+  font-family: $font;
+  font-size: 17px;
+  color: $subtext0;
+  min-width: 24px;
+}
+
+.cc-slider {
+  trough {
+    background-color: rgba(36, 39, 58, 0.70);
+    border-radius: 6px;
+    min-height: 6px;
+  }
+
+  highlight, progress {
+    background-color: $accent;
+    border-radius: 6px;
+  }
+
+  slider {
+    background-color: $text;
+    border-radius: 50%;
+    min-width: 16px;
+    min-height: 16px;
+    border: none;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.45);
+    transition: box-shadow 100ms ease;
+
+    &:hover {
+      background-color: $accent;
+      box-shadow: 0 0 0 4px rgba(198, 160, 246, 0.22), 0 1px 6px rgba(0, 0, 0, 0.40);
+    }
+  }
+}
+
+.cc-slider-val {
+  font-family: $font;
+  font-size: 11px;
+  color: $subtext0;
+  min-width: 36px;
+  margin-left: 2px;
+}
+
+// ── MPRIS ────────────────────────────────────────────────────
+
+.cc-mpris { padding: 10px 12px; }
+
+.cc-mpris-player-icon {
+  font-family: $font;
+  font-size: 15px;
+  color: $accent;
+}
+
+.cc-mpris-player-name {
+  font-family: $font;
+  font-size: 11px;
+  font-weight: bold;
+  color: $subtext1;
+  letter-spacing: 0.4px;
+}
+
+.cc-mpris-title {
+  font-family: $font;
+  font-size: 13px;
+  font-weight: bold;
+  color: $text;
+}
+
+.cc-mpris-artist {
+  font-family: $font;
+  font-size: 11px;
+  color: $subtext0;
+  margin-top: 1px;
+}
+
+.cc-mpris-btn {
+  all: unset;
+  font-family: $font;
+  font-size: 18px;
+  color: $subtext0;
+  padding: 6px 8px;
+  border-radius: 10px;
+  transition: background-color 150ms ease, color 150ms ease;
+
+  label { all: unset; font-family: $font; font-size: 18px; }
+
+  &:hover { background-color: rgba(91, 96, 120, 0.50); color: $text; }
+
+  &.play {
+    font-size: 22px;
+    color: $accent;
+    padding: 5px 10px;
+
+    label { font-size: 22px; }
+
+    &:hover { background-color: rgba(198, 160, 246, 0.22); }
+  }
+}
+
+// Progress bar: thin track, no visible thumb (display only).
+.cc-mpris-progress-bar {
+  trough {
+    background-color: rgba(36, 39, 58, 0.70);
+    border-radius: 4px;
+    min-height: 4px;
+  }
+
+  highlight, progress {
+    background-color: rgba(198, 160, 246, 0.70);
+    border-radius: 4px;
+  }
+
+  slider {
+    min-width: 0px;
+    min-height: 0px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+}
+
+// ── Notification section ─────────────────────────────────────
+
+.cc-notifs-section { padding: 10px 12px; }
+
+.cc-section-title {
+  font-family: $font;
+  font-size: 13px;
+  font-weight: bold;
+  color: rgba(202, 211, 245, 0.75);
+  letter-spacing: 0.3px;
+}
+
+.cc-btn-clear {
+  all: unset;
+  font-family: $font;
+  font-size: 11px;
+  color: $subtext0;
+  padding: 3px 10px;
+  border-radius: 8px;
+  background-color: rgba(91, 96, 120, 0.35);
+  border: 1px solid rgba(91, 96, 120, 0.40);
+  transition: background-color 150ms ease, color 150ms ease;
+
+  label { all: unset; font-family: $font; font-size: 11px; }
+
+  &:hover  { background-color: rgba(91, 96, 120, 0.60); color: $text; }
+  &:active { background-color: $accent; color: $base; }
+}
+
+.cc-notifs-empty {
+  font-family: $font;
+  font-size: 12px;
+  color: $overlay0;
+  padding: 8px 0;
+}
+
+.cc-notifs-scroll {
+  min-height: 60px;
+
+  scrollbar { min-width: 4px; background: transparent; }
+
+  scrollbar trough { background: transparent; }
+
+  scrollbar slider {
+    background-color: rgba(110, 115, 141, 0.50);
+    border-radius: 4px;
+    min-width: 4px;
+    min-height: 30px;
+    &:hover { background-color: rgba(198, 160, 246, 0.60); }
+  }
+}
+
+// ── Notification cards ────────────────────────────────────────
+
+.cc-notif {
+  background-color: rgba(36, 39, 58, 0.55);
+  border: 1px solid rgba(73, 77, 100, 0.35);
+  border-radius: 10px;
+  padding: 8px 10px;
+  transition: border-color 150ms ease;
+
+  &:hover { border-color: rgba(198, 160, 246, 0.35); }
+}
+
+.cc-notif-app {
+  font-family: $font;
+  font-size: 10px;
+  font-weight: bold;
+  color: $accent;
+  letter-spacing: 0.5px;
+}
+
+.cc-notif-time {
+  font-family: $font;
+  font-size: 10px;
+  color: $overlay0;
+}
+
+.cc-notif-dismiss {
+  all: unset;
+  font-family: $font;
+  font-size: 12px;
+  color: $overlay0;
+  padding: 1px 5px;
+  border-radius: 6px;
+  transition: background-color 100ms ease, color 100ms ease;
+
+  label { all: unset; font-family: $font; font-size: 12px; }
+
+  &:hover  { background-color: rgba(237, 135, 150, 0.18); color: $red; }
+  &:active { background-color: rgba(237, 135, 150, 0.35); }
+}
+
+.cc-notif-summary {
+  font-family: $font;
+  font-size: 12px;
+  font-weight: bold;
+  color: $text;
+  margin-top: 2px;
+}
+
+.cc-notif-body {
+  font-family: $font;
+  font-size: 11px;
+  color: rgba(202, 211, 245, 0.70);
+  margin-top: 1px;
+}
