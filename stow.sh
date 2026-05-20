@@ -18,4 +18,8 @@ if [[ -z "$REPO_DIR" || ! -d "$REPO_DIR" ]]; then
   exit 1
 fi
 
-exec stow --dir="$REPO_DIR" --target="$HOME" --restow .
+stow --dir="$REPO_DIR" --target="$HOME" --restow .
+
+echo ""
+echo "Stow complete. Running post-install steps..."
+bash "$REPO_DIR/scripts/post-install.sh"
