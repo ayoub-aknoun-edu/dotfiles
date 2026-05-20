@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+PLAYER_FILE="/run/user/$(id -u)/eww_mpris_player"
+PLAYER=$(cat "$PLAYER_FILE" 2>/dev/null)
+if [[ -n "$PLAYER" ]]; then
+    playerctl --player "$PLAYER" "$@" 2>/dev/null
+else
+    playerctl "$@" 2>/dev/null
+fi

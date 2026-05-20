@@ -1,2 +1,12 @@
-#!/usr/bin/env bash
-echo '[]' > "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/eww_notifications.json"
+#!/usr/bin/env python3
+import json, os, subprocess
+
+cache = f'/run/user/{os.getuid()}/eww_notifications.json'
+
+with open(cache, 'w') as f:
+    json.dump([], f)
+
+subprocess.run(
+    ['eww', 'update', 'notifications=[]', 'notif-count=0'],
+    capture_output=True
+)

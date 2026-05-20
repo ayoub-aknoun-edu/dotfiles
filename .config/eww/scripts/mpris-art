@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+PLAYER_FILE="/run/user/$(id -u)/eww_mpris_player"
+CURRENT=$(cat "$PLAYER_FILE" 2>/dev/null)
+[[ -z "$CURRENT" ]] && { echo ""; exit 0; }
+
+ART=$(playerctl --player "$CURRENT" metadata mpris:artUrl 2>/dev/null)
+[[ -z "$ART" ]] && { echo ""; exit 0; }
+
+if [[ "$ART" == file://* ]]; then
+    path="${ART#file://}"
+    [[ -f "$path" ]] && echo "$path" || echo ""
+    exit 0
+fi
+
+if [[ "$ART" == http* ]]; then
+    HASH=$(printf '%s' "$ART" | md5sum | cut -c1-8)
+    CACHE="/tmp/eww_art_${HASH}"
+    [[ -f "$CACHE" ]] || curl -s --max-time 3 -o "$CACHE" "$ART" 2>/dev/null
+    [[ -f "$CACHE" ]] && echo "$CACHE" || echo ""
+    exit 0
+fi
+
+echo ""

@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+PLAYER_FILE="/run/user/$(id -u)/eww_mpris_player"
+mapfile -t PLAYERS < <(playerctl --list-all 2>/dev/null)
+COUNT=${#PLAYERS[@]}
+[[ $COUNT -le 1 ]] && exit 0
+
+CURRENT=$(cat "$PLAYER_FILE" 2>/dev/null)
+IDX=0
+for i in "${!PLAYERS[@]}"; do
+    [[ "${PLAYERS[$i]}" == "$CURRENT" ]] && IDX=$i && break
+done
+NEXT=$(( (IDX + 1) % COUNT ))
+echo "${PLAYERS[$NEXT]}" > "$PLAYER_FILE"

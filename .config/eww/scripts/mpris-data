@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+PLAYER_FILE="/run/user/$(id -u)/eww_mpris_player"
+CURRENT=$(cat "$PLAYER_FILE" 2>/dev/null)
+mapfile -t PLAYERS < <(playerctl --list-all 2>/dev/null)
+COUNT=${#PLAYERS[@]}
+
+if [[ $COUNT -eq 0 ]]; then
+    echo '{"active":false,"count":0,"player":"","title":"","artist":"","playing":false,"progress":0}'
+    exit 0
+fi
+
+# Fall back to first player if saved one is gone
+if [[ -z "$CURRENT" ]] || ! printf '%s\n' "${PLAYERS[@]}" | grep -qx "$CURRENT"; then
+    CURRENT="${PLAYERS[0]}"
+    echo "$CURRENT" > "$PLAYER_FILE"
+fi
+
+STATUS=$(playerctl --player "$CURRENT" status 2>/dev/null)
+TITLE=$(playerctl --player "$CURRENT" metadata --format '{{title}}' 2>/dev/null | cut -c1-42)
+ARTIST=$(playerctl --player "$CURRENT" metadata --format '{{artist}}' 2>/dev/null | cut -c1-32)
+PNAME=$(echo "$CURRENT" | sed 's/\..*//' | cut -c1-16)
+
+POS=$(playerctl --player "$CURRENT" position 2>/dev/null)
+LEN=$(playerctl --player "$CURRENT" metadata mpris:length 2>/dev/null)
+if [[ -n "$POS" && -n "$LEN" && "$LEN" -gt 0 ]]; then
+    PROGRESS=$(awk -v pos="$POS" -v len="$LEN" 'BEGIN { printf "%.0f\n", pos / (len / 1000000) * 100 }')
+    [[ "$PROGRESS" -gt 100 ]] && PROGRESS=100
+else
+    PROGRESS=0
+fi
+
+PLAYING=$([[ "$STATUS" == "Playing" ]] && echo true || echo false)
+
+python3 -c "
+import sys, json
+count, player, title, artist, playing, progress = sys.argv[1:]
+print(json.dumps({
+    'active': True,
+    'count': int(count),
+    'player': player,
+    'title': title,
+    'artist': artist,
+    'playing': playing == 'true',
+    'progress': int(progress)
+}))
+" "$COUNT" "$PNAME" "$TITLE" "$ARTIST" "$PLAYING" "$PROGRESS"

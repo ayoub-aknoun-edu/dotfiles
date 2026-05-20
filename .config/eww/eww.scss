@@ -14,13 +14,6 @@ $yellow:   #eed49f;
 
 $font:     "JetBrainsMono Nerd Font Propo";
 
-// ── Click-away overlay ────────────────────────────────────────
-// Full-screen transparent surface behind the panel.
-
-.cc-clickaway {
-  background: transparent;
-}
-
 // ── Root window ──────────────────────────────────────────────
 // Background is semi-transparent so Hyprland can apply blur.
 
@@ -161,18 +154,26 @@ $font:     "JetBrainsMono Nerd Font Propo";
 
 .cc-mpris { padding: 10px 12px; }
 
-.cc-mpris-player-icon {
-  font-family: $font;
-  font-size: 15px;
-  color: $accent;
+.cc-mpris-art {
+  border-radius: 8px;
+  min-width: 52px;
+  min-height: 52px;
 }
 
-.cc-mpris-player-name {
+.cc-mpris-player-btn {
+  all: unset;
   font-family: $font;
-  font-size: 11px;
-  font-weight: bold;
-  color: $subtext1;
-  letter-spacing: 0.4px;
+  font-size: 10px;
+  color: $subtext0;
+  padding: 2px 7px;
+  border-radius: 8px;
+  background-color: rgba(91, 96, 120, 0.35);
+  border: 1px solid rgba(91, 96, 120, 0.30);
+  transition: background-color 150ms ease, color 150ms ease;
+
+  label { all: unset; font-family: $font; font-size: 10px; }
+
+  &:hover { background-color: rgba(198, 160, 246, 0.22); color: $accent; border-color: rgba(198, 160, 246, 0.35); }
 }
 
 .cc-mpris-title {

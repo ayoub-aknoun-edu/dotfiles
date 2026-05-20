@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Called on every left-click (non-consuming bind). Closes the CC only when
+# the cursor is outside the CC panel's current geometry.
+[[ -f /tmp/eww_cc_open ]] || exit 0
+
+python3 - <<'EOF'
+import json, subprocess, sys, os
+
+def run(cmd):
+    return json.loads(subprocess.check_output(cmd, stderr=subprocess.DEVNULL))
+
+pos    = run(['hyprctl', '-j', 'cursorpos'])
+layers = run(['hyprctl', '-j', 'layers'])
+
+cx, cy = pos['x'], pos['y']
+
+# Find the CC surface: overlay layer, width ~390px
+cc = None
+for mon_data in layers.values():
+    for surfs in mon_data.get('levels', {}).values():
+        for s in surfs:
+            if 380 <= s.get('w', 0) <= 400:
+                cc = s
+                break
+
+if cc is None or not (cc['x'] <= cx <= cc['x'] + cc['w'] and
+                      cc['y'] <= cy <= cc['y'] + cc['h']):
+    os.system(os.path.expanduser('~/.config/eww/scripts/close-control-center'))
+EOF

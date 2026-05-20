@@ -31,23 +31,11 @@
 (defpoll power-profile :interval "5s"
   `powerprofilesctl get 2>/dev/null || echo "balanced"`)
 
-(defpoll mpris-title :interval "3s"
-  `playerctl metadata --format '{{title}}' 2>/dev/null | cut -c1-42 || echo ""`)
+(defpoll mpris :interval "2s"
+  `~/.config/eww/scripts/mpris-data`)
 
-(defpoll mpris-artist :interval "3s"
-  `playerctl metadata --format '{{artist}}' 2>/dev/null | cut -c1-32 || echo ""`)
-
-(defpoll mpris-player :interval "5s"
-  `playerctl metadata --format '{{playerName}}' 2>/dev/null | cut -c1-16 || echo ""`)
-
-(defpoll mpris-playing :interval "2s"
-  `playerctl status 2>/dev/null | grep -q Playing && echo true || echo false`)
-
-(defpoll mpris-active :interval "3s"
-  `playerctl status &>/dev/null && echo true || echo false`)
-
-(defpoll mpris-progress :interval "2s"
-  `~/.config/eww/scripts/mpris-progress`)
+(defpoll mpris-art :interval "5s"
+  `~/.config/eww/scripts/mpris-art`)
 
 (defpoll notifications :interval "3s"
   `cat "/run/user/$(id -u)/eww_notifications.json" 2>/dev/null || echo "[]"`)
@@ -69,16 +57,6 @@
   :focusable true
   (cc-root))
 
-; Full-screen transparent overlay: clicking it closes the panel.
-(defwindow cc-clickaway
-  :monitor 0
-  :geometry (geometry :x "0px" :y "0px" :width "100%" :height "100%")
-  :stacking "overlay"
-  :exclusive false
-  :focusable false
-  (box :class "cc-clickaway"
-       :onclick "eww close control-center && eww close cc-clickaway"))
-
 ; ─────────────────────────────────────────────────────────────
 ; Widgets
 ; ─────────────────────────────────────────────────────────────
@@ -98,7 +76,7 @@
     (label :class "cc-header-title" :text "Quick Settings"
            :hexpand true :xalign 0)
     (button :class "cc-header-close"
-            :onclick "eww close control-center && eww close cc-clickaway"
+            :onclick "~/.config/eww/scripts/close-control-center"
       (label :text "󰅖"))))
 
 ; ── Toggle tiles ─────────────────────────────────────────────
@@ -195,36 +173,46 @@
 ; ── MPRIS player ─────────────────────────────────────────────
 
 (defwidget cc-mpris []
-  (revealer :reveal {mpris-active == "true"}
+  (revealer :reveal {mpris.active}
             :transition "slidedown"
             :duration "200ms"
     (box :class "cc-section cc-mpris" :orientation "v" :space-evenly false :spacing 8
-      ; Row 1: player badge + transport controls
-      (box :orientation "h" :space-evenly false :valign "center"
-        (box :orientation "h" :space-evenly false :spacing 6 :hexpand true :valign "center"
-          (label :class "cc-mpris-player-icon" :text "󰎈")
-          (label :class "cc-mpris-player-name"
-                 :text {mpris-player != "" ? mpris-player : "Media"}
-                 :xalign 0 :ellipsize "end"))
-        (box :class "cc-mpris-btns" :orientation "h" :space-evenly false :spacing 0
+      ; Row 1: art + info + controls
+      (box :orientation "h" :space-evenly false :spacing 10 :valign "center"
+        ; Album art (hidden when no art available)
+        (image :class "cc-mpris-art"
+               :path mpris-art
+               :image-width 52
+               :image-height 52
+               :visible {mpris-art != ""})
+        ; Title + artist row + player cycle badge
+        (box :orientation "v" :space-evenly false :spacing 2 :hexpand true :valign "center"
+          (label :class "cc-mpris-title"
+                 :text {mpris.title != "" ? mpris.title : "Unknown"}
+                 :xalign 0 :ellipsize "end")
+          (box :orientation "h" :space-evenly false :spacing 6 :valign "center"
+            (label :class "cc-mpris-artist"
+                   :text {mpris.artist != "" ? mpris.artist : mpris.player}
+                   :xalign 0 :ellipsize "end" :hexpand true)
+            (button :class "cc-mpris-player-btn"
+                    :visible {mpris.count > 1}
+                    :onclick "~/.config/eww/scripts/mpris-next-player"
+                    :tooltip "Switch player"
+              (label :text "${mpris.player} ↺"))))
+        ; Transport controls
+        (box :class "cc-mpris-btns" :orientation "h" :space-evenly false :spacing 0 :valign "center"
           (button :class "cc-mpris-btn"
-                  :onclick "playerctl previous"
+                  :onclick "~/.config/eww/scripts/mpris-ctl previous"
             (label :text "󰒮"))
           (button :class "cc-mpris-btn play"
-                  :onclick {mpris-playing == "true" ? "playerctl pause" : "playerctl play"}
-            (label :text {mpris-playing == "true" ? "󰏤" : "󰐊"}))
+                  :onclick {mpris.playing == true ? "~/.config/eww/scripts/mpris-ctl pause" : "~/.config/eww/scripts/mpris-ctl play"}
+            (label :text {mpris.playing == true ? "󰏤" : "󰐊"}))
           (button :class "cc-mpris-btn"
-                  :onclick "playerctl next"
+                  :onclick "~/.config/eww/scripts/mpris-ctl next"
             (label :text "󰒭"))))
-      ; Row 2: title + artist
-      (box :orientation "v" :space-evenly false :spacing 2
-        (label :class "cc-mpris-title"  :text mpris-title
-               :xalign 0 :ellipsize "end")
-        (label :class "cc-mpris-artist" :text mpris-artist
-               :xalign 0 :ellipsize "end"))
-      ; Row 3: progress bar (display only)
+      ; Row 2: progress bar (display only)
       (scale :class "cc-mpris-progress-bar"
-             :value mpris-progress
+             :value {mpris.progress}
              :min 0 :max 100
              :hexpand true))))
 
@@ -232,6 +220,7 @@
 
 (defwidget cc-notif-item [n]
   (box :class "cc-notif" :orientation "v" :space-evenly false :spacing 2
+       :onclick "~/.config/eww/scripts/focus-app '${n.app}' '${n.pid}'; ~/.config/eww/scripts/close-control-center"
     (box :orientation "h" :space-evenly false :spacing 6 :valign "center"
       (label :class "cc-notif-app"  :text {n.app}  :xalign 0 :hexpand true :ellipsize "end")
       (label :class "cc-notif-time" :text {n.time} :xalign 1)
