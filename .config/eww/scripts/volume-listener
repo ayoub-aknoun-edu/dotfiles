@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Event-driven volume listener for eww.
+# Emits initial value immediately, then updates on every PulseAudio sink event.
+# Using deflistener avoids the slider-reset bug caused by defpoll's fixed timer.
+
+pactl get-sink-volume @DEFAULT_SINK@ 2>/dev/null \
+    | grep -oP '[0-9]+(?=%)' | head -1 || echo 50
+
+pactl subscribe 2>/dev/null \
+    | grep --line-buffered -E "^Event .* on (sink|server) " \
+    | while IFS= read -r _; do
+        pactl get-sink-volume @DEFAULT_SINK@ 2>/dev/null \
+            | grep -oP '[0-9]+(?=%)' | head -1 || echo 50
+    done

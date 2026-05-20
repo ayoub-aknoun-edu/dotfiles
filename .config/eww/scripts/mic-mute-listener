@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Event-driven mic mute listener.
+
+pactl get-source-mute @DEFAULT_SOURCE@ 2>/dev/null | grep -q yes && echo true || echo false
+
+pactl subscribe 2>/dev/null \
+    | grep --line-buffered -E "^Event .* on (source|server) " \
+    | while IFS= read -r _; do
+        pactl get-source-mute @DEFAULT_SOURCE@ 2>/dev/null | grep -q yes && echo true || echo false
+    done

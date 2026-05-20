@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-
-exec wlogout -b 2 --protocol layer-shell
+exec wlogout -b 5 --protocol layer-shell

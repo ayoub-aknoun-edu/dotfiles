@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Remove a single notification by its ID.  $1 = numeric id.
+ID="${1:?notification id required}"
+CACHE="/run/user/$(id -u)/eww_notifications.json"
+python3 - <<EOF
+import json, os
+cache = '${CACHE}'
+data  = json.load(open(cache))
+data  = [n for n in data if n.get('id') != ${ID}]
+tmp   = cache + '.tmp'
+json.dump(data, open(tmp, 'w'))
+os.replace(tmp, cache)
+EOF

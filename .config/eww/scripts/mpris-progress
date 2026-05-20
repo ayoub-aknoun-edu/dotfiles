@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Returns MPRIS playback position as a percentage (0-100).
+POS=$(playerctl position 2>/dev/null) || { echo 0; exit 0; }
+LEN=$(playerctl metadata mpris:length 2>/dev/null) || { echo 0; exit 0; }
+[[ -z "$LEN" || "$LEN" -le 0 ]] && { echo 0; exit 0; }
+awk -v pos="$POS" -v len="$LEN" 'BEGIN { printf "%.0f\n", pos / (len / 1000000) * 100 }'

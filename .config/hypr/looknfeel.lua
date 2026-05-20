@@ -1,7 +1,7 @@
 -- Look and Feel
 -- See https://wiki.hypr.land/Configuring/Basics/Variables/
 
-require("colors")
+local C = require("colors")
 
 hl.config({
     general = {
@@ -12,27 +12,24 @@ hl.config({
 
         col = {
             -- Mauve → Teal gradient on active windows
-            active_border   = { colors = { accent, accent2 }, angle = 45 },
-            inactive_border = inactive_border,
+            active_border   = { colors = { C.accent, C.accent2 }, angle = 45 },
+            inactive_border = C.inactive_border,
         },
 
-        resize_on_border = false,
+        resize_on_border = true,
         allow_tearing    = false,
         layout           = "dwindle",
     },
 
     decoration = {
-        rounding       = 8,   -- Rounded corners
+        rounding       = 8,
         rounding_power = 2,
-
-        -- active_opacity   = 1.0,
-        -- inactive_opacity = 1.0,
 
         shadow = {
             enabled      = true,
             range        = 8,
             render_power = 3,
-            color        = shadow_color,
+            color        = C.shadow_color,
         },
 
         blur = {
@@ -60,7 +57,6 @@ hl.config({
 
     misc = {
         force_default_wallpaper = -1,
-        focus_on_activate       = true,
         disable_hyprland_logo   = true,
     },
 
@@ -71,26 +67,17 @@ hl.config({
 
 
 -- ─── Bezier curves ────────────────────────────────────────────────────────────
-hl.curve("linear",        { type = "bezier", points = { {0,    0   }, {1,    1    } } })
-hl.curve("md3_standard",  { type = "bezier", points = { {0.2,  0   }, {0,    1    } } })
-hl.curve("md3_decel",     { type = "bezier", points = { {0.05, 0.7 }, {0.1,  1    } } })
-hl.curve("md3_accel",     { type = "bezier", points = { {0.3,  0   }, {0.8,  0.15 } } })
-hl.curve("overshot",      { type = "bezier", points = { {0.05, 0.9 }, {0.1,  1.1  } } })
-hl.curve("crazyshot",     { type = "bezier", points = { {0.1,  1.5 }, {0.76, 0.92 } } })
-hl.curve("hyprnostretch", { type = "bezier", points = { {0.05, 0.9 }, {0.1,  1.0  } } })
-hl.curve("menu_decel",    { type = "bezier", points = { {0.1,  1   }, {0,    1    } } })
-hl.curve("menu_accel",    { type = "bezier", points = { {0.38, 0.04}, {1,    0.07 } } })
-hl.curve("easeInOutCirc", { type = "bezier", points = { {0.85, 0   }, {0.15, 1    } } })
-hl.curve("easeOutCirc",   { type = "bezier", points = { {0,    0.55}, {0.45, 1    } } })
-hl.curve("easeOutExpo",   { type = "bezier", points = { {0.16, 1   }, {0.3,  1    } } })
-hl.curve("softAcDecel",   { type = "bezier", points = { {0.26, 0.26}, {0.15, 1    } } })
-hl.curve("md2",           { type = "bezier", points = { {0.4,  0   }, {0.2,  1    } } })
+hl.curve("md3_decel",  { type = "bezier", points = { {0.05, 0.7 }, {0.1,  1    } } })
+hl.curve("md3_accel",  { type = "bezier", points = { {0.3,  0   }, {0.8,  0.15 } } })
+hl.curve("menu_decel", { type = "bezier", points = { {0.1,  1   }, {0,    1    } } })
+hl.curve("menu_accel", { type = "bezier", points = { {0.38, 0.04}, {1,    0.07 } } })
 
 
 -- ─── Animations ───────────────────────────────────────────────────────────────
 hl.animation({ leaf = "windows",          enabled = true, speed = 3,   bezier = "md3_decel",  style = "popin 60%" })
 hl.animation({ leaf = "windowsIn",        enabled = true, speed = 3,   bezier = "md3_decel",  style = "popin 60%" })
 hl.animation({ leaf = "windowsOut",       enabled = true, speed = 3,   bezier = "md3_accel",  style = "popin 60%" })
+hl.animation({ leaf = "windowsMove",      enabled = true, speed = 3,   bezier = "md3_decel" })
 hl.animation({ leaf = "border",           enabled = true, speed = 10,  bezier = "default" })
 hl.animation({ leaf = "fade",             enabled = true, speed = 3,   bezier = "md3_decel" })
 hl.animation({ leaf = "layersIn",         enabled = true, speed = 3,   bezier = "menu_decel", style = "slide" })

@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Receives float from eww scale (0-100), rounds to int, sets sink volume.
+VOL=$(printf '%.0f' "${1:-0}")
+pactl set-sink-volume @DEFAULT_SINK@ "${VOL}%"

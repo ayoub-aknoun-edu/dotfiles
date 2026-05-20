@@ -25,5 +25,4 @@ hl.env("MOZ_ENABLE_WAYLAND",            "1")
 hl.env("ELECTRON_OZONE_PLATFORM_HINT",  "wayland")
 hl.env("OZONE_PLATFORM",                "wayland")
 
--- Pipewire / screen-sharing
-hl.env("PIPEWIRE_RUNTIME_DIR", os.getenv("XDG_RUNTIME_DIR") or "/run/user/1000")
+-- Pipewire / screen-sharing (PIPEWIRE_RUNTIME_DIR defaults to XDG_RUNTIME_DIR)
