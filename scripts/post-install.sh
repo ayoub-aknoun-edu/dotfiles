@@ -61,21 +61,49 @@ else
     ok "Powerlevel10k already present — skipping"
 fi
 
-# ── 5. logind lid-switch fix ──────────────────────────────────────────────────
+# ── 5. logind lid-switch ──────────────────────────────────────────────────────
 LOGIND_DROP="/etc/systemd/logind.conf.d/lid.conf"
 if [ ! -f "$LOGIND_DROP" ]; then
-    info "Configuring logind lid-switch inhibitor (requires sudo)"
+    info "Configuring logind lid-switch (requires sudo)"
     sudo mkdir -p /etc/systemd/logind.conf.d
     sudo tee "$LOGIND_DROP" > /dev/null <<'LOGIND'
 [Login]
-# Respect hypridle's delay inhibitor on lid close so before_sleep_cmd
-# (loginctl lock-session) runs before the system actually suspends.
-LidSwitchIgnoreInhibited=no
+HandleLidSwitch=suspend
+HandleLidSwitchExternalPower=suspend
 LOGIND
     sudo systemctl kill -s HUP systemd-logind
     ok "logind lid.conf written and reloaded"
 else
     ok "logind lid.conf already present — skipping"
+fi
+
+# ── 6. lock-before-sleep system hook ─────────────────────────────────────────
+SLEEP_HOOK="/etc/systemd/system-sleep/lock-before-sleep.sh"
+if [ ! -f "$SLEEP_HOOK" ]; then
+    info "Installing lock-before-sleep hook (requires sudo)"
+    sudo mkdir -p /etc/systemd/system-sleep
+    sudo tee "$SLEEP_HOOK" > /dev/null <<'HOOK'
+#!/usr/bin/env bash
+# Lock all sessions before suspend/hibernate so the screen is always locked
+# on lid close, regardless of whether hypridle is running.
+case "$1" in
+    pre) loginctl lock-sessions; sleep 1 ;;
+esac
+HOOK
+    sudo chmod +x "$SLEEP_HOOK"
+    ok "lock-before-sleep hook installed"
+else
+    ok "lock-before-sleep hook already present — skipping"
+fi
+
+# ── 7. Replace hypridle-git with stable extra/hypridle ───────────────────────
+if pacman -Q hypridle-git &>/dev/null; then
+    info "Replacing hypridle-git (segfaults with sdbus-cpp 2.3.x) with stable hypridle"
+    sudo pacman -Rs --noconfirm hypridle-git 2>/dev/null || true
+    sudo pacman -S --noconfirm hypridle
+    ok "hypridle replaced with stable version"
+else
+    ok "hypridle-git not installed — skipping"
 fi
 
 echo ""
