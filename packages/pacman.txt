@@ -29,6 +29,8 @@ kitty
 hyprland
 hypridle
 hyprlock
+hyprsunset
+awww
 swww
 wayland
 xorg-xwayland

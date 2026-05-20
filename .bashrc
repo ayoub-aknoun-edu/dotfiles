@@ -24,7 +24,6 @@ if [ -r /usr/share/bash-completion/bash_completion ]; then
 fi
 
 
-# Load Angular CLI autocompletion.
-source <(ng completion script)
+command -v ng >/dev/null 2>&1 && source <(ng completion script) || true
 
-. "$HOME/.local/share/../bin/env"
+. "$HOME/.local/bin/env"
