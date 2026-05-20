@@ -1,11 +1,8 @@
 #!/usr/bin/env bash
-# Toggle the eww control center + its click-away overlay.
-# eww daemon must already be running (started via autostart.lua).
-
 if eww active-windows 2>/dev/null | grep -q "control-center"; then
-    eww close control-center
-    eww close cc-clickaway
+    ~/.config/eww/scripts/close-control-center
 else
-    eww open cc-clickaway
+    rm -f /tmp/eww_cc_open   # clear any stale flag from a previous crash
     eww open control-center
+    touch /tmp/eww_cc_open
 fi

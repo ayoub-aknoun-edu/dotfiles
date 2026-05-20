@@ -26,6 +26,14 @@ hl.bind(mainMod .. " + ALT + SPACE",   hl.dsp.exec_cmd(menu))
 hl.bind(mainMod .. " + N",        hl.dsp.exec_cmd("~/.config/eww/scripts/toggle-control-center"))
 hl.bind(mainMod .. " + SHIFT + N",hl.dsp.exec_cmd("swaync-client --toggle-dnd --skip-wait"))
 
+-- ESC closes the CC (passes through so apps still get ESC).
+hl.bind("escape", hl.dsp.exec_cmd("~/.config/eww/scripts/close-control-center"),
+        { non_consuming = true })
+
+-- Left-click closes the CC when clicking outside it (passes through to the clicked app).
+hl.bind("mouse:272", hl.dsp.exec_cmd("~/.config/eww/scripts/cc-click-outside"),
+        { non_consuming = true, mouse = true })
+
 
 -- ─── Screenshot ───────────────────────────────────────────────────────────────
 hl.bind(mainMod .. " + SHIFT + A", hl.dsp.exec_cmd("hyprshot -m region --raw | satty --filename -"))
