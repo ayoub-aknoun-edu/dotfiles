@@ -15,6 +15,7 @@ Personal configuration files for my daily development environment.
 | App            | Config                                     | Notes                                                                               |
 | -------------- | ------------------------------------------ | ----------------------------------------------------------------------------------- |
 | **Hyprland**   | `.config/hypr/`                            | Lua-based config split by concern (monitors, bindings, rules, look&feel, autostart) |
+| **UWSM / SDDM**| `.config/uwsm/env`                         | Environment is exported before Hyprland starts; SDDM launches the UWSM session       |
 | **Hypridle**   | `.config/hypr/hypridle-{ac,battery}.conf`  | AC/battery-aware idle timeouts, lid-close locking                                   |
 | **Hyprlock**   | `.config/hypr/hyprlock/`                   | Custom lock screen with clock, avatar, power buttons                                |
 | **Waybar**     | `.config/waybar/`                          | Top bar with taskbar, clock, battery, updates, power menu                           |
@@ -75,12 +76,13 @@ cd ~/dotfiles
 `stow.sh` symlinks every config into `$HOME`, then automatically runs `scripts/post-install.sh` which:
 
 - Writes `~/.config/gtk-3.0/bookmarks` with the correct `$HOME` for this machine
-- Enables `hypridle.service`, `hypridle-power-watcher.service`, `battery-alert.timer` via systemd
+- Enables `hyprpolkitagent.service`, `hypridle.service`, `hypridle-power-watcher.service`, `battery-alert.timer` via systemd
+- Enables `NetworkManager.service`, `bluetooth.service`, and `sddm.service`
 - Installs Oh-My-Zsh if not already present
 - Clones Powerlevel10k if not already present
 - Writes `/etc/systemd/logind.conf.d/lid.conf` so lid close locks before suspend
 
-After that, log out and back in (or start a fresh Hyprland session).
+After that, log out and choose the Hyprland/UWSM session from SDDM.
 
 > **First zsh launch:** run `p10k configure` to generate your prompt theme.
 > **Neovim:** plugins install automatically on first launch via Lazy.nvim.

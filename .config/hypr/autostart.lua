@@ -2,12 +2,15 @@
 -- See https://wiki.hypr.land/Configuring/Basics/Autostart/
 
 hl.on("hyprland.start", function()
-    -- 1. D-Bus / systemd environment propagation (must be first)
-    hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=Hyprland XDG_SESSION_DESKTOP=Hyprland")
-    hl.exec_cmd("systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_DESKTOP GTK_THEME QT_QPA_PLATFORMTHEME")
+    -- 1. D-Bus / systemd environment propagation for direct Hyprland launches.
+    -- UWSM already handles this when the session starts through hyprland-uwsm.
+    if not os.getenv("UWSM_FINALIZE_VARNAMES") then
+        hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=Hyprland XDG_SESSION_DESKTOP=Hyprland")
+        hl.exec_cmd("systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_DESKTOP GTK_THEME QT_QPA_PLATFORMTHEME")
+    end
 
     -- 2. PolicyKit agent (needed for Thunar mount dialogs, etc.)
-    hl.exec_cmd("/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1")
+    hl.exec_cmd("bash -lc 'systemctl --user start hyprpolkitagent.service 2>/dev/null || /usr/lib/hyprpolkitagent/hyprpolkitagent'")
 
     -- 3. Status bar
     hl.exec_cmd("~/.config/waybar/launch.sh")

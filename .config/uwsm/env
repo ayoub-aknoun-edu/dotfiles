@@ -1,0 +1,21 @@
+# Environment exported by UWSM before Hyprland starts.
+# Keep compositor/session identity variables under UWSM's control.
+
+# Cursor
+export XCURSOR_SIZE=24
+export HYPRCURSOR_SIZE=24
+
+# Theming
+export GTK_THEME=Adwaita:dark
+export QT_STYLE_OVERRIDE=kvantum
+export QT_QPA_PLATFORMTHEME=qt6ct
+export XDG_ICON_THEME=Papirus-Dark
+export XDG_MENU_PREFIX=arch-
+
+# Toolkit Wayland hints
+export GDK_BACKEND=wayland,x11,*
+export QT_QPA_PLATFORM='wayland;xcb'
+export SDL_VIDEODRIVER=wayland
+export MOZ_ENABLE_WAYLAND=1
+export ELECTRON_OZONE_PLATFORM_HINT=wayland
+export OZONE_PLATFORM=wayland
