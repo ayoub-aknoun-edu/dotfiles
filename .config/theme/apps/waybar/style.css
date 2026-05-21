@@ -38,7 +38,6 @@ window#waybar.hidden {
   margin: 0;
   padding: 0;
   background-color: @module-bg;
-  ;
   border-radius: 10px;
 }
 
@@ -72,7 +71,12 @@ window#waybar.hidden {
 #custom-ws-2,
 #custom-ws-3,
 #custom-ws-4,
-#custom-ws-5 {
+#custom-ws-5,
+#custom-ws-6,
+#custom-ws-7,
+#custom-ws-8,
+#custom-ws-9,
+#custom-ws-10 {
   color: @muted;
   padding: 0 10px;
   margin: 0 4px;
@@ -86,7 +90,12 @@ window#waybar.hidden {
 #custom-ws-2:hover,
 #custom-ws-3:hover,
 #custom-ws-4:hover,
-#custom-ws-5:hover {
+#custom-ws-5:hover,
+#custom-ws-6:hover,
+#custom-ws-7:hover,
+#custom-ws-8:hover,
+#custom-ws-9:hover,
+#custom-ws-10:hover {
   background: @module-hover-bg;
   color: @foreground;
 }
@@ -104,29 +113,6 @@ window#waybar.hidden {
   color: @foreground;
   background: @module-active-bg;
   font-weight: 600;
-}
-
-#custom-ws-6,
-#custom-ws-7,
-#custom-ws-8,
-#custom-ws-9,
-#custom-ws-10 {
-  color: @muted;
-  padding: 0 10px;
-  margin: 0 4px;
-  border-radius: 10px;
-  min-height: 30px;
-  background: transparent;
-  transition: all 0.3s ease;
-}
-
-#custom-ws-6:hover,
-#custom-ws-7:hover,
-#custom-ws-8:hover,
-#custom-ws-9:hover,
-#custom-ws-10:hover {
-  background: @module-hover-bg;
-  color: @foreground;
 }
 
 #custom-ws-6.empty,
