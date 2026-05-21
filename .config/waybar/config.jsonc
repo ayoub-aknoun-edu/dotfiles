@@ -35,7 +35,7 @@
   "group/system-info": {
     "orientation": "inherit",
     "drawer": {
-      "transition-duration": 400,
+      "transition-duration": 150,
       "children-class": "system-info",
       "transition-left-to-right": false,
     },
@@ -218,7 +218,7 @@
   },
 
   "battery": {
-    "interval": 10,
+    "interval": 5,
     "states": {
       "warning": 30,
       "critical": 15,
@@ -238,8 +238,13 @@
     "format-charging": "<span size='15pt' font='Material Symbols Outlined'>battery_charging_full</span>",
     "format-plugged": "<span size='15pt' font='Material Symbols Outlined'>power</span>",
     "format-plugordie": "<span size='15pt' font='Material Symbols Outlined'>battery_alert</span>",
+    "format-time": "{H}h {M}m",
     "tooltip": true,
-    "tooltip-format": "{timeTo}\nCapacity: {capacity}%",
+    "tooltip-format": "{capacity}%  ·  {time}\nDraw: {power} W  ·  Health: {health}%",
+    "tooltip-format-discharging": "Discharging: {capacity}%\nRemaining: {time}\nDraw: {power} W  ·  Health: {health}%",
+    "tooltip-format-charging": "Charging: {capacity}%\nTo full: {time}\nDraw: {power} W  ·  Health: {health}%",
+    "tooltip-format-full": "Full: {capacity}%\nHealth: {health}%",
+    "tooltip-format-plugged": "Plugged: {capacity}%\nHealth: {health}%",
   },
 
   "tray": {
