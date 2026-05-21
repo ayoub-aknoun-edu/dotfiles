@@ -83,8 +83,10 @@ hl.bind(mainMod .. " + SHIFT + down",  hl.dsp.window.swap({ direction = "d" }))
 
 
 -- ─── Alt-Tab ──────────────────────────────────────────────────────────────────
-hl.bind("ALT + TAB",         hl.dsp.exec_cmd("hyprctl --batch 'dispatch cyclenext ; dispatch bringactivetotop'"))
-hl.bind("ALT + SHIFT + TAB", hl.dsp.exec_cmd("hyprctl --batch 'dispatch cyclenext prev ; dispatch alterzorder top'"))
+hl.bind("ALT + TAB",         hl.dsp.window.cycle_next())
+hl.bind("ALT + TAB",         hl.dsp.window.bring_to_top())
+hl.bind("ALT + SHIFT + TAB", hl.dsp.window.cycle_next({ prev = true }))
+hl.bind("ALT + SHIFT + TAB", hl.dsp.window.bring_to_top())
 
 
 -- ─── Resize ───────────────────────────────────────────────────────────────────
