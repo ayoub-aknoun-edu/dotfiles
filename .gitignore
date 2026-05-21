@@ -1,3 +1,4 @@
 .vscode
 .config/shell/local.sh
-
+.config/systemd/user/*.target.wants/
+.local/bin/hypridle

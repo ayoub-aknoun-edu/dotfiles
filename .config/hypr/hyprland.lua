@@ -9,14 +9,20 @@
 --   autostart → exec-once equivalents
 --   binding, windowrules → keybinds and rules
 
--- Enable logging so errors show in the log file
-hl.config({ debug = { disable_logs = false } })
+-- Keep runtime logging quiet by default. Use `hyprctl configerrors` for
+-- config issues, or temporarily flip this while debugging.
+hl.config({ debug = { disable_logs = true } })
 
 require("colors")
 require("monitors")
-require("envs")
+-- UWSM sources ~/.config/uwsm/env before Hyprland starts. Keep envs.lua as a
+-- direct-launch fallback so the config remains usable without UWSM.
+if not os.getenv("UWSM_FINALIZE_VARNAMES") then
+    require("envs")
+end
 require("looknfeel")
 require("input")
 require("autostart")
+require("permissions")
 require("binding")
 require("windowrules")
