@@ -2,10 +2,7 @@
 # Start hypridle with the AC or battery config depending on current power source.
 # Called by hypridle.service and restarted by hypridle-power-watcher when AC state changes.
 #
-# Prefer ~/.local/bin/hypridle (stable extra/hypridle) over /usr/bin/hypridle
-# because the hypridle-git AUR build has a segfault bug with sdbus-cpp 2.3.x.
-HYPRIDLE="${HOME}/.local/bin/hypridle"
-[[ -x "$HYPRIDLE" ]] || HYPRIDLE="/usr/bin/hypridle"
+HYPRIDLE="/usr/bin/hypridle"
 
 if [[ "$(cat /sys/class/power_supply/AC/online 2>/dev/null)" == "1" ]]; then
     exec "$HYPRIDLE" -c ~/.config/hypr/hypridle-ac.conf
