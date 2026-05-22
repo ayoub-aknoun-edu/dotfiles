@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Start hypridle with the AC or battery config depending on current power source.
+# Called by hypridle.service and restarted by hypridle-power-watcher when AC state changes.
+#
+HYPRIDLE="/usr/bin/hypridle"
+
+if [[ "$(cat /sys/class/power_supply/AC/online 2>/dev/null)" == "1" ]]; then
+    exec "$HYPRIDLE" -c ~/.config/hypr/hypridle-ac.conf
+else
+    exec "$HYPRIDLE" -c ~/.config/hypr/hypridle-battery.conf
+fi

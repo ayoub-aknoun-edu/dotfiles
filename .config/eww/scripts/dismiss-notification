@@ -1,0 +1,23 @@
+#!/usr/bin/env python3
+import json, os, subprocess, sys
+
+id_to_remove = int(sys.argv[1])
+cache = f'/run/user/{os.getuid()}/eww_notifications.json'
+
+with open(cache) as f:
+    data = json.load(f)
+
+data = [n for n in data if n.get('id') != id_to_remove]
+
+tmp = cache + '.tmp'
+with open(tmp, 'w') as f:
+    json.dump(data, f)
+os.replace(tmp, cache)
+
+# Immediately push new values to eww — no waiting for the next poll cycle.
+subprocess.run(
+    ['eww', 'update',
+     f'notifications={json.dumps(data)}',
+     f'notif-count={len(data)}'],
+    capture_output=True
+)

@@ -1,4 +1,9 @@
-/* Wrapper file.
- * Main wlogout styling lives in: ~/.config/theme/apps/wlogout/style.css
- */
+/* Delegates to the shared palette */
 @import "../theme/apps/wlogout/style.css";
+
+/* 5-button single-row layout: round the outer left/right edges only */
+#lock     { border-radius: 30px 10px 10px 30px; }
+#suspend  { border-radius: 10px; }
+#logout   { border-radius: 10px; }
+#reboot   { border-radius: 10px; }
+#shutdown { border-radius: 10px 30px 30px 10px; }

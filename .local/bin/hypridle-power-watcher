@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# Watch UPower D-Bus events and restart hypridle when AC state changes.
+# Defers the restart until hyprlock is no longer running to avoid a
+# protocol conflict that crashes Hyprland when the session lock is active.
+
+set -euo pipefail
+
+AC_STATE_FILE="/sys/class/power_supply/AC/online"
+
+last_state=$(cat "$AC_STATE_FILE" 2>/dev/null || echo "1")
+waiter_pid=""
+
+do_restart() {
+    # If the screen is locked, wait for it to unlock first
+    while pidof hyprlock >/dev/null 2>&1; do
+        sleep 2
+    done
+    sleep 1  # brief settle after unlock
+    systemctl --user restart hypridle.service
+}
+
+restart_if_changed() {
+    local state
+    state=$(cat "$AC_STATE_FILE" 2>/dev/null || echo "1")
+    if [[ "$state" != "$last_state" ]]; then
+        last_state="$state"
+        # Cancel any previous pending restart, start a fresh one
+        [[ -n "$waiter_pid" ]] && kill "$waiter_pid" 2>/dev/null || true
+        do_restart &
+        waiter_pid=$!
+    fi
+}
+
+# Use process substitution so the while loop runs in the main shell
+# (keeps last_state and waiter_pid in scope across iterations)
+while IFS= read -r _; do
+    restart_if_changed
+done < <(upower --monitor 2>/dev/null)

@@ -4,5 +4,8 @@ ttf-material-symbols-variable-git
 # Browser
 thorium-browser-bin
 
+# Widgets
+eww
 
+# Logout menu
 wlogout

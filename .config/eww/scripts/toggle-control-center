@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+if eww active-windows 2>/dev/null | grep -q "control-center"; then
+    ~/.config/eww/scripts/close-control-center
+else
+    rm -f /tmp/eww_cc_open   # clear any stale flag from a previous crash
+    eww open control-center
+    touch /tmp/eww_cc_open
+fi

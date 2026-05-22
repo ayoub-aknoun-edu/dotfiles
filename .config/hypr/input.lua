@@ -24,9 +24,3 @@ hl.gesture({
     direction = "horizontal",
     action    = "workspace",
 })
-
--- Per-device configuration
-hl.device({
-    name        = "epic-mouse-v1",
-    sensitivity = 1,
-})

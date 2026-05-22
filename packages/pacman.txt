@@ -11,6 +11,8 @@ perl
 # CLI tools
 curl
 wget
+man-db
+man-pages
 fastfetch
 btop
 bottom
@@ -26,17 +28,24 @@ zsh-syntax-highlighting
 kitty
 
 # Hyprland session
+sddm
 hyprland
+uwsm
+hyprland-protocols
+hyprlang
+hyprutils
+hyprwayland-scanner
 hypridle
 hyprlock
-swww
+hyprsunset
+hyprpolkitagent
+awww
 wayland
 xorg-xwayland
 xdg-desktop-portal
 xdg-desktop-portal-hyprland
 xdg-desktop-portal-gtk
 xdg-utils
-polkit-gnome
 
 # Bar / launcher / logout
 waybar
@@ -63,16 +72,22 @@ alsa-utils
 # Brightness / power
 brightnessctl
 power-profiles-daemon
+upower
 
 # Network / bluetooth
 networkmanager
+networkmanager-dmenu
 nm-connection-editor
 bluez
 bluez-utils
 blueman
 
 # File manager
-dolphin
+thunar
+
+# Screenshots
+hyprshot
+satty
 
 # Theme / appearance
 qt6ct

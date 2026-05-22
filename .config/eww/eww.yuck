@@ -1,0 +1,261 @@
+; ============================================================
+; eww Control Center
+; ============================================================
+
+; ── Event-driven variables (fixes slider reset bug) ──────────
+; :initial gives a safe default before the script first emits.
+
+(deflisten volume :initial "50"
+  `~/.config/eww/scripts/volume-listener`)
+
+(deflisten speaker-muted :initial "false"
+  `~/.config/eww/scripts/mute-listener`)
+
+(deflisten mic-muted :initial "false"
+  `~/.config/eww/scripts/mic-mute-listener`)
+
+; ── Polled variables ─────────────────────────────────────────
+
+(defpoll brightness :interval "2s"
+  `brightnessctl -m 2>/dev/null | awk -F, '{print $4}' | tr -d '%' || echo 50`)
+
+(defpoll wifi-enabled :interval "3s"
+  `rfkill list wifi 2>/dev/null | grep -q 'Soft blocked: no' && echo true || echo false`)
+
+(defpoll bt-enabled :interval "3s"
+  `rfkill list bluetooth 2>/dev/null | grep -q 'Soft blocked: no' && echo true || echo false`)
+
+(defpoll eyecare-enabled :interval "2s"
+  `test -f "/run/user/$(id -u)/eyecare.state" && echo true || echo false`)
+
+(defpoll power-profile :interval "5s"
+  `powerprofilesctl get 2>/dev/null || echo "balanced"`)
+
+(defpoll mpris :interval "2s"
+  `~/.config/eww/scripts/mpris-data`)
+
+(defpoll mpris-art :interval "5s"
+  `~/.config/eww/scripts/mpris-art`)
+
+(defpoll notifications :interval "3s"
+  `cat "/run/user/$(id -u)/eww_notifications.json" 2>/dev/null || echo "[]"`)
+
+(defpoll notif-count :interval "3s"
+  `python3 -c "import json; print(len(json.load(open('/run/user/$(id -u)/eww_notifications.json'))))" 2>/dev/null || echo 0`)
+
+; ── Windows ──────────────────────────────────────────────────
+
+(defwindow control-center
+  :monitor 0
+  :geometry (geometry
+    :x "10px"
+    :y "54px"
+    :width "390px"
+    :anchor "top right")
+  :stacking "overlay"
+  :exclusive false
+  :focusable true
+  (cc-root))
+
+; ─────────────────────────────────────────────────────────────
+; Widgets
+; ─────────────────────────────────────────────────────────────
+
+(defwidget cc-root []
+  (box :class "cc-root" :orientation "v" :space-evenly false :spacing 8
+    (cc-header)
+    (cc-toggles)
+    (cc-sliders)
+    (cc-mpris)
+    (cc-notifications)))
+
+; ── Header ───────────────────────────────────────────────────
+
+(defwidget cc-header []
+  (box :class "cc-header" :orientation "h" :space-evenly false :valign "center"
+    (label :class "cc-header-title" :text "Quick Settings"
+           :hexpand true :xalign 0)
+    (button :class "cc-header-close"
+            :onclick "~/.config/eww/scripts/close-control-center"
+      (label :text "󰅖"))))
+
+; ── Toggle tiles ─────────────────────────────────────────────
+
+(defwidget cc-tile [icon label active onclick ?onrightclick ?tooltip]
+  (button
+    :class {active == "true" ? "cc-tile active" : "cc-tile"}
+    :onclick onclick
+    :onrightclick {onrightclick ?: ""}
+    :tooltip {tooltip ?: ""}
+    (box :orientation "v" :space-evenly false :spacing 4 :halign "center" :valign "center"
+      (label :class "cc-tile-icon" :text icon)
+      (label :class "cc-tile-label" :text label))))
+
+(defwidget cc-toggles []
+  (box :class "cc-section" :orientation "v" :space-evenly false :spacing 6
+    ; Row 1: audio + eye care
+    (box :orientation "h" :space-evenly true :spacing 6
+      (cc-tile
+        :icon      {speaker-muted == "true" ? "󰖁" : "󰕾"}
+        :label     {speaker-muted == "true" ? "Muted" : "Speaker"}
+        :active    {speaker-muted == "true" ? "false" : "true"}
+        :onclick   "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
+        :onrightclick "pavucontrol &"
+        :tooltip   "Speaker · right-click: open mixer")
+      (cc-tile
+        :icon      {mic-muted == "true" ? "󰍭" : "󰍬"}
+        :label     {mic-muted == "true" ? "Muted" : "Mic"}
+        :active    {mic-muted == "true" ? "false" : "true"}
+        :onclick   "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
+        :onrightclick "pavucontrol &"
+        :tooltip   "Microphone · right-click: open mixer")
+      (cc-tile
+        :icon      "󰛨"
+        :label     {eyecare-enabled == "true" ? "Warm" : "Eye Care"}
+        :active    eyecare-enabled
+        :onclick   "~/.local/bin/eyecare-toggle"
+        :tooltip   "Eye comfort (warm colour temperature)"))
+    ; Row 2: connectivity + power
+    (box :orientation "h" :space-evenly true :spacing 6
+      (cc-tile
+        :icon      {wifi-enabled == "true" ? "󰤨" : "󰤭"}
+        :label     {wifi-enabled == "true" ? "Wi-Fi" : "Wi-Fi Off"}
+        :active    wifi-enabled
+        :onclick   "rfkill toggle wifi"
+        :onrightclick "networkmanager_dmenu &"
+        :tooltip   "Wi-Fi · right-click: manage networks")
+      (cc-tile
+        :icon      {bt-enabled == "true" ? "󰂯" : "󰂲"}
+        :label     {bt-enabled == "true" ? "Bluetooth" : "BT Off"}
+        :active    bt-enabled
+        :onclick   "rfkill toggle bluetooth"
+        :onrightclick "blueman-manager &"
+        :tooltip   "Bluetooth · right-click: manage devices")
+      (cc-tile
+        :icon      {power-profile == "performance" ? "󱐋" :
+                    power-profile == "power-saver"  ? "󰌪" : "󰓅"}
+        :label     {power-profile == "performance" ? "Perf" :
+                    power-profile == "power-saver"  ? "Saver" : "Balanced"}
+        :active    {power-profile != "power-saver"}
+        :onclick   "~/.config/eww/scripts/cycle-power-profile"
+        :tooltip   "Power profile: ${power-profile} · click to cycle"))))
+
+; ── Sliders ──────────────────────────────────────────────────
+
+(defwidget cc-slider-row [icon value min max onchange]
+  (box :class "cc-slider-row" :orientation "h" :space-evenly false :spacing 10
+       :valign "center"
+    (label :class "cc-slider-icon" :text icon)
+    (scale :class "cc-slider"
+           :value value
+           :min min
+           :max max
+           :hexpand true
+           :onchange onchange)
+    (label :class "cc-slider-val"
+           :text "${value}%")))
+
+(defwidget cc-sliders []
+  (box :class "cc-section" :orientation "v" :space-evenly false :spacing 8
+    (cc-slider-row
+      :icon     {speaker-muted == "true" ? "󰖁" : "󰕾"}
+      :value    volume
+      :min      0
+      :max      100
+      :onchange "~/.config/eww/scripts/set-volume {}")
+    (cc-slider-row
+      :icon     "󰛨"
+      :value    brightness
+      :min      1
+      :max      100
+      :onchange "~/.config/eww/scripts/set-brightness {}")))
+
+; ── MPRIS player ─────────────────────────────────────────────
+
+(defwidget cc-mpris []
+  (revealer :reveal {mpris.active}
+            :transition "slidedown"
+            :duration "200ms"
+    (box :class "cc-section cc-mpris" :orientation "v" :space-evenly false :spacing 8
+      ; Row 1: art + info + controls
+      (box :orientation "h" :space-evenly false :spacing 10 :valign "center"
+        ; Album art (hidden when no art available)
+        (image :class "cc-mpris-art"
+               :path mpris-art
+               :image-width 52
+               :image-height 52
+               :visible {mpris-art != ""})
+        ; Title + artist row + player cycle badge
+        (box :orientation "v" :space-evenly false :spacing 2 :hexpand true :valign "center"
+          (label :class "cc-mpris-title"
+                 :text {mpris.title != "" ? mpris.title : "Unknown"}
+                 :xalign 0 :ellipsize "end")
+          (box :orientation "h" :space-evenly false :spacing 6 :valign "center"
+            (label :class "cc-mpris-artist"
+                   :text {mpris.artist != "" ? mpris.artist : mpris.player}
+                   :xalign 0 :ellipsize "end" :hexpand true)
+            (button :class "cc-mpris-player-btn"
+                    :visible {mpris.count > 1}
+                    :onclick "~/.config/eww/scripts/mpris-next-player"
+                    :tooltip "Switch player"
+              (label :text "${mpris.player} ↺"))))
+        ; Transport controls
+        (box :class "cc-mpris-btns" :orientation "h" :space-evenly false :spacing 0 :valign "center"
+          (button :class "cc-mpris-btn"
+                  :onclick "~/.config/eww/scripts/mpris-ctl previous"
+            (label :text "󰒮"))
+          (button :class "cc-mpris-btn play"
+                  :onclick {mpris.playing == true ? "~/.config/eww/scripts/mpris-ctl pause" : "~/.config/eww/scripts/mpris-ctl play"}
+            (label :text {mpris.playing == true ? "󰏤" : "󰐊"}))
+          (button :class "cc-mpris-btn"
+                  :onclick "~/.config/eww/scripts/mpris-ctl next"
+            (label :text "󰒭"))))
+      ; Row 2: progress bar (display only)
+      (scale :class "cc-mpris-progress-bar"
+             :value {mpris.progress}
+             :min 0 :max 100
+             :hexpand true))))
+
+; ── Notification list ────────────────────────────────────────
+
+(defwidget cc-notif-item [n]
+  (box :class "cc-notif" :orientation "v" :space-evenly false :spacing 2
+       :onclick "~/.config/eww/scripts/focus-app '${n.app}' '${n.pid}'; ~/.config/eww/scripts/close-control-center"
+    (box :orientation "h" :space-evenly false :spacing 6 :valign "center"
+      (label :class "cc-notif-app"  :text {n.app}  :xalign 0 :hexpand true :ellipsize "end")
+      (label :class "cc-notif-time" :text {n.time} :xalign 1)
+      (button :class "cc-notif-dismiss"
+              :onclick "~/.config/eww/scripts/dismiss-notification ${n.id}"
+        (label :text "󰅖")))
+    (label :class "cc-notif-summary" :text {n.summary}
+           :xalign 0 :ellipsize "end"
+           :visible {n.summary != ""})
+    (label :class "cc-notif-body" :text {n.body}
+           :xalign 0 :wrap true
+           :visible {n.body != ""})))
+
+(defwidget cc-notifications []
+  (box :class "cc-section cc-notifs-section" :orientation "v"
+       :space-evenly false :spacing 6
+    ; Header row
+    (box :class "cc-notifs-header" :orientation "h" :space-evenly false :valign "center"
+      (label :class "cc-section-title"
+             :text {notif-count == "0" ? "Notifications" : "Notifications (${notif-count})"}
+             :hexpand true :xalign 0)
+      (button :class "cc-btn-clear"
+              :visible {notif-count != "0"}
+              :onclick "~/.config/eww/scripts/clear-notifications"
+        (label :text "Clear all")))
+    ; Empty state
+    (label :class "cc-notifs-empty"
+           :text "No new notifications"
+           :xalign 0.5
+           :visible {notif-count == "0"})
+    ; Scrollable notification cards
+    (scroll :class "cc-notifs-scroll"
+            :hscroll "never" :vscroll "automatic"
+            :height 220
+            :visible {notif-count != "0"}
+      (box :orientation "v" :space-evenly false :spacing 4
+        (for n in notifications
+          (cc-notif-item :n n))))))

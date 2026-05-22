@@ -1,0 +1,110 @@
+#!/usr/bin/env python3
+"""
+Switch to the Hyprland window for a notification click.
+
+Usage: focus-app <app_name> [sender_pid]
+
+Strategy (in order):
+  1. Walk the process tree from sender_pid up to find a Hyprland client
+     (handles browser renderer PIDs for web-app notifications)
+  2. Workspace-switch to that client
+  3. If no client found by PID tree, try focuswindow by class/title regex
+     (handles native apps that are visible but sender-pid doesn't match directly)
+  4. If still not found, try focuswindow pid:<sender_pid>
+     (handles tray apps — brings the window back from tray)
+"""
+import json, os, re, subprocess, sys
+
+
+def get_clients():
+    try:
+        return json.loads(
+            subprocess.check_output(['hyprctl', '-j', 'clients'],
+                                    stderr=subprocess.DEVNULL)
+        )
+    except Exception:
+        return []
+
+
+def ppid(pid):
+    try:
+        with open(f'/proc/{pid}/status') as f:
+            for line in f:
+                if line.startswith('PPid:'):
+                    return int(line.split()[1])
+    except (IOError, OSError):
+        pass
+    return None
+
+
+def find_workspace_by_pid(start_pid, clients):
+    """Walk up the process tree from start_pid; return workspace id if any ancestor
+    is a Hyprland client."""
+    client_map = {c['pid']: c for c in clients if c.get('pid')}
+    pid = start_pid
+    seen = set()
+    while pid and pid > 1:
+        if pid in seen:
+            break
+        seen.add(pid)
+        if pid in client_map:
+            ws = client_map[pid].get('workspace', {}).get('id')
+            return ws
+        pid = ppid(pid)
+    return None
+
+
+def dispatch(cmd, *args):
+    subprocess.run(['hyprctl', 'dispatch', cmd, *args], capture_output=True)
+
+
+def main():
+    with open('/tmp/focus-app-debug.log', 'a') as lf:
+        lf.write(f'called: {sys.argv}\n')
+
+    app_arg = sys.argv[1].lower() if len(sys.argv) > 1 else ''
+
+    sender_pid = None
+    if len(sys.argv) > 2:
+        try:
+            v = int(sys.argv[2])
+            if v > 0:
+                sender_pid = v
+        except (ValueError, TypeError):
+            pass
+
+    if not app_arg and sender_pid is None:
+        return
+
+    clients = get_clients()
+
+    # 1. Walk process tree from sender_pid → workspace switch
+    if sender_pid is not None:
+        ws = find_workspace_by_pid(sender_pid, clients)
+        if ws and ws > 0:
+            dispatch('workspace', str(ws))
+            return
+
+    # 2. Class/title substring match → workspace switch
+    if app_arg:
+        for c in clients:
+            cls   = c.get('class', '').lower()
+            title = c.get('title', '').lower()
+            if app_arg in cls or cls in app_arg or app_arg in title:
+                ws = c.get('workspace', {}).get('id')
+                if ws and ws > 0:
+                    dispatch('workspace', str(ws))
+                    return
+
+    # 3. focuswindow by pid (brings tray apps back as a window)
+    if sender_pid is not None:
+        dispatch('focuswindow', f'pid:{sender_pid}')
+        return
+
+    # 4. focuswindow by class (last resort)
+    if app_arg:
+        dispatch('focuswindow', app_arg)
+
+
+if __name__ == '__main__':
+    main()

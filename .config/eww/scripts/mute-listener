@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Event-driven speaker mute listener.
+
+pactl get-sink-mute @DEFAULT_SINK@ 2>/dev/null | grep -q yes && echo true || echo false
+
+pactl subscribe 2>/dev/null \
+    | grep --line-buffered -E "^Event .* on (sink|server) " \
+    | while IFS= read -r _; do
+        pactl get-sink-mute @DEFAULT_SINK@ 2>/dev/null | grep -q yes && echo true || echo false
+    done

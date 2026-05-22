@@ -1,0 +1,221 @@
+#!/usr/bin/env python3
+"""
+eww notification logger — syncs with swaync via D-Bus eavesdrop.
+
+Improvements over the old version:
+  • Matches Notify replies to get server-assigned IDs
+  • Handles replaces_id → updates existing card instead of duplicating
+  • Listens to NotificationClosed → removes cards when swaync dismisses them
+  • Stores sender-pid for accurate window-focus from notification clicks
+"""
+import subprocess, json, os, re
+from datetime import datetime
+
+RUNTIME = os.environ.get('XDG_RUNTIME_DIR', f'/run/user/{os.getuid()}')
+CACHE   = os.path.join(RUNTIME, 'eww_notifications.json')
+MAX     = 20
+
+# pending Notify calls awaiting server reply: call_serial → dict
+_pending      = {}
+# server notification ID → our internal notification ID
+_srv_to_ours  = {}
+
+
+def _load():
+    try:
+        with open(CACHE) as f:
+            return json.load(f)
+    except Exception:
+        return []
+
+
+def _save(notifs):
+    tmp = CACHE + '.tmp'
+    with open(tmp, 'w') as f:
+        json.dump(notifs, f)
+    os.replace(tmp, CACHE)
+
+
+def _eww_update(notifs):
+    subprocess.run(
+        ['eww', 'update',
+         f'notifications={json.dumps(notifs)}',
+         f'notif-count={len(notifs)}'],
+        capture_output=True
+    )
+
+
+def _next_id(notifs):
+    ids = [n['id'] for n in notifs if isinstance(n.get('id'), int)]
+    return (max(ids) + 1) if ids else 1
+
+
+def _handle_notify_call(header, body):
+    m = re.search(r'\bserial=(\d+)', header)
+    if not m:
+        return
+    serial = int(m.group(1))
+
+    # Collect positional args before the first "array [" line.
+    # Notify signature: app_name(s) replaces_id(u) app_icon(s) summary(s) body(s) …
+    args = []
+    for line in body:
+        s = line.strip()
+        if s.startswith('array ['):
+            break
+        ms = re.match(r'^string "(.*)"$', s)
+        if ms:
+            args.append(ms.group(1))
+            continue
+        mu = re.match(r'^uint32 (\d+)$', s)
+        if mu:
+            args.append(int(mu.group(1)))
+
+    app_name    = args[0] if len(args) > 0 and isinstance(args[0], str) else ''
+    replaces_id = args[1] if len(args) > 1 and isinstance(args[1], int) else 0
+    summary     = args[3] if len(args) > 3 and isinstance(args[3], str) else ''
+    body_text   = args[4] if len(args) > 4 and isinstance(args[4], str) else ''
+
+    # Extract sender-pid from hints dict.
+    # In dbus-monitor output, hints look like:
+    #   string "sender-pid"
+    #   variant
+    #      int32 12345
+    pid = None
+    want_pid = False
+    for line in body:
+        s = line.strip()
+        if s == 'string "sender-pid"':
+            want_pid = True
+            continue
+        if want_pid:
+            mp = re.match(r'^(?:variant\s+)?int(?:32|64) (-?\d+)$', s)
+            if mp:
+                pid = int(mp.group(1))
+                break
+            if s not in ('', 'variant'):
+                want_pid = False
+
+    _pending[serial] = {
+        'app':         app_name,
+        'replaces_id': replaces_id,
+        'summary':     summary,
+        'body':        body_text,
+        'pid':         pid,
+    }
+
+
+def _handle_notify_reply(header, body):
+    m = re.search(r'\breply_serial=(\d+)', header)
+    if not m:
+        return
+    reply_serial = int(m.group(1))
+    if reply_serial not in _pending:
+        return
+
+    # The server-assigned notification ID is the uint32 in the reply body.
+    server_id = None
+    for line in body:
+        mu = re.match(r'^\s+uint32 (\d+)$', line)
+        if mu:
+            server_id = int(mu.group(1))
+            break
+    if server_id is None:
+        return
+
+    p = _pending.pop(reply_serial)
+    if not (p['summary'] or p['body']):
+        return
+
+    notifs  = _load()
+    our_id  = None
+    replaced = False
+
+    # replaces_id: update the existing card rather than inserting a new one.
+    if p['replaces_id'] and p['replaces_id'] in _srv_to_ours:
+        our_id = _srv_to_ours[p['replaces_id']]
+        for i, n in enumerate(notifs):
+            if n.get('id') == our_id:
+                notifs[i] = {
+                    'id':      our_id,
+                    'app':     p['app'],
+                    'summary': p['summary'],
+                    'body':    p['body'],
+                    'time':    datetime.now().strftime('%H:%M'),
+                    'pid':     p['pid'],
+                }
+                replaced = True
+                break
+
+    if not replaced:
+        our_id = _next_id(notifs)
+        notifs.insert(0, {
+            'id':      our_id,
+            'app':     p['app'],
+            'summary': p['summary'],
+            'body':    p['body'],
+            'time':    datetime.now().strftime('%H:%M'),
+            'pid':     p['pid'],
+        })
+
+    _srv_to_ours[server_id] = our_id
+    notifs = notifs[:MAX]
+    _save(notifs)
+    _eww_update(notifs)
+
+
+def _handle_closed(header, body):
+    # NotificationClosed(notification_id: u, reason: u) — first uint32 is the ID.
+    server_id = None
+    for line in body:
+        mu = re.match(r'^\s+uint32 (\d+)$', line)
+        if mu:
+            server_id = int(mu.group(1))
+            break
+    if server_id is None or server_id not in _srv_to_ours:
+        return
+
+    our_id = _srv_to_ours.pop(server_id)
+    notifs = _load()
+    notifs = [n for n in notifs if n.get('id') != our_id]
+    _save(notifs)
+    _eww_update(notifs)
+
+
+def main():
+    notifs = _load()
+    _save(notifs)
+
+    proc = subprocess.Popen(
+        ['dbus-monitor', '--session', 'eavesdrop=true'],
+        stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+        text=True, bufsize=1
+    )
+
+    MSG_HEADER = re.compile(r'^(method call|method return|signal|error)\b')
+
+    cur_header = None
+    cur_body   = []
+
+    def flush():
+        if cur_header is None:
+            return
+        if 'member=Notify' in cur_header and 'method call' in cur_header:
+            _handle_notify_call(cur_header, cur_body)
+        elif 'method return' in cur_header and 'reply_serial=' in cur_header:
+            _handle_notify_reply(cur_header, cur_body)
+        elif 'member=NotificationClosed' in cur_header and 'signal' in cur_header:
+            _handle_closed(cur_header, cur_body)
+
+    for raw in proc.stdout:
+        line = raw.rstrip('\n')
+        if MSG_HEADER.match(line):
+            flush()
+            cur_header = line
+            cur_body   = []
+        elif cur_header is not None:
+            cur_body.append(line)
+
+
+if __name__ == '__main__':
+    main()

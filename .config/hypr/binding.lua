@@ -22,9 +22,17 @@ hl.bind(mainMod .. " + SHIFT + B",     hl.dsp.exec_cmd(browser))
 hl.bind(mainMod .. " + ALT + SPACE",   hl.dsp.exec_cmd(menu))
 
 
--- ─── Notifications ────────────────────────────────────────────────────────────
-hl.bind(mainMod .. " + N",        hl.dsp.exec_cmd("swaync-client --toggle-panel --skip-wait"))
+-- ─── Notifications / Control Center ─────────────────────────────────────────
+hl.bind(mainMod .. " + N",        hl.dsp.exec_cmd("~/.config/eww/scripts/toggle-control-center"))
 hl.bind(mainMod .. " + SHIFT + N",hl.dsp.exec_cmd("swaync-client --toggle-dnd --skip-wait"))
+
+-- ESC closes the CC (passes through so apps still get ESC).
+hl.bind("escape", hl.dsp.exec_cmd("~/.config/eww/scripts/close-control-center"),
+        { non_consuming = true })
+
+-- Left-click closes the CC when clicking outside it (passes through to the clicked app).
+hl.bind("mouse:272", hl.dsp.exec_cmd("~/.config/eww/scripts/cc-click-outside"),
+        { non_consuming = true, mouse = true })
 
 
 -- ─── Screenshot ───────────────────────────────────────────────────────────────
@@ -68,15 +76,17 @@ hl.bind(mainMod .. " + mouse_up",   hl.dsp.focus({ workspace = "e-1" }))
 
 
 -- ─── Swap windows ─────────────────────────────────────────────────────────────
-hl.bind(mainMod .. " + SHIFT + left",  hl.dsp.exec_cmd("hyprctl dispatch swapwindow l"))
-hl.bind(mainMod .. " + SHIFT + right", hl.dsp.exec_cmd("hyprctl dispatch swapwindow r"))
-hl.bind(mainMod .. " + SHIFT + up",    hl.dsp.exec_cmd("hyprctl dispatch swapwindow u"))
-hl.bind(mainMod .. " + SHIFT + down",  hl.dsp.exec_cmd("hyprctl dispatch swapwindow d"))
+hl.bind(mainMod .. " + SHIFT + left",  hl.dsp.window.swap({ direction = "l" }))
+hl.bind(mainMod .. " + SHIFT + right", hl.dsp.window.swap({ direction = "r" }))
+hl.bind(mainMod .. " + SHIFT + up",    hl.dsp.window.swap({ direction = "u" }))
+hl.bind(mainMod .. " + SHIFT + down",  hl.dsp.window.swap({ direction = "d" }))
 
 
 -- ─── Alt-Tab ──────────────────────────────────────────────────────────────────
-hl.bind("ALT + TAB",         hl.dsp.exec_cmd("hyprctl dispatch cyclenext; hyprctl dispatch bringactivetotop"))
-hl.bind("ALT + SHIFT + TAB", hl.dsp.exec_cmd("hyprctl dispatch 'cyclenext prev'; hyprctl dispatch alterzorder top"))
+hl.bind("ALT + TAB",         hl.dsp.window.cycle_next())
+hl.bind("ALT + TAB",         hl.dsp.window.bring_to_top())
+hl.bind("ALT + SHIFT + TAB", hl.dsp.window.cycle_next({ prev = true }))
+hl.bind("ALT + SHIFT + TAB", hl.dsp.window.bring_to_top())
 
 
 -- ─── Resize ───────────────────────────────────────────────────────────────────
