@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+
+# cw-clean <task-name> — remove a worktree created by `cw`, after confirmation.
+# Only the worktree directory is removed; the branch <task> is kept so no
+# commits are lost (delete it yourself with: git branch -d <task>).
+
+set -euo pipefail
+
+die() { echo "cw-clean: $*" >&2; exit 1; }
+
+[[ $# -eq 1 && -n "$1" ]] || { echo "usage: cw-clean <task-name>" >&2; exit 2; }
+task="$1"
+
+git rev-parse --git-dir >/dev/null 2>&1 || die "not inside a git repository"
+
+# Same path logic as cw
+common_dir="$(git rev-parse --path-format=absolute --git-common-dir)"
+repo_root="$(dirname "$common_dir")"
+repo_name="$(basename "$repo_root")"
+wt_path="$(dirname "$repo_root")/${repo_name}-${task//\//-}"
+
+git worktree list --porcelain | grep -qxF "worktree $wt_path" \
+  || die "no worktree registered at $wt_path"
+
+case "$(pwd -P)/" in
+  "$wt_path"/*) die "you are inside the worktree; cd out of it first" ;;
+esac
+
+echo "Worktree: $wt_path"
+echo "Branch:   $(git -C "$wt_path" branch --show-current) (kept)"
+
+changes="$(git -C "$wt_path" status --porcelain)"
+force=()
+if [[ -n "$changes" ]]; then
+  echo
+  echo "WARNING: uncommitted changes will be LOST:"
+  echo "$changes"
+  echo
+  read -r -p "Discard these changes and remove the worktree? [y/N] " ans
+  force=(--force)
+else
+  read -r -p "Remove this worktree? [y/N] " ans
+fi
+
+[[ "$ans" == [yY] || "$ans" == [yY][eE][sS] ]] || { echo "Aborted."; exit 1; }
+
+git worktree remove "${force[@]}" "$wt_path"
+echo "Removed $wt_path"
+
+# A tmux window opened by cw is left alone; point it out if one is still open
+if [[ -n "${TMUX:-}" ]] && tmux list-windows -F '#{window_name}' | grep -qxF "$task"; then
+  echo "Note: tmux window '$task' is still open (close it with prefix &)."
+fi
