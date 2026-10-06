@@ -24,6 +24,7 @@ Personal configuration files for my daily development environment.
 | **SwayNC**     | `.config/swaync/`                          | Notification center                                                                 |
 | **Kitty**      | `.config/kitty/`                           | Terminal — JetBrainsMono NF, 0.7 opacity                                            |
 | **Neovim**     | `.config/nvim/`                            | LazyVim-based, Go/Java/Angular/Flutter LSP                                          |
+| **tmux**       | `.config/tmux/tmux.conf`                   | Prefix C-b, mouse, vi copy to wl-copy, true color + extended keys for kitty         |
 | **Theme**      | `.config/theme/`                           | Catppuccin Macchiato across all apps                                                |
 | **Shell**      | `.bashrc`, `.zshrc`, `.config/shell/`      | Shared aliases/functions, Oh-My-Zsh + Powerlevel10k                                 |
 

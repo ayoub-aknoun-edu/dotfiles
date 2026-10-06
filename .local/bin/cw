@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+
+# cw <task-name> — start a Claude Code session in its own git worktree.
+# Creates ../<repo>-<task> on a new branch <task>, opens a tmux window named
+# <task> there and starts `claude` in it. Remove it later with: cw-clean <task>
+
+set -euo pipefail
+
+die() { echo "cw: $*" >&2; exit 1; }
+
+[[ $# -eq 1 && -n "$1" ]] || { echo "usage: cw <task-name>" >&2; exit 2; }
+task="$1"
+
+command -v tmux >/dev/null 2>&1   || die "tmux is not installed"
+command -v claude >/dev/null 2>&1 || die "claude is not on PATH"
+
+git rev-parse --git-dir >/dev/null 2>&1 || die "not inside a git repository"
+git check-ref-format --branch "$task" >/dev/null 2>&1 || die "'$task' is not a valid branch name"
+
+# Use the main worktree as the anchor, so running cw from another worktree
+# still creates siblings of the main repo (not nested ones).
+common_dir="$(git rev-parse --path-format=absolute --git-common-dir)"
+repo_root="$(dirname "$common_dir")"
+repo_name="$(basename "$repo_root")"
+wt_path="$(dirname "$repo_root")/${repo_name}-${task//\//-}"
+
+git show-ref --verify --quiet "refs/heads/$task" && die "branch '$task' already exists"
+[[ -e "$wt_path" ]] && die "path already exists: $wt_path"
+
+# New branch from the current HEAD
+git worktree add -b "$task" "$wt_path"
+
+# Open the tmux window. The window runs a normal shell and `claude` is typed
+# into it, so the window stays open after claude exits.
+if [[ -n "${TMUX:-}" ]]; then
+  win="$(tmux new-window -P -F '#{window_id}' -n "$task" -c "$wt_path")"
+  tmux send-keys -t "$win" claude Enter
+else
+  # Outside tmux: use (or create) a session named after the repo, then attach
+  session="${repo_name//[.:]/_}"
+  if tmux has-session -t "=$session" 2>/dev/null; then
+    win="$(tmux new-window -P -F '#{window_id}' -t "=$session:" -n "$task" -c "$wt_path")"
+  else
+    win="$(tmux new-session -d -P -F '#{window_id}' -s "$session" -n "$task" -c "$wt_path")"
+  fi
+  tmux send-keys -t "$win" claude Enter
+  exec tmux attach-session -t "=$session"
+fi

@@ -20,6 +20,7 @@ ripgrep
 fd
 jq
 pacman-contrib
+tmux
 
 # Shell / terminal
 zsh
