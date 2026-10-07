@@ -4,8 +4,9 @@ set -euo pipefail
 ROFI_THEME="${HOME}/.config/rofi/config.rasi"
 
 # Defaults:
-GUI_PASTE_SHORTCUT="${GUI_PASTE_SHORTCUT:-CTRL, V, activewindow}"
-TERM_PASTE_SHORTCUT="${TERM_PASTE_SHORTCUT:-CTRL SHIFT, V, activewindow}"
+# Hyprland 0.55+ dispatchers are Lua expressions; override with the mods only.
+GUI_PASTE_MODS="${GUI_PASTE_MODS:-CTRL}"
+TERM_PASTE_MODS="${TERM_PASTE_MODS:-CTRL SHIFT}"
 PASTE_DELAY="${PASTE_DELAY:-0.08}"
 
 # Regex of terminal classes (extend if needed)
@@ -31,13 +32,14 @@ get_active_class() {
 }
 
 pick_paste_shortcut() {
-  local cls
+  local cls mods
   cls="$(get_active_class)"
   if [[ "$cls" =~ $TERMINAL_CLASSES_REGEX ]]; then
-    echo "$TERM_PASTE_SHORTCUT"
+    mods="$TERM_PASTE_MODS"
   else
-    echo "$GUI_PASTE_SHORTCUT"
+    mods="$GUI_PASTE_MODS"
   fi
+  printf 'hl.dsp.send_shortcut({ mods = "%s", key = "V" })' "$mods"
 }
 
 # If run directly (from keybind), open rofi in "clipboard" mode.
@@ -67,7 +69,7 @@ case "${ROFI_RETV}" in
       shortcut="$(pick_paste_shortcut)"
       (
         sleep "$PASTE_DELAY"
-        hyprctl dispatch sendshortcut "$shortcut"
+        hyprctl dispatch "$shortcut"
       ) >/dev/null 2>&1 &
     fi
     ;;

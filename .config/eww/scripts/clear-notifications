@@ -6,6 +6,9 @@ cache = f'/run/user/{os.getuid()}/eww_notifications.json'
 with open(cache, 'w') as f:
     json.dump([], f)
 
+# Clear swaync too, otherwise its count (and the waybar badge) stays lit.
+subprocess.run(['swaync-client', '--close-all', '--skip-wait'], capture_output=True)
+
 subprocess.run(
     ['eww', 'update', 'notifications=[]', 'notif-count=0'],
     capture_output=True

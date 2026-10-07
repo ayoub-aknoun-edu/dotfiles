@@ -26,13 +26,30 @@ hl.bind(mainMod .. " + ALT + SPACE",   hl.dsp.exec_cmd(menu))
 hl.bind(mainMod .. " + N",        hl.dsp.exec_cmd("~/.config/eww/scripts/toggle-control-center"))
 hl.bind(mainMod .. " + SHIFT + N",hl.dsp.exec_cmd("swaync-client --toggle-dnd --skip-wait"))
 
--- ESC closes the CC (passes through so apps still get ESC).
-hl.bind("escape", hl.dsp.exec_cmd("~/.config/eww/scripts/close-control-center"),
-        { non_consuming = true })
+-- These binds fire on every Esc / left-click, so they check the CC layer
+-- in-process and only spawn the close script when the panel is actually open.
+local function control_center_layer()
+    return hl.get_layers({ namespace = "eww-control-center" })[1]
+end
 
--- Left-click closes the CC when clicking outside it (passes through to the clicked app).
-hl.bind("mouse:272", hl.dsp.exec_cmd("~/.config/eww/scripts/cc-click-outside"),
-        { non_consuming = true, mouse = true })
+local function close_control_center()
+    hl.exec_cmd("~/.config/eww/scripts/close-control-center")
+end
+
+-- ESC closes the CC (passes through so apps still get ESC).
+hl.bind("escape", function()
+    if control_center_layer() then close_control_center() end
+end, { non_consuming = true })
+
+-- Left-click outside the CC closes it (passes through to the clicked app).
+hl.bind("mouse:272", function()
+    local cc = control_center_layer()
+    if not cc then return end
+    local pos = hl.get_cursor_pos()
+    local inside = pos and pos.x >= cc.x and pos.x <= cc.x + cc.w
+                       and pos.y >= cc.y and pos.y <= cc.y + cc.h
+    if not inside then close_control_center() end
+end, { non_consuming = true, mouse = true })
 
 
 -- ─── Screenshot ───────────────────────────────────────────────────────────────
@@ -45,7 +62,7 @@ hl.bind(mainMod .. " + J",            hl.dsp.layout("togglesplit"))  -- dwindle
 hl.bind(mainMod .. " + P",            hl.dsp.window.pseudo())        -- dwindle pseudo-tile
 hl.bind(mainMod .. " + T",            hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + F",            hl.dsp.window.fullscreen())    -- true fullscreen
-hl.bind(mainMod .. " + CTRL + F",     hl.dsp.exec_cmd("hyprctl dispatch fullscreenstate 0 2"))  -- tiled fullscreen
+hl.bind(mainMod .. " + CTRL + F",     hl.dsp.window.fullscreen_state({ internal = 0, client = 2, action = "toggle" }))  -- tiled fullscreen
 hl.bind(mainMod .. " + ALT + F",      hl.dsp.window.fullscreen({ mode = 1 }))  -- maximize
 
 
@@ -85,7 +102,7 @@ hl.bind(mainMod .. " + SHIFT + down",  hl.dsp.window.swap({ direction = "d" }))
 -- ─── Alt-Tab ──────────────────────────────────────────────────────────────────
 hl.bind("ALT + TAB",         hl.dsp.window.cycle_next())
 hl.bind("ALT + TAB",         hl.dsp.window.bring_to_top())
-hl.bind("ALT + SHIFT + TAB", hl.dsp.window.cycle_next({ prev = true }))
+hl.bind("ALT + SHIFT + TAB", hl.dsp.window.cycle_next({ next = false }))
 hl.bind("ALT + SHIFT + TAB", hl.dsp.window.bring_to_top())
 
 
@@ -102,21 +119,21 @@ hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
 
 
 -- ─── Groups ───────────────────────────────────────────────────────────────────
-hl.bind(mainMod .. " + G",          hl.dsp.exec_cmd("hyprctl dispatch togglegroup"))
-hl.bind(mainMod .. " + ALT + G",    hl.dsp.exec_cmd("hyprctl dispatch moveoutofgroup"))
-hl.bind(mainMod .. " + ALT + left", hl.dsp.exec_cmd("hyprctl dispatch moveintogroup l"))
-hl.bind(mainMod .. " + ALT + right",hl.dsp.exec_cmd("hyprctl dispatch moveintogroup r"))
-hl.bind(mainMod .. " + ALT + up",   hl.dsp.exec_cmd("hyprctl dispatch moveintogroup u"))
-hl.bind(mainMod .. " + ALT + down", hl.dsp.exec_cmd("hyprctl dispatch moveintogroup d"))
+hl.bind(mainMod .. " + G",          hl.dsp.group.toggle())
+hl.bind(mainMod .. " + ALT + G",    hl.dsp.window.move({ out_of_group = true }))
+hl.bind(mainMod .. " + ALT + left", hl.dsp.window.move({ into_group = "l" }))
+hl.bind(mainMod .. " + ALT + right",hl.dsp.window.move({ into_group = "r" }))
+hl.bind(mainMod .. " + ALT + up",   hl.dsp.window.move({ into_group = "u" }))
+hl.bind(mainMod .. " + ALT + down", hl.dsp.window.move({ into_group = "d" }))
 for i = 1, 5 do
-    hl.bind(mainMod .. " + ALT + " .. i, hl.dsp.exec_cmd("hyprctl dispatch changegroupactive " .. i))
+    hl.bind(mainMod .. " + ALT + " .. i, hl.dsp.group.active({ index = i }))
 end
 
 
 -- ─── Clipboard ────────────────────────────────────────────────────────────────
-hl.bind(mainMod .. " + C", hl.dsp.exec_cmd("hyprctl dispatch sendshortcut CTRL,C,,"))
+hl.bind(mainMod .. " + C", hl.dsp.send_shortcut({ mods = "CTRL", key = "C" }))
 hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("~/.config/rofi/rofi-clipboard"))
-hl.bind(mainMod .. " + X", hl.dsp.exec_cmd("hyprctl dispatch sendshortcut CTRL,X,,"))
+hl.bind(mainMod .. " + X", hl.dsp.send_shortcut({ mods = "CTRL", key = "X" }))
 
 
 -- ─── Scratchpad (special workspace) ──────────────────────────────────────────
@@ -127,8 +144,8 @@ hl.bind(mainMod .. " + SHIFT + S",hl.dsp.window.move({ workspace = "special:magi
 -- ─── Media / Brightness ───────────────────────────────────────────────────────
 hl.bind("XF86AudioRaiseVolume",  hl.dsp.exec_cmd("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"), { locked = true, repeating = true })
 hl.bind("XF86AudioLowerVolume",  hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"),      { locked = true, repeating = true })
-hl.bind("XF86AudioMute",         hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"),     { locked = true, repeating = true })
-hl.bind("XF86AudioMicMute",      hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"),   { locked = true, repeating = true })
+hl.bind("XF86AudioMute",         hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"),     { locked = true })
+hl.bind("XF86AudioMicMute",      hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"),   { locked = true })
 hl.bind("XF86MonBrightnessUp",   hl.dsp.exec_cmd("brightnessctl -e4 -n2 set 5%+"),                  { locked = true, repeating = true })
 hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl -e4 -n2 set 5%-"),                  { locked = true, repeating = true })
 hl.bind("XF86AudioNext",         hl.dsp.exec_cmd("playerctl next"),       { locked = true })

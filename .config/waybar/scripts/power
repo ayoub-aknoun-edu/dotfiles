@@ -14,7 +14,7 @@ if command -v rofi >/dev/null 2>&1; then
 
   case "$chosen" in
     Lock) loginctl lock-session ;;
-    Logout) hyprctl dispatch exit ;;
+    Logout) uwsm stop ;;  # graceful UWSM session shutdown
     Suspend) systemctl suspend ;;
     Reboot) systemctl reboot ;;
     Shutdown) systemctl poweroff ;;

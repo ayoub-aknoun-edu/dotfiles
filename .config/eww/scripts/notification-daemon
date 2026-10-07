@@ -7,6 +7,7 @@ Improvements over the old version:
   • Handles replaces_id → updates existing card instead of duplicating
   • Listens to NotificationClosed → removes cards when swaync dismisses them
   • Stores sender-pid for accurate window-focus from notification clicks
+  • Stores the server ID so dismiss/clear can close it in swaync too
 """
 import subprocess, json, os, re
 from datetime import datetime
@@ -143,6 +144,7 @@ def _handle_notify_reply(header, body):
                     'body':    p['body'],
                     'time':    datetime.now().strftime('%H:%M'),
                     'pid':     p['pid'],
+                    'server_id': server_id,
                 }
                 replaced = True
                 break
@@ -156,6 +158,7 @@ def _handle_notify_reply(header, body):
             'body':    p['body'],
             'time':    datetime.now().strftime('%H:%M'),
             'pid':     p['pid'],
+            'server_id': server_id,
         })
 
     _srv_to_ours[server_id] = our_id
@@ -185,6 +188,10 @@ def _handle_closed(header, body):
 def main():
     notifs = _load()
     _save(notifs)
+    # Rebuild the server→ours map so cards survive a logger restart.
+    for n in notifs:
+        if isinstance(n.get('server_id'), int):
+            _srv_to_ours[n['server_id']] = n['id']
 
     proc = subprocess.Popen(
         ['dbus-monitor', '--session', 'eavesdrop=true'],
