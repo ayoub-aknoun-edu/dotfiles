@@ -26,8 +26,11 @@ alias g='git'
 alias gs='git status'
 alias gl='git log --oneline --graph --decorate --all'
 
-# ssh
-alias ssh='kitten ssh'
+# ssh: kitten ssh copies kitty's terminfo/shell integration to the host, but only
+# works when talking to kitty directly (not inside tmux, a TTY or another terminal).
+if [ -n "${KITTY_WINDOW_ID:-}" ] && [ -z "${TMUX:-}" ]; then
+  alias ssh='kitten ssh'
+fi
 
 # Prefer Neovim if installed
 command -v nvim >/dev/null 2>&1 && alias vim='nvim'
@@ -39,10 +42,12 @@ if command -v eza >/dev/null 2>&1; then
   alias tree='eza --tree --icons'
 fi
 
-# Prefer ripgrep if installed
+# ripgrep with smart case. grep stays real grep: rg's flags differ (-E is
+# --encoding in rg), so aliasing grep broke pasted commands like `grep -E`.
 if command -v rg >/dev/null 2>&1; then
-  alias grep='rg --smart-case'
+  alias rg='rg --smart-case'
 fi
+alias grep='grep --color=auto'
 
 # Pacman helpers
 alias pacup='sudo pacman -Syu'

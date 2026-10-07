@@ -7,14 +7,6 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-#----------------------------
-# Shared config (bash + zsh)
-# ----------------------------
-# env.sh / aliases.sh / functions.sh / local.sh
-if [ -r "$HOME/.config/shell/common.sh" ]; then
-  source "$HOME/.config/shell/common.sh"
-fi
-
 # ----------------------------
 # Zsh options
 # ----------------------------
@@ -24,24 +16,20 @@ setopt PUSHD_IGNORE_DUPS
 
 # History (good defaults)
 HISTFILE="$HOME/.zsh_history"
-HISTSIZE=10000
-SAVEHIST=10000
+HISTSIZE=50000
+SAVEHIST=50000
 setopt HIST_IGNORE_ALL_DUPS
 setopt HIST_REDUCE_BLANKS
 setopt HIST_EXPIRE_DUPS_FIRST
 setopt HIST_FIND_NO_DUPS
-setopt INC_APPEND_HISTORY
-setopt SHARE_HISTORY
+setopt SHARE_HISTORY  # implies incremental append; don't also set INC_APPEND_HISTORY
 
 # ----------------------------
 # Completion (works with or without OMZ)
 # ----------------------------
-autoload -Uz compinit
-
-# Put compdump in cache
-_cache_dir="$HOME/.cache/zsh"
-mkdir -p "$HOME/.cache/zsh" 2>/dev/null
-compinit -d "$HOME/.cache/zsh/zcompdump-5.9" 2>/dev/null
+# compinit runs exactly once: inside Oh My Zsh, or below when OMZ is absent.
+mkdir -p "${XDG_CACHE_HOME:-$HOME/.cache}/zsh" 2>/dev/null
+ZSH_COMPDUMP="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompdump-$ZSH_VERSION"
 
 # Nicer completion menu
 zmodload zsh/complist 2>/dev/null || true
@@ -64,11 +52,17 @@ plugins=(git sudo archlinux)
 
 if [ -n "${ZSH:-}" ] && [ -r "$ZSH/oh-my-zsh.sh" ]; then
   source "$ZSH/oh-my-zsh.sh"
+else
+  autoload -Uz compinit
+  compinit -d "$ZSH_COMPDUMP"
+fi
 
-  # Re-apply your shared aliases/functions after OMZ so your preferences win.
-  if [ -r "$HOME/.config/shell/common.sh" ]; then
-    source "$HOME/.config/shell/common.sh"
-  fi
+# ----------------------------
+# Shared config (bash + zsh)
+# ----------------------------
+# env.sh / aliases.sh / functions.sh / local.sh — after OMZ so your aliases win.
+if [ -r "$HOME/.config/shell/common.sh" ]; then
+  source "$HOME/.config/shell/common.sh"
 fi
 # ----------------------------
 # Powerlevel10k Config Loader
@@ -96,20 +90,6 @@ fi
 # ----------------------------
 # Optional tools (nice-to-have)
 # ----------------------------
-# zoxide: smarter directory jumping (safe init; no eval)
-# Install on Arch: sudo pacman -S zoxide
-if whence -p zoxide >/dev/null 2>&1; then
-  # Validate generated init code before loading it.
-  if command zoxide init zsh 2>/dev/null | zsh -n /dev/stdin 2>/dev/null; then
-    # Load using process substitution (avoids eval and avoids writing files).
-    source <(command zoxide init zsh 2>/dev/null)
-  else
-    print -r -- "zsh: zoxide init script has syntax errors; skipping" >&2
-    precmd_functions=(_omz_async_request omz_termsupport_precmd _zsh_autosuggest_start _zsh_highlight_main__precmd_hook) 2>/dev/null || true
-    unfunction __zoxide_pwd 2>/dev/null || true
-  fi
-fi
-
 # fzf: fuzzy finder (binds Ctrl+R, etc.)
 # Install on Arch: sudo pacman -S fzf
 if [ -r /usr/share/fzf/key-bindings.zsh ]; then
@@ -119,8 +99,8 @@ if [ -r /usr/share/fzf/completion.zsh ]; then
   source /usr/share/fzf/completion.zsh
 fi
 
+# direnv: per-directory environments
+(( $+commands[direnv] )) && eval "$(direnv hook zsh)"
 
-. "$HOME/.local/share/../bin/env"
-eval "$(direnv hook zsh)"
-eval "$(direnv hook zsh)"
-export LIBVIRT_DEFAULT_URI="qemu:///system"
+# zoxide: smarter directory jumping. Keep last: it hooks chpwd/precmd.
+(( $+commands[zoxide] )) && eval "$(zoxide init zsh)"
