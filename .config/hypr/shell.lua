@@ -45,7 +45,7 @@ local ACTIONS = {
     },
     reload = {
         classic  = "~/.config/waybar/launch.sh",
-        dms      = "systemctl --user restart dms.service",
+        dms      = "systemctl --user restart rice-dms-shell.service",
         noctalia = "systemctl --user restart noctalia.service",
     },
 }

@@ -166,6 +166,9 @@ hl.bind(mainMod .. " + SHIFT + SPACE", shell.action("reload"))
 
 
 -- ─── Desktop shell & wallpaper ──────────────────────────────────────────────
+-- ThinkPad: without Fn-lock the F-row sends media keys, so Super+F12 only
+-- works with Fn; Super+Alt+S ("shell") always does.
+hl.bind(mainMod .. " + ALT + S",      hl.dsp.exec_cmd("~/.local/bin/rice-shell next"))
 hl.bind(mainMod .. " + F12",          hl.dsp.exec_cmd("~/.local/bin/rice-shell next"))
 hl.bind(mainMod .. " + comma",        shell.action("settings"))
 hl.bind(mainMod .. " + SHIFT + W",    hl.dsp.exec_cmd("~/.local/bin/rice-wall pick"))

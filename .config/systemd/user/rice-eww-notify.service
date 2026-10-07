@@ -1,0 +1,10 @@
+[Unit]
+Description=eww notification logger (mirrors swaync into the control center)
+PartOf=rice-classic.target
+After=rice-eww.service swaync.service
+
+[Service]
+Type=simple
+ExecStart=%h/.config/eww/scripts/notification-daemon
+Restart=on-failure
+RestartSec=2

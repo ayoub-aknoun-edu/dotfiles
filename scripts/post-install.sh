@@ -173,6 +173,11 @@ if command -v pacman >/dev/null 2>&1; then
     fi
 fi
 
+# ── 10. Wallpapers + generated palette ──────────────────────────────────────
+info "Fetching wallpaper pack into ~/Pictures/Wallpapers"
+bash "$SCRIPT_DIR/fetch-wallpapers.sh" || warn "Some wallpapers failed to download"
+"$HOME/.local/bin/rice-wall" init && ok "Palette ready (theme/generated)"
+
 echo ""
 info "Post-install complete."
 warn "If this is a fresh shell, restart it or run: exec zsh"
