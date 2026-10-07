@@ -6,6 +6,8 @@
 set -euo pipefail
 
 AC_STATE_FILE="/sys/class/power_supply/AC/online"
+# Set by waybar's idle-toggle while the user has idle management switched off.
+DISABLED_FLAG="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/hypridle.disabled"
 
 last_state=$(cat "$AC_STATE_FILE" 2>/dev/null || echo "1")
 waiter_pid=""
@@ -16,6 +18,8 @@ do_restart() {
         sleep 2
     done
     sleep 1  # brief settle after unlock
+    # Respect a manual "idle off" from the bar instead of silently re-enabling it.
+    [[ -e "$DISABLED_FLAG" ]] && return 0
     systemctl --user restart hypridle.service
 }
 

@@ -65,70 +65,90 @@
   "custom/ws-1": {
     "exec": "~/.config/waybar/scripts/workspace-btn 1",
     "return-type": "json",
-    "interval": 1,
+    // Refreshed on Hyprland events (hypr/events.lua); interval is a safety net.
+    "interval": 30,
+    "signal": 9,
     "on-click": "hyprctl dispatch 'hl.dsp.focus({ workspace = 1 })'",
     "format": "{}",
   },
   "custom/ws-2": {
     "exec": "~/.config/waybar/scripts/workspace-btn 2",
     "return-type": "json",
-    "interval": 1,
+    // Refreshed on Hyprland events (hypr/events.lua); interval is a safety net.
+    "interval": 30,
+    "signal": 9,
     "on-click": "hyprctl dispatch 'hl.dsp.focus({ workspace = 2 })'",
     "format": "{}",
   },
   "custom/ws-3": {
     "exec": "~/.config/waybar/scripts/workspace-btn 3",
     "return-type": "json",
-    "interval": 1,
+    // Refreshed on Hyprland events (hypr/events.lua); interval is a safety net.
+    "interval": 30,
+    "signal": 9,
     "on-click": "hyprctl dispatch 'hl.dsp.focus({ workspace = 3 })'",
     "format": "{}",
   },
   "custom/ws-4": {
     "exec": "~/.config/waybar/scripts/workspace-btn 4",
     "return-type": "json",
-    "interval": 1,
+    // Refreshed on Hyprland events (hypr/events.lua); interval is a safety net.
+    "interval": 30,
+    "signal": 9,
     "on-click": "hyprctl dispatch 'hl.dsp.focus({ workspace = 4 })'",
     "format": "{}",
   },
   "custom/ws-5": {
     "exec": "~/.config/waybar/scripts/workspace-btn 5",
     "return-type": "json",
-    "interval": 1,
+    // Refreshed on Hyprland events (hypr/events.lua); interval is a safety net.
+    "interval": 30,
+    "signal": 9,
     "on-click": "hyprctl dispatch 'hl.dsp.focus({ workspace = 5 })'",
     "format": "{}",
   },
   "custom/ws-6": {
     "exec": "~/.config/waybar/scripts/workspace-btn 6",
     "return-type": "json",
-    "interval": 1,
+    // Refreshed on Hyprland events (hypr/events.lua); interval is a safety net.
+    "interval": 30,
+    "signal": 9,
     "on-click": "hyprctl dispatch 'hl.dsp.focus({ workspace = 6 })'",
     "format": "{}",
   },
   "custom/ws-7": {
     "exec": "~/.config/waybar/scripts/workspace-btn 7",
     "return-type": "json",
-    "interval": 1,
+    // Refreshed on Hyprland events (hypr/events.lua); interval is a safety net.
+    "interval": 30,
+    "signal": 9,
     "on-click": "hyprctl dispatch 'hl.dsp.focus({ workspace = 7 })'",
     "format": "{}",
   },
   "custom/ws-8": {
     "exec": "~/.config/waybar/scripts/workspace-btn 8",
     "return-type": "json",
-    "interval": 1,
+    // Refreshed on Hyprland events (hypr/events.lua); interval is a safety net.
+    "interval": 30,
+    "signal": 9,
     "on-click": "hyprctl dispatch 'hl.dsp.focus({ workspace = 8 })'",
     "format": "{}",
   },
   "custom/ws-9": {
     "exec": "~/.config/waybar/scripts/workspace-btn 9",
     "return-type": "json",
-    "interval": 1,
+    // Refreshed on Hyprland events (hypr/events.lua); interval is a safety net.
+    "interval": 30,
+    "signal": 9,
     "on-click": "hyprctl dispatch 'hl.dsp.focus({ workspace = 9 })'",
     "format": "{}",
   },
   "custom/ws-10": {
     "exec": "~/.config/waybar/scripts/workspace-btn 10",
     "return-type": "json",
-    "interval": 1,
+    // Refreshed on Hyprland events (hypr/events.lua); interval is a safety net.
+    "interval": 30,
+    "signal": 9,
     "on-click": "hyprctl dispatch 'hl.dsp.focus({ workspace = 10 })'",
     "format": "{}",
   },
@@ -328,7 +348,9 @@
   "custom/idle": {
     "return-type": "json",
     "exec": "~/.config/waybar/scripts/idle-status",
-    "interval": 5,
+    // idle-toggle sends SIGRTMIN+10; interval is a safety net.
+    "interval": 60,
+    "signal": 10,
     "format": "{icon}",
     "format-icons": {
       "enabled": "<span size='14pt' font='Material Symbols Outlined'>nest_eco_leaf</span>",
