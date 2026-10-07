@@ -34,8 +34,6 @@ systemctl --user daemon-reload
 # All bound to graphical-session.target (started by UWSM), see hypr/autostart.lua.
 UNITS=(
     hyprpolkitagent.service
-    waybar.service
-    swaync.service
     hyprsunset.service
     hypridle.service
     hypridle-power-watcher.service

@@ -1,0 +1,176 @@
+#!/usr/bin/env bash
+# Wallpaper + wallpaper-driven colors for the whole desktop.
+#
+#   rice-wall set <image>   set wallpaper, regenerate palette, reload apps
+#   rice-wall pick          rofi thumbnail grid of $WALLPAPER_DIR
+#   rice-wall random        random wallpaper from $WALLPAPER_DIR
+#   rice-wall restore       re-apply the saved wallpaper (login / shell switch)
+#   rice-wall current       print the saved wallpaper path
+#
+# The wallpaper is drawn by whichever shell is active (see rice-shell):
+# awww for the classic waybar/eww stack, DMS or Noctalia otherwise.
+# Colors: matugen → ~/.config/theme/generated/* (config in theme/matugen).
+
+set -euo pipefail
+
+WALLPAPER_DIR="${WALLPAPER_DIR:-$HOME/Pictures/Wallpapers}"
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/rice"
+STATE_FILE="$STATE_DIR/wallpaper"
+THUMB_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/rice/thumbs"
+THEME_DIR="$HOME/.config/theme"
+MATUGEN_CONFIG="$THEME_DIR/matugen/config.toml"
+GENERATED_DIR="$THEME_DIR/generated"
+LOCK_FILE="${XDG_RUNTIME_DIR:-/tmp}/rice-wall.lock"
+THUMB_SIZE=320x180
+IMAGE_GLOB_RE='.*\.\(jpe?g\|png\|webp\)$'
+
+die() { echo "rice-wall: $*" >&2; exit 1; }
+
+active_shell() { "$HOME/.local/bin/rice-shell" get 2>/dev/null || echo classic; }
+
+list_wallpapers() {
+    [[ -d "$WALLPAPER_DIR" ]] || die "no wallpaper directory: $WALLPAPER_DIR"
+    find -L "$WALLPAPER_DIR" -maxdepth 2 -type f -iregex "$IMAGE_GLOB_RE" | sort
+}
+
+# Make sure generated/ exists so CSS/rasi/scss imports never dangle.
+ensure_generated() {
+    mkdir -p "$GENERATED_DIR"
+    local f
+    for f in "$THEME_DIR"/defaults/*; do
+        [[ -e "$GENERATED_DIR/$(basename "$f")" ]] || cp "$f" "$GENERATED_DIR/"
+    done
+}
+
+draw_wallpaper() {
+    local img="$1"
+    case "$(active_shell)" in
+        dms)      dms ipc call wallpaper set "$img" >/dev/null ;;
+        noctalia) noctalia msg wallpaper-set "$img" >/dev/null ;;
+        *)
+            if ! awww query >/dev/null 2>&1; then
+                (uwsm app -- awww-daemon >/dev/null 2>&1 &) || (awww-daemon >/dev/null 2>&1 &)
+                timeout 5 sh -c 'until awww query >/dev/null 2>&1; do sleep 0.1; done'
+            fi
+            # Grow the new wallpaper out from the cursor.
+            local pos
+            pos="$(hyprctl cursorpos 2>/dev/null | tr -d ' ' || echo center)"
+            awww img "$img" \
+                --transition-type grow --transition-pos "${pos:-center}" --invert-y \
+                --transition-duration 1.2 --transition-fps 60 \
+                --transition-bezier 0.43,1.19,1,0.4
+            ;;
+    esac
+}
+
+generate_palette() {
+    command -v matugen >/dev/null 2>&1 || { ensure_generated; return 0; }
+    matugen image "$1" -c "$MATUGEN_CONFIG" -m dark --source-color-index 0 -q
+}
+
+# Push the new palette into everything that is running.
+reload_consumers() {
+    # Hyprland borders: apply live instead of a full config reload.
+    hyprctl eval '
+        local ok, g = pcall(dofile, os.getenv("HOME") .. "/.config/theme/generated/hypr.lua")
+        if ok and g.accent then
+            hl.config({ general = { col = {
+                active_border   = { colors = { g.accent, g.accent2 }, angle = 45 },
+                inactive_border = g.inactive_border,
+            } } })
+        end' >/dev/null 2>&1 || true
+
+    pkill -USR1 -x kitty 2>/dev/null || true
+    if systemctl --user is-active --quiet waybar.service; then
+        systemctl --user reload waybar.service || true
+    fi
+    if pgrep -x swaync >/dev/null; then
+        swaync-client --reload-css >/dev/null 2>&1 || true
+    fi
+    if tmux info >/dev/null 2>&1; then
+        tmux source-file "$HOME/.config/tmux/tmux.conf" >/dev/null 2>&1 || true
+    fi
+    if eww ping >/dev/null 2>&1; then
+        eww reload >/dev/null 2>&1 || true
+    fi
+}
+
+cmd_set() {
+    local img
+    img="$(realpath -e -- "${1:?usage: rice-wall set <image>}")" || die "no such file: $1"
+    [[ "${img,,}" =~ \.(jpe?g|png|webp)$ ]] || die "not an image: $img"
+
+    exec 9>"$LOCK_FILE"
+    flock -n 9 || die "already applying a wallpaper"
+
+    ensure_generated
+    draw_wallpaper "$img"
+    generate_palette "$img"
+    reload_consumers
+
+    mkdir -p "$STATE_DIR"
+    printf '%s\n' "$img" > "$STATE_FILE"
+}
+
+cmd_current() {
+    [[ -f "$STATE_FILE" ]] && cat "$STATE_FILE"
+}
+
+cmd_restore() {
+    ensure_generated
+    local img
+    img="$(cmd_current || true)"
+    if [[ -z "$img" || ! -f "$img" ]]; then
+        img="$HOME/.config/hypr/wallpaper/wallhaven-3lrdyv_1920x1080.png"
+    fi
+    # Palette is already on disk; only (re)draw the wallpaper.
+    draw_wallpaper "$img"
+}
+
+cmd_random() {
+    local current img
+    current="$(cmd_current || true)"
+    img="$(list_wallpapers | grep -vxF -- "$current" | shuf -n1 || true)"
+    [[ -n "$img" ]] || die "no wallpapers in $WALLPAPER_DIR"
+    cmd_set "$img"
+}
+
+thumbnail() {
+    local img="$1" thumb
+    thumb="$THUMB_DIR/$(printf '%s' "$img" | md5sum | cut -c1-16).jpg"
+    if [[ ! -s "$thumb" || "$img" -nt "$thumb" ]]; then
+        mkdir -p "$THUMB_DIR"
+        vipsthumbnail "$img" -s "$THUMB_SIZE" --smartcrop attention -o "$thumb" 2>/dev/null \
+            || ffmpeg -loglevel error -y -i "$img" -vf "scale=$THUMB_SIZE:force_original_aspect_ratio=increase,crop=$THUMB_SIZE" "$thumb" \
+            || thumb="$img"
+    fi
+    printf '%s' "$thumb"
+}
+
+cmd_pick() {
+    local -a files=()
+    mapfile -t files < <(list_wallpapers)
+    (( ${#files[@]} )) || die "no wallpapers in $WALLPAPER_DIR"
+
+    local choice
+    choice="$(
+        for f in "${files[@]}"; do
+            printf '%s\0icon\x1f%s\n' "$(basename "${f%.*}")" "$(thumbnail "$f")"
+        done | rofi -dmenu -i -p "Wallpaper" -format i -show-icons \
+            -theme-str 'window { width: 1180px; }
+                        listview { columns: 4; lines: 3; flow: horizontal; spacing: 12px; }
+                        element { orientation: vertical; padding: 8px; border-radius: 12px; }
+                        element-icon { size: 250px; }
+                        element-text { horizontal-align: 0.5; }'
+    )" || exit 0
+    [[ -n "$choice" ]] && cmd_set "${files[$choice]}"
+}
+
+case "${1:-}" in
+    set)     shift; cmd_set "$@" ;;
+    pick)    cmd_pick ;;
+    random)  cmd_random ;;
+    restore) cmd_restore ;;
+    current) cmd_current ;;
+    *) sed -n '2,10p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
+esac

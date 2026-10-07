@@ -1,0 +1,32 @@
+# Wallpaper → palette. Run via ~/.local/bin/rice-wall (it also reloads apps).
+# Outputs land in theme/generated/ (gitignored); theme/defaults/ holds the
+# Catppuccin Macchiato fallback used before the first run.
+[config]
+
+[templates.palette-css]
+input_path  = "~/.config/theme/matugen/templates/palette.css"
+output_path = "~/.config/theme/generated/palette.css"
+
+[templates.palette-rasi]
+input_path  = "~/.config/theme/matugen/templates/palette.rasi"
+output_path = "~/.config/theme/generated/palette.rasi"
+
+[templates.palette-scss]
+input_path  = "~/.config/theme/matugen/templates/palette.scss"
+output_path = "~/.config/theme/generated/palette.scss"
+
+[templates.hyprlock]
+input_path  = "~/.config/theme/matugen/templates/hyprlock.conf"
+output_path = "~/.config/theme/generated/hyprlock.conf"
+
+[templates.hypr]
+input_path  = "~/.config/theme/matugen/templates/hypr.lua"
+output_path = "~/.config/theme/generated/hypr.lua"
+
+[templates.kitty]
+input_path  = "~/.config/theme/matugen/templates/kitty.conf"
+output_path = "~/.config/theme/generated/kitty.conf"
+
+[templates.tmux]
+input_path  = "~/.config/theme/matugen/templates/tmux.conf"
+output_path = "~/.config/theme/generated/tmux.conf"

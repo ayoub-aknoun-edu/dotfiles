@@ -200,3 +200,28 @@ hl.window_rule({
     float  = true,
     center = true,
 })
+
+
+-- ─── Desktop shells (rice-shell: DankMaterialShell / Noctalia) ───────────────
+hl.window_rule({
+    name   = "shell-settings-float",
+    match  = { class = "^(com\\.danklinux\\.dms|dev\\.noctalia\\.Noctalia)$" },
+    float  = true,
+    center = true,
+    size   = "1080 860",
+})
+
+-- Blur shell surfaces; they animate themselves, so skip Hyprland's layer anims.
+hl.layer_rule({
+    name         = "noctalia-surfaces",
+    match        = { namespace = "^noctalia-(bar-.+|notification|dock|panel|attached-panel|osd|window-switcher)$" },
+    no_anim      = true,
+    blur         = true,
+    blur_popups  = true,
+    ignore_alpha = 0.5,
+})
+hl.layer_rule({
+    name    = "dms-surfaces",
+    match   = { namespace = "^dms" },
+    no_anim = true,
+})

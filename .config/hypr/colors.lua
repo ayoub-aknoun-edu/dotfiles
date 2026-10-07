@@ -43,4 +43,11 @@ C.accent2         = C.teal
 C.inactive_border = C.overlay0
 C.shadow_color    = C.crust_hex
 
+-- Wallpaper-driven overrides written by matugen (theme/matugen, via
+-- ~/.local/bin/rice-wall). Missing or broken file = keep Macchiato above.
+local ok, generated = pcall(dofile, os.getenv("HOME") .. "/.config/theme/generated/hypr.lua")
+if ok and type(generated) == "table" then
+    for key, value in pairs(generated) do C[key] = value end
+end
+
 return C
