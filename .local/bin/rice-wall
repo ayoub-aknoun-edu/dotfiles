@@ -6,6 +6,7 @@
 #   rice-wall random        random wallpaper from $WALLPAPER_DIR
 #   rice-wall restore       re-apply the saved wallpaper (login / shell switch)
 #   rice-wall current       print the saved wallpaper path
+#   rice-wall init          create theme/generated from defaults if missing
 #
 # The wallpaper is drawn by whichever shell is active (see rice-shell):
 # awww for the classic waybar/eww stack, DMS or Noctalia otherwise.
@@ -171,6 +172,7 @@ case "${1:-}" in
     pick)    cmd_pick ;;
     random)  cmd_random ;;
     restore) cmd_restore ;;
+    init)    ensure_generated ;;
     current) cmd_current ;;
     *) sed -n '2,10p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
 esac

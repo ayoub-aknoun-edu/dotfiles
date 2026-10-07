@@ -78,6 +78,8 @@ stop_noctalia()  { systemctl --user stop noctalia.service 2>/dev/null || true; }
 
 start_shell() {
     local target="$1" s
+    # Palette files must exist before any bar/CSS that imports them starts.
+    "$HOME/.local/bin/rice-wall" init || true
     for s in "${SHELLS[@]}"; do
         [[ "$s" == "$target" ]] || "stop_$s"
     done
