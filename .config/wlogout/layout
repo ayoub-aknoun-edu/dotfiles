@@ -1,6 +1,6 @@
   {
     "label": "lock",
-    "action": "pidof hyprlock >/dev/null 2>&1 || hyprlock -c ~/.config/hypr/hyprlock.conf",
+    "action": "~/.config/hypr/scripts/lock",
     "text": "Lock",
     "keybind": "l"
   }

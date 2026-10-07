@@ -79,6 +79,7 @@ fi
 # Keybindings
 # ----------------------------
 bindkey -e  # Emacs-like keys (Ctrl+A, Ctrl+E, etc.)
+bindkey '^[[13;2u' accept-line  # kitty sends Shift+Enter as CSI-u; act like Enter
 
 # ----------------------------
 # Optional extras (pacman)
@@ -120,3 +121,6 @@ fi
 
 
 . "$HOME/.local/share/../bin/env"
+eval "$(direnv hook zsh)"
+eval "$(direnv hook zsh)"
+export LIBVIRT_DEFAULT_URI="qemu:///system"
