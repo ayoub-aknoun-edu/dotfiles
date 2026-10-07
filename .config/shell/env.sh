@@ -42,6 +42,9 @@ path_append "$ANDROID_HOME/emulator"
 
 export PATH
 
+# libvirt: talk to the system daemon (VMs in /var/lib/libvirt) by default.
+export LIBVIRT_DEFAULT_URI="qemu:///system"
+
 # Use your browser wrapper if present
 if [ -x "$HOME/.local/bin/browser" ]; then
   export BROWSER="$HOME/.local/bin/browser"

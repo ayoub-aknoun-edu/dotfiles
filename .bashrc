@@ -23,7 +23,13 @@ if [ -r /usr/share/bash-completion/bash_completion ]; then
   . /usr/share/bash-completion/bash_completion
 fi
 
-
-command -v ng >/dev/null 2>&1 && source <(ng completion script) || true
-
-. "$HOME/.local/bin/env"
+# Angular CLI completion. `ng completion script` boots node (~0.2s), so cache it
+# and regenerate only when the ng binary is newer than the cache.
+if command -v ng >/dev/null 2>&1; then
+  _ng_cache="${XDG_CACHE_HOME:-$HOME/.cache}/ng-completion.bash"
+  if [ ! -s "$_ng_cache" ] || [ "$(command -v ng)" -nt "$_ng_cache" ]; then
+    mkdir -p "${_ng_cache%/*}" && SHELL=/bin/bash ng completion script >"$_ng_cache" 2>/dev/null
+  fi
+  [ -s "$_ng_cache" ] && . "$_ng_cache"
+  unset _ng_cache
+fi
