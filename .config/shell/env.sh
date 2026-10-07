@@ -1,10 +1,11 @@
-#~/.config / shell / env.sh
-#Shared environment variables for bash and zsh.
-#Keep this file POSIX - ish so both shells can source it.
+# ~/.config/shell/env.sh
+# Shared environment variables for bash and zsh.
+# Keep this file POSIX-ish so both shells can source it.
 
 export EDITOR="nvim"
 export VISUAL="nvim"
 export SUDO_EDITOR="nvim"
+
 # XDG base dirs (used by several tools)
 export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
@@ -17,17 +18,27 @@ export ANDROID_SDK_ROOT="$ANDROID_HOME"
 path_prepend() {
   case ":$PATH:" in
   *":$1:"*) ;;
-  *) PATH="$1:$PATH" ;;
+  *) PATH="$1${PATH:+:$PATH}" ;;
+  esac
+}
+
+path_append() {
+  case ":$PATH:" in
+  *":$1:"*) ;;
+  *) PATH="${PATH:+$PATH:}$1" ;;
   esac
 }
 
 # Make sure ~/.local/bin is in PATH (helper scripts)
 path_prepend "$HOME/.local/bin"
 
-# Android SDK tools (if installed)
 path_prepend "$ANDROID_HOME/cmdline-tools/latest/bin"
 path_prepend "$ANDROID_HOME/platform-tools"
-path_prepend "$ANDROID_HOME/emulator"
+
+# Android ships QEMU-related tools inside the emulator directory.
+# Keep the emulator available, but never let it shadow Arch QEMU.
+# Standard POSIX append ensures it goes to the end of the line.
+path_append "$ANDROID_HOME/emulator"
 
 export PATH
 

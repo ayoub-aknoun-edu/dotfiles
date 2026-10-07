@@ -9,6 +9,9 @@ alias rm='rm -I --preserve-root'
 # fastfetch
 alias ff='fastfetch'
 
+# lazydocker
+alias lzd="lazydocker"
+
 # clear
 alias cls='clear'
 alias c='clear'

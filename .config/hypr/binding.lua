@@ -6,7 +6,7 @@ local terminal    = "kitty"
 local fileManager = "thunar"
 local browser     = os.getenv("HOME") .. "/.local/bin/browser"
 local menu        = "rofi -show drun"
-local locker      = "pidof hyprlock >/dev/null 2>&1 || hyprlock -c ~/.config/hypr/hyprlock.conf"
+local locker      = "~/.config/hypr/scripts/lock"
 
 
 -- ─── Lock / Session ───────────────────────────────────────────────────────────
