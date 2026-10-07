@@ -53,6 +53,7 @@
     :width "390px"
     :anchor "top right")
   :stacking "overlay"
+  :namespace "eww-control-center"
   :exclusive false
   :focusable true
   (cc-root))
@@ -219,8 +220,9 @@
 ; ── Notification list ────────────────────────────────────────
 
 (defwidget cc-notif-item [n]
+  (eventbox :cursor "pointer"
+            :onclick "~/.config/eww/scripts/focus-app ${n.id}; ~/.config/eww/scripts/close-control-center"
   (box :class "cc-notif" :orientation "v" :space-evenly false :spacing 2
-       :onclick "~/.config/eww/scripts/focus-app '${n.app}' '${n.pid}'; ~/.config/eww/scripts/close-control-center"
     (box :orientation "h" :space-evenly false :spacing 6 :valign "center"
       (label :class "cc-notif-app"  :text {n.app}  :xalign 0 :hexpand true :ellipsize "end")
       (label :class "cc-notif-time" :text {n.time} :xalign 1)
@@ -232,7 +234,7 @@
            :visible {n.summary != ""})
     (label :class "cc-notif-body" :text {n.body}
            :xalign 0 :wrap true
-           :visible {n.body != ""})))
+           :visible {n.body != ""}))))
 
 (defwidget cc-notifications []
   (box :class "cc-section cc-notifs-section" :orientation "v"

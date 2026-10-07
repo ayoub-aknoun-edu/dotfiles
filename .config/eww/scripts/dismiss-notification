@@ -7,12 +7,25 @@ cache = f'/run/user/{os.getuid()}/eww_notifications.json'
 with open(cache) as f:
     data = json.load(f)
 
+removed = [n for n in data if n.get('id') == id_to_remove]
 data = [n for n in data if n.get('id') != id_to_remove]
 
 tmp = cache + '.tmp'
 with open(tmp, 'w') as f:
     json.dump(data, f)
 os.replace(tmp, cache)
+
+# Close it in swaync as well, so its popup/badge stays in sync with eww.
+for n in removed:
+    if isinstance(n.get('server_id'), int):
+        subprocess.run(
+            ['gdbus', 'call', '--session',
+             '--dest', 'org.freedesktop.Notifications',
+             '--object-path', '/org/freedesktop/Notifications',
+             '--method', 'org.freedesktop.Notifications.CloseNotification',
+             str(n['server_id'])],
+            capture_output=True
+        )
 
 # Immediately push new values to eww — no waiting for the next poll cycle.
 subprocess.run(

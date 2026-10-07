@@ -1,19 +1,21 @@
 #!/usr/bin/env python3
 """
-Switch to the Hyprland window for a notification click.
+Focus the Hyprland window that sent a notification (eww card click).
 
-Usage: focus-app <app_name> [sender_pid]
+Usage: focus-app <notification_id>
+
+The id is looked up in the eww notification cache, so app names (which any
+D-Bus client can set) never pass through a shell or into a Lua dispatch.
 
 Strategy (in order):
-  1. Walk the process tree from sender_pid up to find a Hyprland client
+  1. Walk the process tree from sender-pid up to find a Hyprland client
      (handles browser renderer PIDs for web-app notifications)
-  2. Workspace-switch to that client
-  3. If no client found by PID tree, try focuswindow by class/title regex
-     (handles native apps that are visible but sender-pid doesn't match directly)
-  4. If still not found, try focuswindow pid:<sender_pid>
-     (handles tray apps — brings the window back from tray)
+  2. Class/title substring match on the app name
+  3. Exact pid match (brings tray apps back as a window)
 """
 import json, os, re, subprocess, sys
+
+CACHE = f'/run/user/{os.getuid()}/eww_notifications.json'
 
 
 def get_clients():
@@ -24,6 +26,14 @@ def get_clients():
         )
     except Exception:
         return []
+
+
+def get_notification(notif_id):
+    try:
+        with open(CACHE) as f:
+            return next((n for n in json.load(f) if n.get('id') == notif_id), None)
+    except (OSError, ValueError):
+        return None
 
 
 def ppid(pid):
@@ -37,73 +47,67 @@ def ppid(pid):
     return None
 
 
-def find_workspace_by_pid(start_pid, clients):
-    """Walk up the process tree from start_pid; return workspace id if any ancestor
-    is a Hyprland client."""
+def find_client_by_pid_tree(start_pid, clients):
+    """Walk up the process tree from start_pid; return the first ancestor
+    that is a Hyprland client."""
     client_map = {c['pid']: c for c in clients if c.get('pid')}
     pid = start_pid
     seen = set()
-    while pid and pid > 1:
-        if pid in seen:
-            break
+    while pid and pid > 1 and pid not in seen:
         seen.add(pid)
         if pid in client_map:
-            ws = client_map[pid].get('workspace', {}).get('id')
-            return ws
+            return client_map[pid]
         pid = ppid(pid)
     return None
 
 
-def dispatch(cmd, *args):
-    subprocess.run(['hyprctl', 'dispatch', cmd, *args], capture_output=True)
+def focus(client):
+    # Hyprland 0.55+ takes Lua dispatchers; only a validated hex address is
+    # interpolated, so nothing user-controlled reaches the Lua parser.
+    address = client.get('address', '')
+    if not re.fullmatch(r'0x[0-9a-fA-F]+', address):
+        return
+    subprocess.run(
+        ['hyprctl', 'dispatch', f'hl.dsp.focus({{ window = "address:{address}" }})'],
+        capture_output=True
+    )
 
 
 def main():
-    with open('/tmp/focus-app-debug.log', 'a') as lf:
-        lf.write(f'called: {sys.argv}\n')
-
-    app_arg = sys.argv[1].lower() if len(sys.argv) > 1 else ''
-
-    sender_pid = None
-    if len(sys.argv) > 2:
-        try:
-            v = int(sys.argv[2])
-            if v > 0:
-                sender_pid = v
-        except (ValueError, TypeError):
-            pass
-
-    if not app_arg and sender_pid is None:
+    try:
+        notif_id = int(sys.argv[1])
+    except (IndexError, ValueError):
         return
 
+    n = get_notification(notif_id)
+    if n is None:
+        return
+
+    app = (n.get('app') or '').lower()
+    pid = n.get('pid') if isinstance(n.get('pid'), int) and n.get('pid') > 0 else None
     clients = get_clients()
 
-    # 1. Walk process tree from sender_pid → workspace switch
-    if sender_pid is not None:
-        ws = find_workspace_by_pid(sender_pid, clients)
-        if ws and ws > 0:
-            dispatch('workspace', str(ws))
+    # 1. Process tree from sender-pid
+    if pid is not None:
+        client = find_client_by_pid_tree(pid, clients)
+        if client:
+            focus(client)
             return
 
-    # 2. Class/title substring match → workspace switch
-    if app_arg:
+    # 2. Class/title substring match
+    if app:
         for c in clients:
             cls   = c.get('class', '').lower()
             title = c.get('title', '').lower()
-            if app_arg in cls or cls in app_arg or app_arg in title:
-                ws = c.get('workspace', {}).get('id')
-                if ws and ws > 0:
-                    dispatch('workspace', str(ws))
-                    return
+            if cls and (app in cls or cls in app or app in title):
+                focus(c)
+                return
 
-    # 3. focuswindow by pid (brings tray apps back as a window)
-    if sender_pid is not None:
-        dispatch('focuswindow', f'pid:{sender_pid}')
-        return
-
-    # 4. focuswindow by class (last resort)
-    if app_arg:
-        dispatch('focuswindow', app_arg)
+    # 3. Exact pid (tray apps)
+    if pid is not None:
+        client = next((c for c in clients if c.get('pid') == pid), None)
+        if client:
+            focus(client)
 
 
 if __name__ == '__main__':

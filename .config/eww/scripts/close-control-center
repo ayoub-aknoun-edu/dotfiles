@@ -1,3 +1,2 @@
 #!/usr/bin/env bash
 eww close control-center 2>/dev/null
-rm -f /tmp/eww_cc_open

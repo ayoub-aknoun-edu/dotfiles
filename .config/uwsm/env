@@ -15,7 +15,7 @@ export XDG_MENU_PREFIX=arch-
 # Toolkit Wayland hints
 export GDK_BACKEND=wayland,x11,*
 export QT_QPA_PLATFORM='wayland;xcb'
-export SDL_VIDEODRIVER=wayland
+export SDL_VIDEODRIVER=wayland,x11
 export MOZ_ENABLE_WAYLAND=1
 export ELECTRON_OZONE_PLATFORM_HINT=wayland
 export OZONE_PLATFORM=wayland
