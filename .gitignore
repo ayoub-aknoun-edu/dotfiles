@@ -2,3 +2,13 @@
 .config/shell/local.sh
 .config/systemd/user/*.target.wants/
 .local/bin/hypridle
+
+# Tool-installed binaries that end up in ~/.local/bin (never dotfiles)
+.local/bin/claude
+.local/bin/forgejo-mcp
+.local/bin/multica
+.local/bin/uv
+.local/bin/uvx
+.local/bin/env
+.local/bin/env.fish
+.local/bin/python3*
