@@ -28,8 +28,14 @@ hl.bind(mainMod .. " + SHIFT + N",hl.dsp.exec_cmd("swaync-client --toggle-dnd --
 
 -- These binds fire on every Esc / left-click, so they check the CC layer
 -- in-process and only spawn the close script when the panel is actually open.
+-- eww sometimes maps its first window before applying :namespace, leaving
+-- gtk-layer-shell's default name; eww is the only gtk-layer-shell client here.
+local CONTROL_CENTER_NAMESPACES = { ["eww-control-center"] = true, ["gtk-layer-shell"] = true }
+
 local function control_center_layer()
-    return hl.get_layers({ namespace = "eww-control-center" })[1]
+    for _, layer in ipairs(hl.get_layers()) do
+        if CONTROL_CENTER_NAMESPACES[layer.namespace] then return layer end
+    end
 end
 
 local function close_control_center()

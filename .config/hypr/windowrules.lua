@@ -65,7 +65,7 @@ hl.layer_rule({
 -- eww control center blur
 hl.layer_rule({
     name         = "eww-control-center-blur",
-    match        = { namespace = "eww-control-center" },
+    match        = { namespace = "^(eww-control-center|gtk-layer-shell)$" },
     blur         = true,
     ignore_alpha = 0.05,
 })
