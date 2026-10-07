@@ -1,6 +1,8 @@
 [Unit]
 Description=Restart hypridle when AC power state changes
-After=graphical-session.target
+PartOf=graphical-session.target
+After=graphical-session.target hypridle.service
+ConditionEnvironment=WAYLAND_DISPLAY
 
 [Service]
 Type=simple
@@ -9,4 +11,4 @@ Restart=on-failure
 RestartSec=3
 
 [Install]
-WantedBy=default.target
+WantedBy=graphical-session.target

@@ -1,6 +1,9 @@
 [Unit]
 Description=Hypridle idle management (AC/battery aware)
+# Shadows /usr/lib/systemd/user/hypridle.service to pick the AC/battery config.
+PartOf=graphical-session.target
 After=graphical-session.target
+ConditionEnvironment=WAYLAND_DISPLAY
 
 [Service]
 Type=simple
@@ -9,4 +12,4 @@ Restart=on-failure
 RestartSec=2
 
 [Install]
-WantedBy=default.target
+WantedBy=graphical-session.target

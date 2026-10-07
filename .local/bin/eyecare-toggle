@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Toggle eye comfort (warm display temperature via hyprsunset).
-# Switches between 3200K comfort mode and 5000K normal mode.
-# hyprsunset is a persistent daemon - kill it before restarting with new temp.
+# Toggle eye comfort (warm display temperature via hyprsunset IPC).
+# Switches between 3200K comfort mode and 5000K normal mode
+# (normal must match hypr/hyprsunset.conf).
 
 set -euo pipefail
 
@@ -11,15 +11,12 @@ STATE="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/eyecare.state"
 
 current=$(cat "$STATE" 2>/dev/null || echo "normal")
 
-pkill hyprsunset 2>/dev/null || true
-sleep 0.15
-
 if [[ "$current" == "comfort" ]]; then
-    hyprsunset --temperature $NORMAL_TEMP &
+    hyprctl hyprsunset temperature "$NORMAL_TEMP" >/dev/null
     rm -f "$STATE"
     notify-send -t 2000 -i display-brightness "Eye Comfort" "Color temperature restored (${NORMAL_TEMP}K)"
 else
-    hyprsunset --temperature $COMFORT_TEMP &
+    hyprctl hyprsunset temperature "$COMFORT_TEMP" >/dev/null
     echo "comfort" > "$STATE"
     notify-send -t 2000 -i display-brightness "Eye Comfort On" "Warm temperature active (${COMFORT_TEMP}K)"
 fi
