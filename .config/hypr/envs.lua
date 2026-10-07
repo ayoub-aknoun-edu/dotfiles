@@ -5,10 +5,7 @@
 hl.env("XCURSOR_SIZE",   "24")
 hl.env("HYPRCURSOR_SIZE","24")
 
--- Theming
-hl.env("GTK_THEME",           "Adwaita:dark")
-hl.env("QT_STYLE_OVERRIDE",   "kvantum")
-hl.env("QT_QPA_PLATFORMTHEME","qt6ct")
+-- Theming (see uwsm/env for why GTK_THEME / Qt overrides are not set)
 hl.env("XDG_ICON_THEME",      "Papirus-Dark")
 hl.env("XDG_MENU_PREFIX",     "arch-")
 

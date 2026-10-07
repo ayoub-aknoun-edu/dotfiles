@@ -6,9 +6,15 @@ export XCURSOR_SIZE=24
 export HYPRCURSOR_SIZE=24
 
 # Theming
-export GTK_THEME=Adwaita:dark
-export QT_STYLE_OVERRIDE=kvantum
-export QT_QPA_PLATFORMTHEME=qt6ct
+# GTK theme/icons come from gsettings + gtk-{3,4}.0/settings.ini (adw-gtk3-dark).
+# Don't set GTK_THEME: it overrides that and breaks libadwaita apps.
+#
+# Qt: left on Qt's default portal theme, which follows the dark color-scheme.
+# KvAdwaitaDark (Kvantum/kvantum.kvconfig) isn't installed and qt6ct has no
+# config, so forcing them would make Qt apps light. To opt in:
+#   yay -S kvantum-theme-libadwaita-git && qt6ct   (pick kvantum style)
+# export QT_STYLE_OVERRIDE=kvantum
+# export QT_QPA_PLATFORMTHEME=qt6ct
 export XDG_ICON_THEME=Papirus-Dark
 export XDG_MENU_PREFIX=arch-
 
