@@ -2,7 +2,7 @@ return {
   {
     "akinsho/flutter-tools.nvim",
     ft = { "dart" },
-    dependencies = { "nvim-lua/plenary.nvim", "stevearc/dressing.nvim" },
+    dependencies = { "nvim-lua/plenary.nvim" },
     opts = {
       lsp = {
         color = { enabled = true },
