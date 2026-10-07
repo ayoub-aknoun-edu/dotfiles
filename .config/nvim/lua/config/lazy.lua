@@ -27,6 +27,10 @@ require("lazy").setup({
     { import = "lazyvim.plugins.extras.lang.json" },
     -- Java / Spring (jdtls integration)
     { import = "lazyvim.plugins.extras.lang.java" },
+    -- GitHub Copilot (completion via blink-copilot)
+    { import = "lazyvim.plugins.extras.ai.copilot" },
+    -- mini.surround with gs* mappings (gsa / gsd / gsr ...)
+    { import = "lazyvim.plugins.extras.coding.mini-surround" },
     -- Optional: ESLint wiring (if you use eslint/eslint_d)
     -- { import = "lazyvim.plugins.extras.linting.eslint" },
 

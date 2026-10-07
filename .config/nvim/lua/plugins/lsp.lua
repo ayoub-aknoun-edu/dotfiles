@@ -1,50 +1,57 @@
+-- Extra LSP servers and Mason tools.
+-- Already configured elsewhere (don't repeat here):
+--   vtsls  -> lazyvim.plugins.extras.lang.typescript (+ angular.lua)
+--   jsonls -> lazyvim.plugins.extras.lang.json
+--   jdtls  -> lazyvim.plugins.extras.lang.java
+--   lua_ls -> LazyVim core
+--   gopls  -> go.lua
+--   dartls -> flutter-tools.nvim (flutter.lua)
 return {
-  -- LSP servers via lspconfig + mason
   {
     "neovim/nvim-lspconfig",
-    dependencies = { "mason-org/mason.nvim", "mason-org/mason-lspconfig.nvim" },
-    opts = function(_, opts)
-      opts.servers = vim.tbl_deep_extend("force", opts.servers or {}, {
-        -- Core
-        lua_ls = {},      -- Lua (for Neovim config)
+    opts = {
+      servers = {
         bashls = {},
-        jsonls = {},
         yamlls = {},
         dockerls = {},
         html = {},
         cssls = {},
         tailwindcss = {},
-        -- Web/TS/Angular
-        vtsls = {},       -- better TS server (replaces tsserver)
         eslint = {},
-        -- Python
-        pyright = {},     -- or switch to basedpyright (see LazyVim news)
-        -- C/C++
+        pyright = {}, -- or switch to basedpyright (see LazyVim news)
         clangd = {},
-        -- Go
-        gopls = {},
-        -- Dart/Flutter
-        dartls = {},
-      })
-    end,
+      },
+    },
   },
 
   {
     "mason-org/mason.nvim",
-    opts = function(_, opts)
-      opts.ensure_installed = vim.tbl_extend("force", opts.ensure_installed or {}, {
+    -- `ensure_installed` is a list: LazyVim extends it (opts_extend), so use a plain table
+    opts = {
+      ensure_installed = {
         -- LSPs
-        "lua-language-server", "bash-language-server", "json-lsp", "yaml-language-server",
-        "dockerfile-language-server", "html-lsp", "css-lsp", "tailwindcss-language-server",
-        "vtsls", "eslint-lsp",
+        "lua-language-server",
+        "bash-language-server",
+        "json-lsp",
+        "yaml-language-server",
+        "dockerfile-language-server",
+        "html-lsp",
+        "css-lsp",
+        "tailwindcss-language-server",
+        "vtsls",
+        "eslint-lsp",
         "pyright",
         "clangd",
         "gopls",
         "dart-debug-adapter", -- debug for Dart
-        "angular-language-server", -- see angular section below
+        "angular-language-server", -- used by angular.lua
         -- Formatters/Linters used by conform/nvim-lint
-        "prettierd", "stylua", "shfmt", "shellcheck", "clang-format",
-      })
-    end,
+        "prettierd",
+        "stylua",
+        "shfmt",
+        "shellcheck",
+        "clang-format",
+      },
+    },
   },
 }
