@@ -8,6 +8,7 @@
 --   looknfeel, input → visual + input config
 --   autostart → exec-once equivalents
 --   binding, windowrules → keybinds and rules
+--   events    → hl.on() hooks (pushes workspace changes to waybar)
 
 -- Keep runtime logging quiet by default. Use `hyprctl configerrors` for
 -- config issues, or temporarily flip this while debugging.
@@ -26,3 +27,4 @@ require("autostart")
 require("permissions")
 require("binding")
 require("windowrules")
+require("events")
