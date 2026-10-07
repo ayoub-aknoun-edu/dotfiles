@@ -43,15 +43,39 @@ ensure_generated() {
     done
 }
 
-draw_wallpaper() {
-    local img="$1"
+wait_for() {  # wait_for <command...>: poll up to 10s until it succeeds
+    local i
+    for ((i = 0; i < 100; i++)); do
+        "$@" >/dev/null 2>&1 && return 0
+        sleep 0.1
+    done
+    return 1
+}
+
+# Path the active shell is currently showing (empty if unknown).
+shown_wallpaper() {
     case "$(active_shell)" in
-        dms)      dms ipc call wallpaper set "$img" >/dev/null ;;
-        noctalia) noctalia msg wallpaper-set "$img" >/dev/null ;;
+        dms)      dms ipc call wallpaper get 2>/dev/null | head -n1 ;;
+        noctalia) noctalia msg wallpaper-get 2>/dev/null | head -n1 ;;
+        *)        awww query 2>/dev/null | sed -n 's/.*image: //p' | head -n1 ;;
+    esac
+}
+
+# draw_wallpaper <image> [animate|instant]
+draw_wallpaper() {
+    local img="$1" mode="${2:-animate}"
+    case "$(active_shell)" in
+        dms)
+            wait_for dms ipc call lock isLocked || die "DMS is not running"
+            dms ipc call wallpaper set "$img" >/dev/null ;;
+        noctalia)
+            wait_for noctalia msg wallpaper-get || die "Noctalia is not running"
+            noctalia msg wallpaper-set "$img" >/dev/null ;;
         *)
-            if ! awww query >/dev/null 2>&1; then
-                (uwsm app -- awww-daemon >/dev/null 2>&1 &) || (awww-daemon >/dev/null 2>&1 &)
-                timeout 5 sh -c 'until awww query >/dev/null 2>&1; do sleep 0.1; done'
+            wait_for awww query || die "awww-daemon is not running (rice-classic.target)"
+            if [[ "$mode" == instant ]]; then
+                awww img "$img" --transition-type none
+                return
             fi
             # Grow the new wallpaper out from the cursor.
             local pos
@@ -124,8 +148,14 @@ cmd_restore() {
     if [[ -z "$img" || ! -f "$img" ]]; then
         img="$HOME/.config/hypr/wallpaper/wallhaven-3lrdyv_1920x1080.png"
     fi
-    # Palette is already on disk; only (re)draw the wallpaper.
-    draw_wallpaper "$img"
+    # Palette is already on disk. The daemons show their own last image, so
+    # only redraw (without animation) when it differs from the saved one.
+    case "$(active_shell)" in
+        dms)      wait_for dms ipc call lock isLocked || return 0 ;;
+        noctalia) wait_for noctalia msg wallpaper-get || return 0 ;;
+        *)        wait_for awww query || return 0 ;;
+    esac
+    [[ "$(shown_wallpaper)" == "$img" ]] || draw_wallpaper "$img" instant
 }
 
 cmd_random() {

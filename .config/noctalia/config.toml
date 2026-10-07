@@ -1,0 +1,13 @@
+# Noctalia (one of the rice shells, see ~/.local/bin/rice-shell).
+# Only keys that differ from upstream defaults; GUI changes go to
+# ~/.local/state/noctalia/settings.toml. Reference: noctalia example.toml.
+
+[theme]
+mode   = "dark"
+source = "wallpaper"                  # Material You colors from the wallpaper
+
+[lockscreen]
+# hypridle + hyprlock own locking in every shell (incl. lock before sleep).
+# Leaving Noctalia's lock on would also lock on `loginctl lock-session` and
+# on suspend, fighting hyprlock for the session lock.
+enabled = false

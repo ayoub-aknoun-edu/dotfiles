@@ -97,7 +97,7 @@ The shell layer is switchable; Hyprland, hypridle/hyprlock and hyprsunset stay t
 
 | Key                 | Action                                                                 |
 | ------------------- | ---------------------------------------------------------------------- |
-| `Super+F12`         | Cycle shell: classic (waybar/eww/swaync/rofi) → DankMaterialShell → Noctalia |
+| `Super+Alt+S` (or `Super+F12` with Fn) | Cycle shell: classic (waybar/eww/swaync/rofi) → DankMaterialShell → Noctalia |
 | `Super+Shift+W`     | Wallpaper picker (`~/Pictures/Wallpapers`)                              |
 | `Super+Alt+W`       | Random wallpaper                                                        |
 | `Super+Alt+Space`   | Launcher of the active shell                                            |
@@ -106,7 +106,8 @@ The shell layer is switchable; Hyprland, hypridle/hyprlock and hyprsunset stay t
 | `Super+Shift+E`     | Power menu                                                              |
 | `Super+,`           | Shell settings (DMS / Noctalia)                                         |
 
-- `~/.local/bin/rice-shell` — `get | set <shell> | next | apply` (choice persists in `~/.local/state/rice`)
+- `~/.local/bin/rice-shell` — `get | set <shell> | next | apply`; each shell is a systemd target (`rice-{classic,dms,noctalia}.target`) whose daemons start in parallel; choice persists in `~/.local/state/rice`
+- `scripts/fetch-wallpapers.sh` — downloads the pack listed in `packages/wallpapers.txt` (run by `post-install.sh`)
 - `~/.local/bin/rice-wall` — `set <img> | pick | random | restore`; regenerates the palette with
   [matugen](https://github.com/InioX/matugen) from `.config/theme/matugen/` into `.config/theme/generated/`
   (gitignored) and live-reloads Hyprland borders, kitty, tmux, waybar, swaync, eww, rofi and hyprlock.

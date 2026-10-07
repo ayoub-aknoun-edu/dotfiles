@@ -109,3 +109,4 @@ matugen
 cava
 wtype
 qt6-multimedia
+libvips

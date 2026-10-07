@@ -56,7 +56,10 @@ hl.config({
     },
 
     misc = {
-        force_default_wallpaper      = -1,
+        -- 0 = don't load Hyprland's built-in wallpapers at startup (the
+        -- shell's wallpaper daemon covers the screen right away anyway).
+        force_default_wallpaper      = 0,
+        disable_splash_rendering     = true,
         disable_hyprland_logo        = true,
         allow_session_lock_restore   = true,
     },

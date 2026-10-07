@@ -1,7 +1,7 @@
 [Unit]
 Description=Noctalia desktop shell
 # Started/stopped by ~/.local/bin/rice-shell (not enabled on its own).
-PartOf=graphical-session.target
+PartOf=rice-noctalia.target
 After=graphical-session.target
 ConditionEnvironment=WAYLAND_DISPLAY
 
