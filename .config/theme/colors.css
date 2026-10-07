@@ -92,9 +92,3 @@
 @define-color wlogout-hibernate-hover  rgba(198, 160, 246, 0.50);
 @define-color wlogout-suspend-hover    rgba(125, 196, 228, 0.50);
 
-/* ── Third-party theme aliases (SwayNC nova-dark, etc.) ───────────────────── */
-@define-color fg   @foreground;
-@define-color bg0  @background;
-@define-color bg1  @surface0;
-@define-color blue @accent;
-@define-color red  @error;
