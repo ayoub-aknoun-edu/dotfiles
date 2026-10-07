@@ -18,6 +18,11 @@ if [[ -z "$REPO_DIR" || ! -d "$REPO_DIR" ]]; then
   exit 1
 fi
 
+# Directories that other tools also install into must exist as real dirs
+# first, otherwise stow "folds" them into a single symlink to the repo and
+# everything installed there (uv, claude, ...) lands in git.
+mkdir -p "$HOME/.local/bin" "$HOME/.config/systemd/user"
+
 stow --dir="$REPO_DIR" --target="$HOME" --restow .
 
 echo ""
