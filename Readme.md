@@ -77,7 +77,7 @@ cd ~/dotfiles
 `stow.sh` symlinks every config into `$HOME`, then automatically runs `scripts/post-install.sh` which:
 
 - Writes `~/.config/gtk-3.0/bookmarks` with the correct `$HOME` for this machine
-- Enables `hyprpolkitagent.service`, `hypridle.service`, `hypridle-power-watcher.service`, `battery-alert.timer` via systemd
+- Enables `hyprpolkitagent`, `waybar`, `swaync`, `hyprsunset`, `hypridle`, `hypridle-power-watcher` and `battery-alert.timer` on `graphical-session.target` (started by UWSM)
 - Enables `NetworkManager.service`, `bluetooth.service`, and `sddm.service`
 - Installs Oh-My-Zsh if not already present
 - Clones Powerlevel10k if not already present
