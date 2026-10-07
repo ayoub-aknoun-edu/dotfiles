@@ -1,34 +1,8 @@
-/* Catppuccin Macchiato — central palette for Waybar, Wlogout, SwayNC */
-
-/* ── Base palette ──────────────────────────────────────────────────────────── */
-@define-color crust      #181926;
-@define-color mantle     #1e2030;
-@define-color base       #24273a;
-@define-color surface0   #363a4f;
-@define-color surface1   #494d64;
-@define-color surface2   #5b6078;
-@define-color overlay0   #6e738d;
-@define-color overlay1   #8087a2;
-@define-color overlay2   #939ab7;
-@define-color subtext0   #a5adcb;
-@define-color subtext1   #b8c0e0;
-@define-color text-col   #cad3f5;
-
-/* ── Accent colors ─────────────────────────────────────────────────────────── */
-@define-color rosewater  #f4dbd6;
-@define-color flamingo   #f0c6c6;
-@define-color pink       #f5bde6;
-@define-color mauve      #c6a0f6;
-@define-color red-col    #ed8796;
-@define-color maroon     #ee99a0;
-@define-color peach      #f5a97f;
-@define-color yellow-col #eed49f;
-@define-color green-col  #a6da95;
-@define-color teal-col   #8bd5ca;
-@define-color sky        #91d7e3;
-@define-color sapphire   #7dc4e4;
-@define-color blue-col   #8aadf4;
-@define-color lavender   #b7bdf8;
+/* Shared palette for Waybar, Wlogout, SwayNC.
+ * Base colors come from generated/palette.css (matugen, follows the
+ * wallpaper via ~/.local/bin/rice-wall; Catppuccin Macchiato fallback in
+ * defaults/). Everything below is semantic and derives from it. */
+@import "generated/palette.css";
 
 /* ── Semantic tokens ───────────────────────────────────────────────────────── */
 @define-color background @base;
@@ -69,26 +43,26 @@
 @define-color transparent-low    rgba(255, 255, 255, 0.20);
 
 /* ── State-indicator backgrounds ───────────────────────────────────────────── */
-@define-color disabled-bg            rgba(237, 135, 150, 0.10);
-@define-color muted-bg               rgba(238, 212, 159, 0.08);
-@define-color connected-bg           rgba(166, 218, 149, 0.07);
-@define-color warning-bg             rgba(238, 212, 159, 0.10);
-@define-color bluetooth-disabled-bg  rgba(125, 196, 228, 0.10);
+@define-color disabled-bg            alpha(@red-col, 0.10);
+@define-color muted-bg               alpha(@yellow-col, 0.08);
+@define-color connected-bg           alpha(@green-col, 0.07);
+@define-color warning-bg             alpha(@yellow-col, 0.10);
+@define-color bluetooth-disabled-bg  alpha(@sapphire, 0.10);
 
 /* ── Wlogout tokens ────────────────────────────────────────────────────────── */
-@define-color wlogout-bg                   rgba(24, 25, 38, 0.60);
+@define-color wlogout-bg                   alpha(@crust, 0.60);
 @define-color wlogout-text                 @text-col;
-@define-color wlogout-button-bg            rgba(36, 39, 58, 0.75);
-@define-color wlogout-button-border        rgba(198, 160, 246, 0.15);
-@define-color wlogout-button-bg-hover      rgba(54, 58, 79, 0.85);
-@define-color wlogout-button-border-hover  rgba(198, 160, 246, 0.40);
-@define-color wlogout-button-bg-focus      rgba(198, 160, 246, 0.25);
-@define-color wlogout-button-border-focus  rgba(198, 160, 246, 0.60);
+@define-color wlogout-button-bg            alpha(@base, 0.75);
+@define-color wlogout-button-border        alpha(@mauve, 0.15);
+@define-color wlogout-button-bg-hover      alpha(@surface0, 0.85);
+@define-color wlogout-button-border-hover  alpha(@mauve, 0.40);
+@define-color wlogout-button-bg-focus      alpha(@mauve, 0.25);
+@define-color wlogout-button-border-focus  alpha(@mauve, 0.60);
 
-@define-color wlogout-lock-hover       rgba(138, 173, 244, 0.50);
-@define-color wlogout-logout-hover     rgba(238, 212, 159, 0.50);
-@define-color wlogout-shutdown-hover   rgba(237, 135, 150, 0.50);
-@define-color wlogout-reboot-hover     rgba(166, 218, 149, 0.50);
-@define-color wlogout-hibernate-hover  rgba(198, 160, 246, 0.50);
-@define-color wlogout-suspend-hover    rgba(125, 196, 228, 0.50);
+@define-color wlogout-lock-hover       alpha(@blue-col, 0.50);
+@define-color wlogout-logout-hover     alpha(@yellow-col, 0.50);
+@define-color wlogout-shutdown-hover   alpha(@red-col, 0.50);
+@define-color wlogout-reboot-hover     alpha(@green-col, 0.50);
+@define-color wlogout-hibernate-hover  alpha(@mauve, 0.50);
+@define-color wlogout-suspend-hover    alpha(@sapphire, 0.50);
 

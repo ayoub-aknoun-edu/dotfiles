@@ -103,3 +103,9 @@ ttf-jetbrains-mono-nerd
 
 # Editor
 neovim
+dms-shell
+noctalia
+matugen
+cava
+wtype
+qt6-multimedia

@@ -5,13 +5,13 @@ local mainMod     = "SUPER"
 local terminal    = "kitty"
 local fileManager = "thunar"
 local browser     = os.getenv("HOME") .. "/.local/bin/browser"
-local menu        = "rofi -show drun"
+local shell       = require("shell")  -- routes to the active shell (rice-shell)
 local locker      = "~/.config/hypr/scripts/lock"
 
 
 -- ─── Lock / Session ───────────────────────────────────────────────────────────
 hl.bind(mainMod .. " + L",        hl.dsp.exec_cmd(locker))
-hl.bind(mainMod .. " + SHIFT + E",hl.dsp.exec_cmd("~/.config/wlogout/launch.sh"))
+hl.bind(mainMod .. " + SHIFT + E",shell.action("power_menu"))
 hl.bind("XF86PowerOff",           hl.dsp.exec_cmd(locker), { locked = true })
 
 
@@ -19,12 +19,13 @@ hl.bind("XF86PowerOff",           hl.dsp.exec_cmd(locker), { locked = true })
 hl.bind(mainMod .. " + RETURN",        hl.dsp.exec_cmd(terminal))
 hl.bind(mainMod .. " + SHIFT + F",     hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + SHIFT + B",     hl.dsp.exec_cmd(browser))
-hl.bind(mainMod .. " + ALT + SPACE",   hl.dsp.exec_cmd(menu))
+hl.bind(mainMod .. " + ALT + SPACE",   shell.action("launcher"))
 
 
 -- ─── Notifications / Control Center ─────────────────────────────────────────
-hl.bind(mainMod .. " + N",        hl.dsp.exec_cmd("~/.config/eww/scripts/toggle-control-center"))
-hl.bind(mainMod .. " + SHIFT + N",hl.dsp.exec_cmd("swaync-client --toggle-dnd --skip-wait"))
+hl.bind(mainMod .. " + N",        shell.action("control_center"))
+hl.bind(mainMod .. " + SHIFT + N",shell.action("do_not_disturb"))
+hl.bind(mainMod .. " + CTRL + N", shell.action("notifications"))
 
 -- These binds fire on every Esc / left-click, so they check the CC layer
 -- in-process and only spawn the close script when the panel is actually open.
@@ -138,7 +139,7 @@ end
 
 -- ─── Clipboard ────────────────────────────────────────────────────────────────
 hl.bind(mainMod .. " + C", hl.dsp.send_shortcut({ mods = "CTRL", key = "C" }))
-hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("~/.config/rofi/rofi-clipboard"))
+hl.bind(mainMod .. " + V", shell.action("clipboard"))
 hl.bind(mainMod .. " + X", hl.dsp.send_shortcut({ mods = "CTRL", key = "X" }))
 
 
@@ -161,4 +162,11 @@ hl.bind("XF86AudioPause",        hl.dsp.exec_cmd("playerctl play-pause"), { lock
 
 
 -- ─── Reload Waybar ────────────────────────────────────────────────────────────
-hl.bind(mainMod .. " + SHIFT + SPACE", hl.dsp.exec_cmd("~/.config/waybar/launch.sh"))
+hl.bind(mainMod .. " + SHIFT + SPACE", shell.action("reload"))
+
+
+-- ─── Desktop shell & wallpaper ──────────────────────────────────────────────
+hl.bind(mainMod .. " + F12",          hl.dsp.exec_cmd("~/.local/bin/rice-shell next"))
+hl.bind(mainMod .. " + comma",        shell.action("settings"))
+hl.bind(mainMod .. " + SHIFT + W",    hl.dsp.exec_cmd("~/.local/bin/rice-wall pick"))
+hl.bind(mainMod .. " + ALT + W",      hl.dsp.exec_cmd("~/.local/bin/rice-wall random"))

@@ -4,15 +4,15 @@
 -- Under UWSM, daemons that ship a systemd user unit are enabled on
 -- graphical-session.target instead of being started here, so they restart on
 -- crash and stop cleanly on logout (see scripts/post-install.sh):
---   hyprpolkitagent, waybar, swaync, hyprsunset, hypridle,
---   hypridle-power-watcher, battery-alert.timer
+--   hyprpolkitagent, hyprsunset, hypridle, hypridle-power-watcher,
+--   battery-alert.timer
+-- The shell layer (classic waybar/eww/swaync, DankMaterialShell or Noctalia)
+-- is started by ~/.local/bin/rice-shell from the saved choice (Super+F12).
 
 local UWSM = os.getenv("UWSM_FINALIZE_VARNAMES") ~= nil
 
 local SESSION_UNITS = {
     "hyprpolkitagent.service",
-    "waybar.service",
-    "swaync.service",
     "hyprsunset.service",
     "hypridle.service",
     "hypridle-power-watcher.service",
@@ -33,14 +33,8 @@ hl.on("hyprland.start", function()
         hl.exec_cmd("systemctl --user start " .. table.concat(SESSION_UNITS, " "))
     end
 
-    -- eww widget daemon + notification logger (control center)
-    app("eww daemon")
-    app("~/.config/eww/scripts/notification-daemon")
-
-    -- Wallpaper: the daemon restores its cached image by itself; set the
-    -- default explicitly once it is up (covers a fresh machine with no cache).
-    app("awww-daemon")
-    hl.exec_cmd("timeout 5 sh -c 'until awww query >/dev/null 2>&1; do sleep 0.1; done' && awww img ~/.config/hypr/wallpaper/wallhaven-3lrdyv_1920x1080.png --transition-type simple")
+    -- Shell layer + wallpaper, from the saved choice (rice-shell / rice-wall)
+    hl.exec_cmd("~/.local/bin/rice-shell apply")
 
     -- Clipboard history (both text and images)
     app("wl-paste --type text  --watch cliphist store")
