@@ -7,6 +7,9 @@ ConditionEnvironment=WAYLAND_DISPLAY
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/noctalia
+# A user service isn't part of the login session, so Noctalia can't find it
+# by PID; hand it the graphical session id (logind lock monitor, LockedHint,
+# lock-before-suspend and brightness all need it).
+ExecStart=/bin/sh -c 'XDG_SESSION_ID="$$(loginctl show-user "$$USER" -p Display --value)" exec /usr/bin/noctalia'
 Restart=on-failure
 RestartSec=2

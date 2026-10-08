@@ -5,6 +5,7 @@
 #   rice-wall pick          rofi thumbnail grid of $WALLPAPER_DIR
 #   rice-wall random        random wallpaper from $WALLPAPER_DIR
 #   rice-wall restore       re-apply the saved wallpaper (login / shell switch)
+#   rice-wall adopt <image> take a wallpaper set elsewhere (Noctalia hook)
 #   rice-wall current       print the saved wallpaper path
 #   rice-wall init          create theme/generated from defaults if missing
 #
@@ -126,12 +127,31 @@ cmd_set() {
     flock -n 9 || die "already applying a wallpaper"
 
     ensure_generated
+    save_current "$img"   # first: Noctalia's wallpaper hook then sees it as applied
     draw_wallpaper "$img"
     generate_palette "$img"
     reload_consumers
+}
 
+save_current() {
     mkdir -p "$STATE_DIR"
-    printf '%s\n' "$img" > "$STATE_FILE"
+    printf '%s\n' "$1" > "$STATE_FILE"
+}
+
+# A wallpaper chosen elsewhere (Noctalia's picker → its wallpaper_changed
+# hook): remember it and regenerate the palette, without redrawing.
+cmd_adopt() {
+    local img
+    img="$(realpath -e -- "${1:?usage: rice-wall adopt <image>}" 2>/dev/null)" || return 0
+    [[ "$img" == "$(cmd_current 2>/dev/null)" ]] && return 0
+
+    exec 9>"$LOCK_FILE"
+    flock -n 9 || return 0
+
+    ensure_generated
+    save_current "$img"
+    generate_palette "$img"
+    reload_consumers
 }
 
 cmd_current() {
@@ -145,13 +165,19 @@ cmd_restore() {
     if [[ -z "$img" || ! -f "$img" ]]; then
         img="$HOME/.config/hypr/wallpaper/wallhaven-3lrdyv_1920x1080.png"
     fi
-    # Palette is already on disk. The daemons show their own last image, so
-    # only redraw (without animation) when it differs from the saved one.
+    # Palette is already on disk and the daemons show their own last image.
     case "$(active_shell)" in
-        noctalia) wait_for noctalia msg wallpaper-get || return 0 ;;
-        *)        wait_for awww query || return 0 ;;
+        noctalia)
+            # Noctalia's wallpaper is the source of truth (its picker may have
+            # changed it): adopt it instead of overwriting it.
+            wait_for noctalia msg wallpaper-get || return 0
+            cmd_adopt "$(shown_wallpaper)"
+            ;;
+        *)
+            wait_for awww query || return 0
+            [[ "$(shown_wallpaper)" == "$img" ]] || draw_wallpaper "$img" instant
+            ;;
     esac
-    [[ "$(shown_wallpaper)" == "$img" ]] || draw_wallpaper "$img" instant
 }
 
 cmd_random() {
@@ -198,6 +224,7 @@ case "${1:-}" in
     pick)    cmd_pick ;;
     random)  cmd_random ;;
     restore) cmd_restore ;;
+    adopt)   shift; cmd_adopt "$@" ;;
     init)    ensure_generated ;;
     current) cmd_current ;;
     *) sed -n '2,10p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;

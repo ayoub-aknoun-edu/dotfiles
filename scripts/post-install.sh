@@ -185,6 +185,18 @@ if command -v code >/dev/null 2>&1; then
         || warn "Could not install the VS Code NoctaliaTheme extension"
 fi
 
+# ── 12. User avatar for the greeter / lock screen (AccountsService) ──────────
+# AccountsService rejects icons over 1 MB and the greeter can't read $HOME, so
+# register a 512px copy; it gets stored in /var/lib/AccountsService/icons.
+if [[ -f "$HOME/.face.icon" ]] && command -v vipsthumbnail >/dev/null 2>&1; then
+    vipsthumbnail "$HOME/.face.icon" -s 512x512 -o "$HOME/.face.png" 2>/dev/null \
+        && mv "$HOME/.face.png" "$HOME/.face" \
+        && busctl call --system org.freedesktop.Accounts "/org/freedesktop/Accounts/User$(id -u)" \
+               org.freedesktop.Accounts.User SetIconFile s "$HOME/.face" \
+        && ok "Avatar registered with AccountsService" \
+        || warn "Could not register the avatar"
+fi
+
 echo ""
 info "Post-install complete."
 warn "If this is a fresh shell, restart it or run: exec zsh"
