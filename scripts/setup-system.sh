@@ -5,6 +5,7 @@
 #   sudo scripts/setup-system.sh bluetooth         don't power Bluetooth on at every boot
 #   sudo scripts/setup-system.sh battery-cleanup   remove the old battery-threshold plugin's udev rule + group
 #   sudo scripts/setup-system.sh greeter           switch login screen SDDM → greetd + Noctalia Greeter
+#   sudo scripts/setup-system.sh greeter-config    reinstall only greeter.toml (login screen look)
 #   sudo scripts/setup-system.sh greeter-fallback  greetd with the plain tuigreet (if the greeter breaks)
 #   sudo scripts/setup-system.sh greeter-rollback  back to SDDM
 #
@@ -95,6 +96,14 @@ switch_dm_to_greetd() {
     ok "greetd enabled for next boot (SDDM disabled, still installed)"
 }
 
+cmd_greeter_config() {
+    local tmp
+    tmp="$(mktemp)"
+    sed "s/@USER@/$TARGET_USER/" "$SYS/noctalia-greeter/greeter.toml" > "$tmp"
+    install_file "$tmp" /var/lib/noctalia-greeter/greeter.toml
+    rm -f "$tmp"
+}
+
 cmd_greeter() {
     require_pkgs greetd noctalia-greeter greetd-tuigreet accountsservice
     [[ -x /usr/bin/noctalia-greeter-session ]] || die "/usr/bin/noctalia-greeter-session not found"
@@ -102,11 +111,7 @@ cmd_greeter() {
     install_file "$SYS/greetd/config.toml" /etc/greetd/config.toml
     ensure_keyring_pam
 
-    local tmp
-    tmp="$(mktemp)"
-    sed "s/@USER@/$TARGET_USER/" "$SYS/noctalia-greeter/greeter.toml" > "$tmp"
-    install_file "$tmp" /var/lib/noctalia-greeter/greeter.toml
-    rm -f "$tmp"
+    cmd_greeter_config
 
     systemctl enable accounts-daemon.service
     switch_dm_to_greetd
@@ -146,6 +151,7 @@ for cmd in "$@"; do
         bluetooth)        cmd_bluetooth ;;
         battery-cleanup)  cmd_battery_cleanup ;;
         greeter)          cmd_greeter ;;
+        greeter-config)   cmd_greeter_config ;;
         greeter-fallback) cmd_greeter_fallback ;;
         greeter-rollback) cmd_greeter_rollback ;;
         *) die "unknown command: $cmd" ;;

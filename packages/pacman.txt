@@ -108,3 +108,4 @@ matugen
 libvips
 adw-gtk-theme
 wayvnc
+ttf-ibm-plex

@@ -49,50 +49,24 @@ widget_order = []
     [desktop_widgets.widget]
 
 [lockscreen]
-blur_intensity = 0.31999999284744263
+blur_intensity = 0.12
+tint_intensity = 0.25
 
 [lockscreen_widgets]
-enabled = false
+enabled = true
 schema_version = 2
-widget_order = [ "lockscreen-login-box@PHONE-1", "lockscreen-login-box@eDP-1" ]
+widget_order = [ "lockscreen-widget-time", "lockscreen-widget-date", "lockscreen-login-box@eDP-1" ]
 
     [lockscreen_widgets.grid]
     cell_size = 16
     major_interval = 4
     visible = true
 
-    [lockscreen_widgets.widget."lockscreen-login-box@PHONE-1"]
-    box_height = 196.0
-    box_width = 810.0
-    cx = 780.0
-    cy = 598.66668701171875
-    output = "PHONE-1"
-    placement_height = 720.0
-    placement_width = 1560.0
-    rotation = 0.0
-    type = "login_box"
-
-        [lockscreen_widgets.widget."lockscreen-login-box@PHONE-1".settings]
-        background_color = "surface_variant"
-        background_opacity = 0.88
-        background_radius = 12.0
-        center_password_text = false
-        input_opacity = 1.0
-        input_radius = 6.0
-        layout = "regular"
-        show_caps_lock = true
-        show_keyboard_layout = true
-        show_login_button = true
-        show_media = true
-        show_session_buttons = true
-        show_unlock_hint = true
-        show_weather = true
-
     [lockscreen_widgets.widget."lockscreen-login-box@eDP-1"]
     box_height = 196.0
-    box_width = 810.0
-    cx = 960.0
-    cy = 898.0
+    box_width = 720.0
+    cx = 1520.0
+    cy = 922.0
     output = "eDP-1"
     placement_height = 1080.0
     placement_width = 1920.0
@@ -100,20 +74,61 @@ widget_order = [ "lockscreen-login-box@PHONE-1", "lockscreen-login-box@eDP-1" ]
     type = "login_box"
 
         [lockscreen_widgets.widget."lockscreen-login-box@eDP-1".settings]
-        background_color = "surface_variant"
-        background_opacity = 0.88
-        background_radius = 12.0
+        background_color = "surface"
+        background_opacity = 0.55000000000000004
+        background_radius = 22.0
         center_password_text = false
-        input_opacity = 1.0
-        input_radius = 6.0
+        input_opacity = 0.84999999999999998
+        input_radius = 14.0
         layout = "regular"
         show_caps_lock = true
-        show_keyboard_layout = true
+        show_keyboard_layout = false
         show_login_button = true
         show_media = true
         show_session_buttons = true
         show_unlock_hint = true
-        show_weather = true
+        show_weather = false
+
+    [lockscreen_widgets.widget.lockscreen-widget-date]
+    box_height = 110.0
+    box_width = 420.0
+    cx = 270.0
+    cy = 950.0
+    output = "eDP-1"
+    placement_height = 1080.0
+    placement_width = 1920.0
+    rotation = 0.0
+    type = "clock"
+
+        [lockscreen_widgets.widget.lockscreen-widget-date.settings]
+        background = false
+        center_text = false
+        clock_style = "digital"
+        color = "primary"
+        font_family = "IBM Plex Serif Light"
+        format = """{:%A}
+{:%-d %B}"""
+        shadow = true
+
+    [lockscreen_widgets.widget.lockscreen-widget-time]
+    box_height = 240.0
+    box_width = 640.0
+    cx = 380.0
+    cy = 770.0
+    output = "eDP-1"
+    placement_height = 1080.0
+    placement_width = 1920.0
+    rotation = 0.0
+    type = "clock"
+
+        [lockscreen_widgets.widget.lockscreen-widget-time.settings]
+        background = false
+        center_text = false
+        clock_style = "digital"
+        color = "on_surface"
+        font_family = "IBM Plex Sans Thin"
+        format = "{:%H:%M}"
+        shadow = true
 
 [plugins]
 enabled = [ "rxtsel/portctl", "yuuto/arch-updater" ]
