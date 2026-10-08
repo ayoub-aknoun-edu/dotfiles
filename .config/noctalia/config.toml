@@ -25,6 +25,26 @@ community_ids = ["vscode"]
 # (kitty, tmux, Neovim, Hyprland borders) and become the saved wallpaper.
 wallpaper_changed = "~/.local/bin/rice-wall adopt \"$NOCTALIA_WALLPAPER_PATH\""
 
+[calendar]
+# Events in the Control Center calendar (read-only). The account below is
+# only a declaration: sign in once per machine via Settings → Calendar →
+# Accounts → "Google" → Save and Connect. The refresh token lives in the
+# keyring (Secret Service), never in this repo.
+enabled         = true
+refresh_minutes = 15
+event_time_format = "%H:%M"
+
+[calendar.account.google]
+type  = "google"
+name  = "Google"
+color = "primary"
+
+[calendar.reminders]
+enabled              = true
+use_event_reminders  = true       # per-event reminders from Google
+default_lead_minutes = 10         # events without one
+all_day_digest_time  = "09:00"    # one notification listing today's all-day events
+
 [nightlight]
 # "Eye Comfort Shield": a plain manual on/off on the Control Center's Night
 # Light button (left-click) and Super+Alt+N. Day and night temperatures are
