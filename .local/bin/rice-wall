@@ -102,6 +102,7 @@ reload_consumers() {
         end' >/dev/null 2>&1 || true
 
     pkill -USR1 -x kitty 2>/dev/null || true
+    pkill -USR1 -x nvim 2>/dev/null || true
     if systemctl --user is-active --quiet waybar.service; then
         systemctl --user reload waybar.service || true
     fi
