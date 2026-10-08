@@ -5,7 +5,6 @@ background_opacity = 0.2799999937415123
 center = [ "clock", "spacer_2", "media" ]
 end = [
     "group:g1",
-    "eye-comfort",
     "caffeine",
     "cpu",
     "ram",
