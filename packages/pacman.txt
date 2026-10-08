@@ -106,3 +106,4 @@ neovim
 noctalia
 matugen
 libvips
+adw-gtk-theme
