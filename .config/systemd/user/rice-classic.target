@@ -5,4 +5,4 @@ Description=Rice shell: classic (waybar + eww + swaync + awww)
 Conflicts=rice-noctalia.target
 PartOf=graphical-session.target
 After=graphical-session.target
-Wants=rice-awww.service waybar.service swaync.service rice-eww.service rice-eww-notify.service
+Wants=rice-awww.service waybar.service swaync.service rice-eww.service rice-eww-notify.service hyprpolkitagent.service

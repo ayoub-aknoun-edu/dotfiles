@@ -4,15 +4,14 @@
 -- Under UWSM, daemons that ship a systemd user unit are enabled on
 -- graphical-session.target instead of being started here, so they restart on
 -- crash and stop cleanly on logout (see scripts/post-install.sh):
---   hyprpolkitagent, hyprsunset, hypridle, hypridle-power-watcher,
---   battery-alert.timer
+--   hyprsunset, hypridle, hypridle-power-watcher, battery-alert.timer
+-- (polkit: Noctalia's own agent, or hyprpolkitagent with the classic shell)
 -- The shell layer (Noctalia, or the classic waybar/eww/swaync fallback) is
 -- started by ~/.local/bin/rice-shell from the saved choice (Super+Alt+S).
 
 local UWSM = os.getenv("UWSM_FINALIZE_VARNAMES") ~= nil
 
 local SESSION_UNITS = {
-    "hyprpolkitagent.service",
     "hyprsunset.service",
     "hypridle.service",
     "hypridle-power-watcher.service",
