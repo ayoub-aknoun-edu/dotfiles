@@ -1,0 +1,20 @@
+# /var/lib/noctalia-greeter/greeter.toml — installed by
+# scripts/setup-system.sh greeter (@USER@ is replaced with your username).
+# Appearance (wallpaper, palette, font) comes from Noctalia's greeter sync;
+# these are only the declarative defaults.
+
+[session]
+default = "Hyprland (uwsm-managed)"
+
+[user]
+default = "@USER@"
+
+[clock]
+time_format = "{:%H:%M}"
+date_format = "%A, %d %B"
+
+[keyboard]
+layout = "us"
+
+[cursor]
+size = 24

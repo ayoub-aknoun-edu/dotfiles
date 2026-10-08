@@ -1,0 +1,9 @@
+# /etc/greetd/config.toml — installed by scripts/setup-system.sh greeter
+[terminal]
+vt = 1
+
+[default_session]
+# Noctalia Greeter (bundled wlroots compositor), runs as the unprivileged
+# `greeter` user. Fallback: `setup-system.sh greeter-fallback` (tuigreet).
+command = "/usr/bin/noctalia-greeter-session"
+user = "greeter"

@@ -25,7 +25,31 @@ community_ids = ["vscode"]
 # hyprlock). It also locks on `loginctl lock-session` and before suspend.
 enabled = true
 
-# ── Bar: the old waybar module set ───────────────────────────────────────────
+# ── Plugins ──────────────────────────────────────────────────────────────────
+# Plugins are unsandboxed Luau running as you: only auto-update the official
+# ones; community plugins update when you choose (Settings → Plugins).
+[plugins]
+enabled     = ["damian-ds7/battery-threshold", "rxtsel/portctl"]
+auto_update = "official"
+
+# Charge cap (default 80%). Panel / launcher only (`/batt 80`); no bar widget,
+# the battery widget is already there. Needs scripts/setup-system.sh once
+# (udev rule + battery_ctl group) and a re-login.
+[plugin_settings."damian-ds7/battery-threshold"]
+charge_threshold = 80
+
+# Listening ports + kill, for stuck dev servers.
+[plugin_settings."rxtsel/portctl"]
+refresh_interval  = 10                # seconds; default 5, halved for battery
+hide_system_ports = true
+
+[widget.portctl]
+type = "rxtsel/portctl:indicator"
+
+# ── Bar ──────────────────────────────────────────────────────────────────────
+# Base layout. The Settings window writes overrides to
+# .local/state/noctalia/settings.toml, which is also tracked in this repo
+# (stowed symlink), so GUI changes show up in `git diff` automatically.
 [bar.default]
 start  = ["launcher", "workspaces", "active_window"]
 center = ["clock"]

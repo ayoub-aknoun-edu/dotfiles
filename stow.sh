@@ -21,7 +21,7 @@ fi
 # Directories that other tools also install into must exist as real dirs
 # first, otherwise stow "folds" them into a single symlink to the repo and
 # everything installed there (uv, claude, ...) lands in git.
-mkdir -p "$HOME/.local/bin" "$HOME/.config/systemd/user"
+mkdir -p "$HOME/.local/bin" "$HOME/.config/systemd/user" "$HOME/.local/state/noctalia"
 
 stow --dir="$REPO_DIR" --target="$HOME" --restow .
 
