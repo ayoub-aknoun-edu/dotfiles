@@ -2,7 +2,8 @@
 # System-level (/etc, /var) parts of the rice that stow can't link.
 # Run with sudo from the repo:
 #
-#   sudo scripts/setup-system.sh battery           charge-cap permissions (udev + group)
+#   sudo scripts/setup-system.sh bluetooth         don't power Bluetooth on at every boot
+#   sudo scripts/setup-system.sh battery-cleanup   remove the old battery-threshold plugin's udev rule + group
 #   sudo scripts/setup-system.sh greeter           switch login screen SDDM → greetd + Noctalia Greeter
 #   sudo scripts/setup-system.sh greeter-fallback  greetd with the plain tuigreet (if the greeter breaks)
 #   sudo scripts/setup-system.sh greeter-rollback  back to SDDM
@@ -44,14 +45,35 @@ require_pkgs() {
     (( ${#missing[@]} == 0 )) || die "install first: yay -S --needed ${missing[*]}"
 }
 
-cmd_battery() {
-    getent group battery_ctl >/dev/null || { groupadd battery_ctl; ok "created group battery_ctl"; }
-    usermod -aG battery_ctl "$TARGET_USER"
-    ok "$TARGET_USER is in battery_ctl (takes effect after re-login)"
-    install_file "$SYS/udev/99-battery-threshold.rules" /etc/udev/rules.d/99-battery-threshold.rules
+# The charge cap now comes from Noctalia's Control Center (UPower); undo
+# what the battery-threshold plugin setup installed.
+cmd_battery_cleanup() {
+    rm -f /etc/udev/rules.d/99-battery-threshold.rules
     udevadm control --reload-rules
-    udevadm trigger --subsystem-match=power_supply
-    ok "udev rule active"
+    if getent group battery_ctl >/dev/null; then
+        groupdel battery_ctl
+        ok "removed group battery_ctl"
+    fi
+    ok "battery-threshold udev rule removed"
+}
+
+# BlueZ powers every adapter on when it appears (AutoEnable defaults to true).
+# Off at boot; turn it on from the bar when needed.
+cmd_bluetooth() {
+    local conf=/etc/bluetooth/main.conf
+    [[ -f "$conf" ]] || die "$conf missing (is bluez installed?)"
+    if grep -qE '^AutoEnable=false' "$conf"; then
+        ok "Bluetooth AutoEnable already off"
+        return
+    fi
+    cp -a "$conf" "$conf.bak-$STAMP"
+    if grep -qE '^#?AutoEnable=' "$conf"; then
+        sed -i -E 's/^#?AutoEnable=.*/AutoEnable=false/' "$conf"
+    else
+        sed -i '/^\[Policy\]/a AutoEnable=false' "$conf"
+    fi
+    grep -qE '^AutoEnable=false' "$conf" || die "could not set AutoEnable=false"
+    ok "Bluetooth no longer powers on at boot (applies after restart of bluetooth.service)"
 }
 
 # greetd's PAM file lacks gnome-keyring: without it the login keyring stays
@@ -121,7 +143,8 @@ cmd_greeter_rollback() {
 [[ $# -gt 0 ]] || { sed -n '2,14p' "$0" | sed 's/^# \{0,1\}//'; exit 1; }
 for cmd in "$@"; do
     case "$cmd" in
-        battery)          cmd_battery ;;
+        bluetooth)        cmd_bluetooth ;;
+        battery-cleanup)  cmd_battery_cleanup ;;
         greeter)          cmd_greeter ;;
         greeter-fallback) cmd_greeter_fallback ;;
         greeter-rollback) cmd_greeter_rollback ;;

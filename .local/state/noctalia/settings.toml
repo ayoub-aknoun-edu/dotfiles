@@ -9,6 +9,7 @@ end = [
     "cpu",
     "ram",
     "portctl",
+    "updates",
     "notifications",
     "network",
     "bluetooth",
@@ -113,6 +114,12 @@ widget_order = [ "lockscreen-login-box@PHONE-1", "lockscreen-login-box@eDP-1" ]
         show_session_buttons = true
         show_unlock_hint = true
         show_weather = true
+
+[plugins]
+enabled = [ "rxtsel/portctl", "yuuto/arch-updater" ]
+
+[shell.greeter_sync]
+auto_sync = true
 
 [shell.panel]
 control_center_placement = "floating"

@@ -19,6 +19,11 @@ source = "wallpaper"                  # Material You colors from the wallpaper
 builtin_ids   = ["gtk3", "gtk4"]
 community_ids = ["vscode"]
 
+[hooks]
+# Wallpapers picked in Noctalia's picker also drive the rice-wall palette
+# (kitty, tmux, Neovim, Hyprland borders) and become the saved wallpaper.
+wallpaper_changed = "~/.local/bin/rice-wall adopt \"$NOCTALIA_WALLPAPER_PATH\""
+
 [lockscreen]
 # Noctalia's lock screen is the locker while Noctalia is the active shell
 # (hypr/scripts/lock routes Super+L / hypridle here; the classic shell uses
@@ -29,14 +34,23 @@ enabled = true
 # Plugins are unsandboxed Luau running as you: only auto-update the official
 # ones; community plugins update when you choose (Settings → Plugins).
 [plugins]
-enabled     = ["damian-ds7/battery-threshold", "rxtsel/portctl"]
+enabled     = ["rxtsel/portctl", "yuuto/arch-updater"]
 auto_update = "official"
+# (Charge cap: built into Control Center → power, via UPower; no plugin.)
 
-# Charge cap (default 80%). Panel / launcher only (`/batt 80`); no bar widget,
-# the battery widget is already there. Needs scripts/setup-system.sh once
-# (udev rule + battery_ctl group) and a re-login.
-[plugin_settings."damian-ds7/battery-threshold"]
-charge_threshold = 80
+# pacman + AUR updates: bar counter (`updates`), panel with the package list,
+# Update runs yay in a terminal (prompts/PKGBUILD review as usual). `/arch`
+# in the launcher.
+[plugin_settings."yuuto/arch-updater"]
+aur_helper        = "yay"
+flatpak_enabled   = false
+auto_check_hours  = 6
+notify_on_updates = true
+check_arch_news   = true
+update_mode       = "terminal"
+
+[widget.updates]
+type = "yuuto/arch-updater:widget"
 
 # Listening ports + kill, for stuck dev servers.
 [plugin_settings."rxtsel/portctl"]

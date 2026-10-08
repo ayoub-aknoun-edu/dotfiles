@@ -1,0 +1,7 @@
+[Desktop Entry]
+# Disable blueman's tray applet: Noctalia (and the bar) already handle
+# Bluetooth, and the applet's power manager turned the adapter on at login.
+# blueman-manager stays available for pairing.
+Type=Application
+Name=Blueman Applet
+Hidden=true
