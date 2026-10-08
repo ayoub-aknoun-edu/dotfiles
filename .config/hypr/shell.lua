@@ -35,7 +35,7 @@ local ACTIONS = {
     },
     eye_comfort = {
         classic  = "~/.local/bin/eyecare-toggle",
-        noctalia = "noctalia msg nightlight-force-toggle",
+        noctalia = "noctalia msg nightlight-toggle",
     },
     settings = {
         noctalia = "noctalia msg settings-toggle",

@@ -26,19 +26,19 @@ community_ids = ["vscode"]
 wallpaper_changed = "~/.local/bin/rice-wall adopt \"$NOCTALIA_WALLPAPER_PATH\""
 
 [nightlight]
-# "Eye Comfort Shield": manual only (no schedule, no location). The bar
-# button / control-center right-click toggle the always-on (force) mode.
+# "Eye Comfort Shield": a plain manual on/off on the Control Center's Night
+# Light button (left-click) and Super+Alt+N. Day and night temperatures are
+# (almost) equal, so the schedule below changes nothing: on ≈ 3200K, off =
+# neutral. (Noctalia only toggles when some schedule exists.)
 enabled           = false
 force             = false
+temperature_day   = 3300          # must be > night; 100K apart is invisible
 temperature_night = 3200          # same warmth as the classic eyecare-toggle
 
-[widget.eye-comfort]
-type    = "custom_button"
-glyph   = "eye"
-tooltip = "Eye Comfort Shield"
-
-[widget.eye-comfort.actions]
-left = "exec noctalia msg nightlight-force-toggle"
+[location]
+custom_schedule = true            # times barely matter (day ≈ night temp);
+sunset          = "20:00"         # no location is looked up or sent
+sunrise         = "07:00"
 
 [lockscreen]
 # Noctalia's lock screen is the locker while Noctalia is the active shell
