@@ -195,6 +195,11 @@ if [[ -f "$HOME/.face.icon" ]] && command -v vipsthumbnail >/dev/null 2>&1; then
                org.freedesktop.Accounts.User SetIconFile s "$HOME/.face" \
         && ok "Avatar registered with AccountsService" \
         || warn "Could not register the avatar"
+    # Round copy for the Noctalia lock screen (sticker widget in settings.toml)
+    mkdir -p "$HOME/.local/share/rice"
+    ffmpeg -loglevel error -y -i "$HOME/.face" \
+        -vf "scale=256:256,format=rgba,geq=r='r(X,Y)':g='g(X,Y)':b='b(X,Y)':a='if(lte(hypot(X-127.5,Y-127.5),127.5),255,0)'" \
+        "$HOME/.local/share/rice/avatar-round.png" && ok "Round lock-screen avatar created"
 fi
 
 echo ""

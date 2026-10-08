@@ -55,7 +55,13 @@ tint_intensity = 0.25
 [lockscreen_widgets]
 enabled = true
 schema_version = 2
-widget_order = [ "lockscreen-widget-time", "lockscreen-widget-date", "lockscreen-login-box@eDP-1" ]
+widget_order = [
+    "lockscreen-widget-time",
+    "lockscreen-widget-date",
+    "lockscreen-widget-avatar",
+    "lockscreen-widget-name",
+    "lockscreen-login-box@eDP-1"
+]
 
     [lockscreen_widgets.grid]
     cell_size = 16
@@ -89,6 +95,22 @@ widget_order = [ "lockscreen-widget-time", "lockscreen-widget-date", "lockscreen
         show_unlock_hint = true
         show_weather = false
 
+    [lockscreen_widgets.widget.lockscreen-widget-avatar]
+    box_height = 104.0
+    box_width = 104.0
+    cx = 1236.0
+    cy = 770.0
+    output = "eDP-1"
+    placement_height = 1080.0
+    placement_width = 1920.0
+    rotation = 0.0
+    type = "sticker"
+
+        [lockscreen_widgets.widget.lockscreen-widget-avatar.settings]
+        background = false
+        image_path = "/home/ayoub/.local/share/rice/avatar-round.png"
+        opacity = 1.0
+
     [lockscreen_widgets.widget.lockscreen-widget-date]
     box_height = 110.0
     box_width = 420.0
@@ -109,6 +131,25 @@ widget_order = [ "lockscreen-widget-time", "lockscreen-widget-date", "lockscreen
         format = """{:%A}
 {:%-d %B}"""
         shadow = true
+
+    [lockscreen_widgets.widget.lockscreen-widget-name]
+    box_height = 70.0
+    box_width = 240.0
+    cx = 1420.0
+    cy = 770.0
+    output = "eDP-1"
+    placement_height = 1080.0
+    placement_width = 1920.0
+    rotation = 0.0
+    type = "label"
+
+        [lockscreen_widgets.widget.lockscreen-widget-name.settings]
+        background = false
+        color = "on_surface"
+        description = ""
+        font_family = "IBM Plex Sans Light"
+        shadow = true
+        title = "ayoub"
 
     [lockscreen_widgets.widget.lockscreen-widget-time]
     box_height = 240.0
