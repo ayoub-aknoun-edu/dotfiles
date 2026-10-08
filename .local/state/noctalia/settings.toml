@@ -92,14 +92,14 @@ widget_order = [
         show_login_button = true
         show_media = true
         show_session_buttons = true
-        show_unlock_hint = true
+        show_unlock_hint = false
         show_weather = false
 
     [lockscreen_widgets.widget.lockscreen-widget-avatar]
     box_height = 104.0
     box_width = 104.0
     cx = 1236.0
-    cy = 770.0
+    cy = 690.0
     output = "eDP-1"
     placement_height = 1080.0
     placement_width = 1920.0
@@ -136,7 +136,7 @@ widget_order = [
     box_height = 70.0
     box_width = 240.0
     cx = 1420.0
-    cy = 770.0
+    cy = 690.0
     output = "eDP-1"
     placement_height = 1080.0
     placement_width = 1920.0
