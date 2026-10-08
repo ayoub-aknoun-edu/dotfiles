@@ -1,13 +1,52 @@
-# Noctalia (one of the rice shells, see ~/.local/bin/rice-shell).
+# Noctalia — the everyday shell (see ~/.local/bin/rice-shell; classic = fallback).
 # Only keys that differ from upstream defaults; GUI changes go to
 # ~/.local/state/noctalia/settings.toml. Reference: noctalia example.toml.
+
+[shell]
+# hyprpolkitagent is the admin password prompt in both shells.
+polkit_agent = false
 
 [theme]
 mode   = "dark"
 source = "wallpaper"                  # Material You colors from the wallpaper
+
+[theme.templates]
+# Apps follow the wallpaper palette while Noctalia is active.
+#   gtk3/gtk4: writes gtk-*/noctalia.css + imports it in gtk.css (adw-gtk3)
+#   vscode:    read by the "NoctaliaTheme" extension (Noctalia.noctaliatheme)
+# Kitty, tmux, Hyprland borders and Neovim are themed by rice-wall/matugen
+# instead, so they follow the wallpaper in the classic shell too.
+builtin_ids   = ["gtk3", "gtk4"]
+community_ids = ["vscode"]
 
 [lockscreen]
 # Noctalia's lock screen is the locker while Noctalia is the active shell
 # (hypr/scripts/lock routes Super+L / hypridle here; the classic shell uses
 # hyprlock). It also locks on `loginctl lock-session` and before suspend.
 enabled = true
+
+# ── Bar: the old waybar module set ───────────────────────────────────────────
+[bar.default]
+start  = ["launcher", "workspaces", "active_window"]
+center = ["clock"]
+end    = ["caffeine", "privacy", "media", "tray", "cpu", "ram", "notifications",
+          "network", "bluetooth", "volume", "brightness", "power_profile",
+          "battery", "control-center", "session"]
+
+[widget.clock]
+type           = "clock"
+format         = "{:%H:%M}"
+tooltip_format = "{:%A, %d %B %Y}"
+
+[widget.cpu]
+type = "sysmon"
+stat = "cpu_usage"
+
+[widget.ram]
+type = "sysmon"
+stat = "ram_pct"
+
+# Only shown while the mic, camera or screen capture is in use.
+[widget.privacy]
+type          = "privacy"
+hide_inactive = true

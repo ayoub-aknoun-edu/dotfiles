@@ -30,3 +30,7 @@ output_path = "~/.config/theme/generated/kitty.conf"
 [templates.tmux]
 input_path  = "~/.config/theme/matugen/templates/tmux.conf"
 output_path = "~/.config/theme/generated/tmux.conf"
+
+[templates.nvim]
+input_path  = "~/.config/theme/matugen/templates/nvim.lua"
+output_path = "~/.config/theme/generated/nvim.lua"

@@ -107,10 +107,8 @@ hl.bind(mainMod .. " + SHIFT + down",  hl.dsp.window.swap({ direction = "d" }))
 
 
 -- ─── Alt-Tab ──────────────────────────────────────────────────────────────────
-hl.bind("ALT + TAB",         hl.dsp.window.cycle_next())
-hl.bind("ALT + TAB",         hl.dsp.window.bring_to_top())
-hl.bind("ALT + SHIFT + TAB", hl.dsp.window.cycle_next({ next = false }))
-hl.bind("ALT + SHIFT + TAB", hl.dsp.window.bring_to_top())
+hl.bind("ALT + TAB",         shell.window_switcher(false))
+hl.bind("ALT + SHIFT + TAB", shell.window_switcher(true))
 
 
 -- ─── Resize ───────────────────────────────────────────────────────────────────

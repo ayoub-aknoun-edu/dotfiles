@@ -15,3 +15,9 @@
 
 # Wallpaper-generated palettes (theme/matugen → rice-wall)
 .config/theme/generated/
+
+# Written by Noctalia's gtk3/gtk4 templates (wallpaper palette)
+.config/gtk-3.0/gtk.css
+.config/gtk-3.0/noctalia.css
+.config/gtk-4.0/gtk.css
+.config/gtk-4.0/noctalia.css

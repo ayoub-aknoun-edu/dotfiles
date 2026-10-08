@@ -50,6 +50,19 @@ function M.current()
     return name == "classic" and "classic" or "noctalia"
 end
 
+-- Alt+Tab: Noctalia's window switcher (previews, MRU; it handles Shift+Tab
+-- and Alt release itself). Classic: cycle windows directly.
+function M.window_switcher(backwards)
+    return function()
+        if M.current() == "noctalia" then
+            hl.exec_cmd("noctalia msg window-switcher hold")
+            return
+        end
+        hl.dispatch(hl.dsp.window.cycle_next({ next = not backwards }))
+        hl.dispatch(hl.dsp.window.bring_to_top())
+    end
+end
+
 -- Returns a bind callback; the shell is resolved at keypress time.
 function M.action(name)
     local commands = assert(ACTIONS[name], "unknown shell action: " .. name)
