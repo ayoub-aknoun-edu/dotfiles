@@ -97,16 +97,16 @@ The shell layer is switchable; Hyprland, hypridle/hyprlock and hyprsunset stay t
 
 | Key                 | Action                                                                 |
 | ------------------- | ---------------------------------------------------------------------- |
-| `Super+Alt+S` (or `Super+F12` with Fn) | Cycle shell: classic (waybar/eww/swaync/rofi) → DankMaterialShell → Noctalia |
+| `Super+Alt+S` (or `Super+F12` with Fn) | Toggle shell: Noctalia (everyday) ⇄ classic waybar/eww/swaync/rofi (fallback) |
 | `Super+Shift+W`     | Wallpaper picker (`~/Pictures/Wallpapers`)                              |
 | `Super+Alt+W`       | Random wallpaper                                                        |
 | `Super+Alt+Space`   | Launcher of the active shell                                            |
 | `Super+N` / `Super+Ctrl+N` | Control center / notifications                                  |
 | `Super+V`           | Clipboard history                                                       |
 | `Super+Shift+E`     | Power menu                                                              |
-| `Super+,`           | Shell settings (DMS / Noctalia)                                         |
+| `Super+,`           | Noctalia settings                                                       |
 
-- `~/.local/bin/rice-shell` — `get | set <shell> | next | apply`; each shell is a systemd target (`rice-{classic,dms,noctalia}.target`) whose daemons start in parallel; choice persists in `~/.local/state/rice`
+- `~/.local/bin/rice-shell` — `get | set <noctalia|classic> | next | apply`; each shell is a systemd target (`rice-{noctalia,classic}.target`) whose daemons start in parallel; choice persists in `~/.local/state/rice`
 - `scripts/fetch-wallpapers.sh` — downloads the pack listed in `packages/wallpapers.txt` (run by `post-install.sh`)
 - `~/.local/bin/rice-wall` — `set <img> | pick | random | restore`; regenerates the palette with
   [matugen](https://github.com/InioX/matugen) from `.config/theme/matugen/` into `.config/theme/generated/`

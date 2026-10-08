@@ -3,20 +3,19 @@
 # hyprsunset untouched.
 #
 #   rice-shell get           print the active shell
-#   rice-shell set <shell>   switch to: classic | dms | noctalia
-#   rice-shell next          cycle classic → dms → noctalia → classic
+#   rice-shell set <shell>   switch to: noctalia | classic
+#   rice-shell next          toggle noctalia ⇄ classic
 #   rice-shell apply         start the saved shell without waiting (login)
 #
 # Each shell is a systemd user target (~/.config/systemd/user/rice-*.target)
 # that Conflicts= with the others, so starting one stops the rest, and all of
 # its daemons start in parallel:
-#   classic  = waybar + eww + swaync + awww   (rice-classic.target)
-#   dms      = DankMaterialShell              (rice-dms.target)
-#   noctalia = Noctalia                       (rice-noctalia.target)
+#   noctalia = Noctalia, the everyday shell   (rice-noctalia.target)
+#   classic  = waybar + eww + swaync + awww   (rice-classic.target, fallback)
 
 set -euo pipefail
 
-SHELLS=(classic dms noctalia)
+SHELLS=(noctalia classic)
 STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/rice"
 STATE_FILE="$STATE_DIR/shell"
 
@@ -25,7 +24,7 @@ die() { echo "rice-shell: $*" >&2; exit 1; }
 cmd_get() {
     local s
     s="$(cat "$STATE_FILE" 2>/dev/null || true)"
-    case "$s" in classic|dms|noctalia) echo "$s" ;; *) echo classic ;; esac
+    case "$s" in classic|noctalia) echo "$s" ;; *) echo noctalia ;; esac
 }
 
 prepare() {
@@ -35,23 +34,7 @@ prepare() {
     systemctl --user reset-failed 'rice-*' swaync.service waybar.service 2>/dev/null || true
 }
 
-# Settings DMS keeps in its own runtime config; re-applied over IPC on every
-# start so a fresh machine gets them too.
-dms_defaults() {
-    local i
-    for ((i = 0; i < 100; i++)); do
-        dms ipc call lock isLocked >/dev/null 2>&1 && break
-        sleep 0.1
-    done
-    # hypridle + hyprlock own locking; DMS's logind integration would also
-    # lock on `loginctl lock-session` and fight hyprlock for the session lock.
-    dms ipc call settings set loginctlLockIntegration false >/dev/null 2>&1 || true
-}
-
-after_start() {  # background follow-ups once the chosen shell is starting
-    if [[ "$1" == dms ]]; then
-        setsid -f "$0" _dms-defaults >/dev/null 2>&1
-    fi
+after_start() {  # background follow-ups once the shell is starting
     # The wallpaper daemons restore their own last image; this only redraws
     # if the saved wallpaper changed while another shell was active.
     setsid -f "$HOME/.local/bin/rice-wall" restore >/dev/null 2>&1
@@ -60,18 +43,18 @@ after_start() {  # background follow-ups once the chosen shell is starting
 cmd_apply() {
     prepare
     systemctl --user start --no-block "rice-$(cmd_get).target"
-    after_start "$(cmd_get)"
+    after_start
 }
 
 cmd_set() {
-    local target="${1:?usage: rice-shell set <classic|dms|noctalia>}"
+    local target="${1:?usage: rice-shell set <noctalia|classic>}"
     [[ " ${SHELLS[*]} " == *" $target "* ]] || die "unknown shell: $target"
 
     mkdir -p "$STATE_DIR"
     printf '%s\n' "$target" > "$STATE_FILE"
     prepare
     systemctl --user start "rice-$target.target"
-    after_start "$target"
+    after_start
     notify-send -a rice -i preferences-desktop-theme "Desktop shell" "Switched to $target" 2>/dev/null || true
 }
 
@@ -84,7 +67,7 @@ cmd_next() {
             return
         fi
     done
-    cmd_set classic
+    cmd_set noctalia
 }
 
 case "${1:-}" in
@@ -92,6 +75,5 @@ case "${1:-}" in
     set)   shift; cmd_set "$@" ;;
     next)  cmd_next ;;
     apply) cmd_apply ;;
-    _dms-defaults) dms_defaults ;;
     *) sed -n '2,16p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
 esac

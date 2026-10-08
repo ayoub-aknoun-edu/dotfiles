@@ -15,8 +15,3 @@
 
 # Wallpaper-generated palettes (theme/matugen → rice-wall)
 .config/theme/generated/
-
-# Written by DankMaterialShell at runtime (not loaded by this config)
-.config/hypr/dms/
-.config/gtk-3.0/dank-colors.css
-.config/gtk-4.0/dank-colors.css

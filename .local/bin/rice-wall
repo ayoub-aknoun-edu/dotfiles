@@ -9,7 +9,7 @@
 #   rice-wall init          create theme/generated from defaults if missing
 #
 # The wallpaper is drawn by whichever shell is active (see rice-shell):
-# awww for the classic waybar/eww stack, DMS or Noctalia otherwise.
+# Noctalia (everyday) or awww for the classic waybar/eww fallback.
 # Colors: matugen → ~/.config/theme/generated/* (config in theme/matugen).
 
 set -euo pipefail
@@ -27,7 +27,7 @@ IMAGE_GLOB_RE='.*\.\(jpe?g\|png\|webp\)$'
 
 die() { echo "rice-wall: $*" >&2; exit 1; }
 
-active_shell() { "$HOME/.local/bin/rice-shell" get 2>/dev/null || echo classic; }
+active_shell() { "$HOME/.local/bin/rice-shell" get 2>/dev/null || echo noctalia; }
 
 list_wallpapers() {
     [[ -d "$WALLPAPER_DIR" ]] || die "no wallpaper directory: $WALLPAPER_DIR"
@@ -55,7 +55,6 @@ wait_for() {  # wait_for <command...>: poll up to 10s until it succeeds
 # Path the active shell is currently showing (empty if unknown).
 shown_wallpaper() {
     case "$(active_shell)" in
-        dms)      dms ipc call wallpaper get 2>/dev/null | head -n1 ;;
         noctalia) noctalia msg wallpaper-get 2>/dev/null | head -n1 ;;
         *)        awww query 2>/dev/null | sed -n 's/.*image: //p' | head -n1 ;;
     esac
@@ -65,9 +64,6 @@ shown_wallpaper() {
 draw_wallpaper() {
     local img="$1" mode="${2:-animate}"
     case "$(active_shell)" in
-        dms)
-            wait_for dms ipc call lock isLocked || die "DMS is not running"
-            dms ipc call wallpaper set "$img" >/dev/null ;;
         noctalia)
             wait_for noctalia msg wallpaper-get || die "Noctalia is not running"
             noctalia msg wallpaper-set "$img" >/dev/null ;;
@@ -151,7 +147,6 @@ cmd_restore() {
     # Palette is already on disk. The daemons show their own last image, so
     # only redraw (without animation) when it differs from the saved one.
     case "$(active_shell)" in
-        dms)      wait_for dms ipc call lock isLocked || return 0 ;;
         noctalia) wait_for noctalia msg wallpaper-get || return 0 ;;
         *)        wait_for awww query || return 0 ;;
     esac

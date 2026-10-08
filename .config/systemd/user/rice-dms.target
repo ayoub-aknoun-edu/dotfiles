@@ -1,6 +1,0 @@
-[Unit]
-Description=Rice shell: DankMaterialShell
-Conflicts=rice-classic.target rice-noctalia.target
-PartOf=graphical-session.target
-After=graphical-session.target
-Wants=rice-dms-shell.service
