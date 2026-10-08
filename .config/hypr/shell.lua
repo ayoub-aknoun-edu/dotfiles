@@ -33,6 +33,10 @@ local ACTIONS = {
         classic  = "~/.config/wlogout/launch.sh",
         noctalia = "noctalia msg panel-toggle session",
     },
+    eye_comfort = {
+        classic  = "~/.local/bin/eyecare-toggle",
+        noctalia = "noctalia msg nightlight-force-toggle",
+    },
     settings = {
         noctalia = "noctalia msg settings-toggle",
     },

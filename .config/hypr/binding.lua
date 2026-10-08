@@ -169,5 +169,6 @@ hl.bind(mainMod .. " + SHIFT + SPACE", shell.action("reload"))
 hl.bind(mainMod .. " + ALT + S",      hl.dsp.exec_cmd("~/.local/bin/rice-shell next"))
 hl.bind(mainMod .. " + F12",          hl.dsp.exec_cmd("~/.local/bin/rice-shell next"))
 hl.bind(mainMod .. " + comma",        shell.action("settings"))
+hl.bind(mainMod .. " + ALT + N",      shell.action("eye_comfort"))  -- Eye Comfort Shield
 hl.bind(mainMod .. " + SHIFT + W",    hl.dsp.exec_cmd("~/.local/bin/rice-wall pick"))
 hl.bind(mainMod .. " + ALT + W",      hl.dsp.exec_cmd("~/.local/bin/rice-wall random"))
