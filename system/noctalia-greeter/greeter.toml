@@ -1,8 +1,8 @@
 # /var/lib/noctalia-greeter/greeter.toml — installed by
 # scripts/setup-system.sh greeter / greeter-config (@USER@ → your username).
 # Wallpaper + palette come from Noctalia's greeter sync (auto-sync is on);
-# these are the declarative defaults. Style matches the "editorial" lock
-# screen: big thin time bottom-left, no branding.
+# these are the declarative defaults. 1.6.0 has a fixed centered layout; we
+# hide the branding/scheme picker and use the lock screen's font.
 
 [session]
 default = "Hyprland (uwsm-managed)"
@@ -18,11 +18,12 @@ power_buttons_position = "bottom-right"
 font_family = "IBM Plex Sans Light"
 corner_radius_scale = 1.4
 
-[clock]
-enabled = true
-position = "bottom-left"
-time_format = "{:%H:%M}"
-date_format = "%A, %-d %B"
+# Clock placement needs noctalia-greeter > 1.6.0 (1.6.0 logs "unrecognized
+# top-level key 'clock'"); enable once the release supports it:
+# [clock]
+# position    = "bottom-left"
+# time_format = "{:%H:%M}"
+# date_format = "%A, %-d %B"
 
 [keyboard]
 layout = "us"
