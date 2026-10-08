@@ -34,6 +34,12 @@ thickness = 28
     opacity = 1.0
     padding = 6.0
 
+[brightness]
+minimum_brightness = 0.0099999997764825821
+
+[calendar]
+enabled = true
+
 [control_center]
 hidden_tabs = [ "weather" ]
 
@@ -216,6 +222,9 @@ enabled = false
 [widget.brightness]
 enabled = false
 
+[widget.control-center]
+scale = 0.94999999999999996
+
 [widget.launcher]
 glyph = "cube"
 
@@ -226,6 +235,9 @@ enabled = false
 enabled = false
 
 [widget.power_profile]
+enabled = false
+
+[widget.session]
 enabled = false
 
 [widget.spacer_2]
