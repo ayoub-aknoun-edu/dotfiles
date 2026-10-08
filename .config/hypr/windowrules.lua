@@ -83,6 +83,18 @@ hl.window_rule({
 })
 
 
+-- ─── Browser activation ───────────────────────────────────────────────────────
+-- Clicking a web notification (WhatsApp etc.) makes Thorium request
+-- activation (xdg-activation token from Noctalia). Honor it for Thorium only,
+-- so it jumps to the browser's workspace and tab; other apps still can't
+-- steal focus (misc.focus_on_activate stays false).
+hl.window_rule({
+    name              = "thorium-focus-on-activate",
+    match             = { class = "^thorium-browser$" },
+    focus_on_activate = true,
+})
+
+
 -- ─── Permission / Auth Dialogs ────────────────────────────────────────────────
 hl.window_rule({
     name              = "browser-permission-dialogs",
