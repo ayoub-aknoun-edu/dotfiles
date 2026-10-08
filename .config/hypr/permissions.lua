@@ -16,3 +16,5 @@ hl.permission({ binary = "/usr/(bin|local/bin)/hyprpm", type = "plugin", mode = 
 -- Hyprland restarts). hyprlock = classic shell, noctalia = everyday shell.
 hl.permission({ binary = "/usr/(bin|local/bin)/hyprlock", type = "screencopy", mode = "allow" })
 hl.permission({ binary = "/usr/(bin|local/bin)/noctalia", type = "screencopy", mode = "allow" })
+-- ~/.local/bin/second-screen streams a virtual monitor to a phone.
+hl.permission({ binary = "/usr/(bin|local/bin)/wayvnc", type = "screencopy", mode = "allow" })
