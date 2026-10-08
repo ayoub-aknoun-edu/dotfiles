@@ -12,9 +12,18 @@ DISABLED_FLAG="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/hypridle.disabled"
 last_state=$(cat "$AC_STATE_FILE" 2>/dev/null || echo "1")
 waiter_pid=""
 
+# Locked by either locker: hyprlock (classic) or Noctalia, which sets
+# logind's LockedHint (hyprlock doesn't, hence both checks).
+is_locked() {
+    pidof hyprlock >/dev/null 2>&1 && return 0
+    local sid
+    sid="$(loginctl show-user "$USER" -p Display --value 2>/dev/null || true)"
+    [[ -n "$sid" && "$(loginctl show-session "$sid" -p LockedHint --value 2>/dev/null)" == yes ]]
+}
+
 do_restart() {
     # If the screen is locked, wait for it to unlock first
-    while pidof hyprlock >/dev/null 2>&1; do
+    while is_locked; do
         sleep 2
     done
     sleep 1  # brief settle after unlock

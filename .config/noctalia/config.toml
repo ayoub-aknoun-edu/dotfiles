@@ -7,7 +7,7 @@ mode   = "dark"
 source = "wallpaper"                  # Material You colors from the wallpaper
 
 [lockscreen]
-# hypridle + hyprlock own locking in every shell (incl. lock before sleep).
-# Leaving Noctalia's lock on would also lock on `loginctl lock-session` and
-# on suspend, fighting hyprlock for the session lock.
-enabled = false
+# Noctalia's lock screen is the locker while Noctalia is the active shell
+# (hypr/scripts/lock routes Super+L / hypridle here; the classic shell uses
+# hyprlock). It also locks on `loginctl lock-session` and before suspend.
+enabled = true
