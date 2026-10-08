@@ -1,7 +1,8 @@
 # /var/lib/noctalia-greeter/greeter.toml — installed by
-# scripts/setup-system.sh greeter (@USER@ is replaced with your username).
-# Appearance (wallpaper, palette, font) comes from Noctalia's greeter sync;
-# these are only the declarative defaults.
+# scripts/setup-system.sh greeter / greeter-config (@USER@ → your username).
+# Wallpaper + palette come from Noctalia's greeter sync (auto-sync is on);
+# these are the declarative defaults. Style matches the "editorial" lock
+# screen: big thin time bottom-left, no branding.
 
 [session]
 default = "Hyprland (uwsm-managed)"
@@ -9,9 +10,19 @@ default = "Hyprland (uwsm-managed)"
 [user]
 default = "@USER@"
 
+[appearance]
+scheme = "Synced"
+hide_logo = true
+scheme_selector_position = "hidden"
+power_buttons_position = "bottom-right"
+font_family = "IBM Plex Sans Light"
+corner_radius_scale = 1.4
+
 [clock]
+enabled = true
+position = "bottom-left"
 time_format = "{:%H:%M}"
-date_format = "%A, %d %B"
+date_format = "%A, %-d %B"
 
 [keyboard]
 layout = "us"
