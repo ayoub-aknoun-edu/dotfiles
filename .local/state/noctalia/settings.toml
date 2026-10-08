@@ -5,6 +5,7 @@ background_opacity = 0.2799999937415123
 center = [ "clock", "spacer_2", "media" ]
 end = [
     "group:g1",
+    "eye-comfort",
     "caffeine",
     "cpu",
     "ram",
@@ -50,7 +51,10 @@ widget_order = []
 
 [lockscreen]
 blur_intensity = 0.12
+fingerprint = false
 tint_intensity = 0.25
+transition = [ "zoom" ]
+transition_duration = 500
 
 [lockscreen_widgets]
 enabled = true
@@ -66,7 +70,7 @@ widget_order = [
     [lockscreen_widgets.grid]
     cell_size = 16
     major_interval = 4
-    visible = true
+    visible = false
 
     [lockscreen_widgets.widget."lockscreen-login-box@eDP-1"]
     box_height = 196.0
@@ -98,8 +102,8 @@ widget_order = [
     [lockscreen_widgets.widget.lockscreen-widget-avatar]
     box_height = 104.0
     box_width = 104.0
-    cx = 1236.0
-    cy = 690.0
+    cx = 1216.0
+    cy = 752.0
     output = "eDP-1"
     placement_height = 1080.0
     placement_width = 1920.0
@@ -135,8 +139,8 @@ widget_order = [
     [lockscreen_widgets.widget.lockscreen-widget-name]
     box_height = 70.0
     box_width = 240.0
-    cx = 1420.0
-    cy = 690.0
+    cx = 1400.0
+    cy = 752.0
     output = "eDP-1"
     placement_height = 1080.0
     placement_width = 1920.0

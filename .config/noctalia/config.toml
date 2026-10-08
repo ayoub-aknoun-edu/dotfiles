@@ -25,6 +25,21 @@ community_ids = ["vscode"]
 # (kitty, tmux, Neovim, Hyprland borders) and become the saved wallpaper.
 wallpaper_changed = "~/.local/bin/rice-wall adopt \"$NOCTALIA_WALLPAPER_PATH\""
 
+[nightlight]
+# "Eye Comfort Shield": manual only (no schedule, no location). The bar
+# button / control-center right-click toggle the always-on (force) mode.
+enabled           = false
+force             = false
+temperature_night = 3200          # same warmth as the classic eyecare-toggle
+
+[widget.eye-comfort]
+type    = "custom_button"
+glyph   = "eye"
+tooltip = "Eye Comfort Shield"
+
+[widget.eye-comfort.actions]
+left = "exec noctalia msg nightlight-force-toggle"
+
 [lockscreen]
 # Noctalia's lock screen is the locker while Noctalia is the active shell
 # (hypr/scripts/lock routes Super+L / hypridle here; the classic shell uses
