@@ -178,6 +178,13 @@ info "Fetching wallpaper pack into ~/Pictures/Wallpapers"
 bash "$SCRIPT_DIR/fetch-wallpapers.sh" || warn "Some wallpapers failed to download"
 "$HOME/.local/bin/rice-wall" init && ok "Palette ready (theme/generated)"
 
+# ── 11. VS Code theme that follows the wallpaper (Noctalia "vscode" template) ─
+if command -v code >/dev/null 2>&1; then
+    code --install-extension Noctalia.noctaliatheme >/dev/null 2>&1 \
+        && ok "VS Code NoctaliaTheme installed (select it: Ctrl+K Ctrl+T)" \
+        || warn "Could not install the VS Code NoctaliaTheme extension"
+fi
+
 echo ""
 info "Post-install complete."
 warn "If this is a fresh shell, restart it or run: exec zsh"
