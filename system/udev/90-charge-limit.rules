@@ -1,0 +1,7 @@
+# /etc/udev/rules.d/90-charge-limit.rules — installed by
+# scripts/setup-system.sh charge-limit
+# Battery care: resume charging below 75 %, stop at 80 % (this laptop's hwdb
+# CHARGE_LIMIT). ThinkPad firmware rejects start >= end, so start is written
+# first. UPower picks these up, and Noctalia's Control Center toggle
+# (UPower EnableChargeThreshold) switches between them and a full charge.
+SUBSYSTEM=="power_supply", KERNEL=="BAT0", ATTR{charge_control_start_threshold}="75", ATTR{charge_control_end_threshold}="80"

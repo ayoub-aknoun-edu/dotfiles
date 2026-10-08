@@ -3,6 +3,7 @@
 # Run with sudo from the repo:
 #
 #   sudo scripts/setup-system.sh bluetooth         don't power Bluetooth on at every boot
+#   sudo scripts/setup-system.sh charge-limit      battery care: charge 75→80 % (applied at every boot)
 #   sudo scripts/setup-system.sh battery-cleanup   remove the old battery-threshold plugin's udev rule + group
 #   sudo scripts/setup-system.sh greeter           switch login screen SDDM → greetd + Noctalia Greeter
 #   sudo scripts/setup-system.sh greeter-config    reinstall only greeter.toml (login screen look)
@@ -56,6 +57,17 @@ cmd_battery_cleanup() {
         ok "removed group battery_ctl"
     fi
     ok "battery-threshold udev rule removed"
+}
+
+cmd_charge_limit() {
+    install_file "$SYS/udev/90-charge-limit.rules" /etc/udev/rules.d/90-charge-limit.rules
+    udevadm control --reload-rules
+    udevadm trigger --action=change --subsystem-match=power_supply
+    sleep 1
+    systemctl restart upower.service
+    sleep 1
+    local bat=/sys/class/power_supply/BAT0
+    ok "battery now: start=$(cat $bat/charge_control_start_threshold)% end=$(cat $bat/charge_control_end_threshold)%"
 }
 
 # BlueZ powers every adapter on when it appears (AutoEnable defaults to true).
@@ -149,6 +161,7 @@ cmd_greeter_rollback() {
 for cmd in "$@"; do
     case "$cmd" in
         bluetooth)        cmd_bluetooth ;;
+        charge-limit)     cmd_charge_limit ;;
         battery-cleanup)  cmd_battery_cleanup ;;
         greeter)          cmd_greeter ;;
         greeter-config)   cmd_greeter_config ;;
