@@ -202,10 +202,10 @@ hl.window_rule({
 })
 
 
--- ─── Desktop shells (rice-shell: DankMaterialShell / Noctalia) ───────────────
+-- ─── Noctalia (rice-shell) ───────────────────────────────────────────────────
 hl.window_rule({
     name   = "shell-settings-float",
-    match  = { class = "^(com\\.danklinux\\.dms|dev\\.noctalia\\.Noctalia)$" },
+    match  = { class = "^dev\\.noctalia\\.Noctalia$" },
     float  = true,
     center = true,
     size   = "1080 860",
@@ -219,9 +219,4 @@ hl.layer_rule({
     blur         = true,
     blur_popups  = true,
     ignore_alpha = 0.5,
-})
-hl.layer_rule({
-    name    = "dms-surfaces",
-    match   = { namespace = "^dms" },
-    no_anim = true,
 })

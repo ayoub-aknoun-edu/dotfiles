@@ -6,8 +6,8 @@
 -- crash and stop cleanly on logout (see scripts/post-install.sh):
 --   hyprpolkitagent, hyprsunset, hypridle, hypridle-power-watcher,
 --   battery-alert.timer
--- The shell layer (classic waybar/eww/swaync, DankMaterialShell or Noctalia)
--- is started by ~/.local/bin/rice-shell from the saved choice (Super+F12).
+-- The shell layer (Noctalia, or the classic waybar/eww/swaync fallback) is
+-- started by ~/.local/bin/rice-shell from the saved choice (Super+Alt+S).
 
 local UWSM = os.getenv("UWSM_FINALIZE_VARNAMES") ~= nil
 

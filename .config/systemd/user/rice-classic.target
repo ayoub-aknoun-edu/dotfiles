@@ -2,7 +2,7 @@
 Description=Rice shell: classic (waybar + eww + swaync + awww)
 # One shell at a time: starting another rice-*.target stops this one, and
 # every unit PartOf= it stops with it. Started by ~/.local/bin/rice-shell.
-Conflicts=rice-dms.target rice-noctalia.target
+Conflicts=rice-noctalia.target
 PartOf=graphical-session.target
 After=graphical-session.target
 Wants=rice-awww.service waybar.service swaync.service rice-eww.service rice-eww-notify.service
