@@ -3,8 +3,9 @@
 # ~/.local/state/noctalia/settings.toml. Reference: noctalia example.toml.
 
 [shell]
-# hyprpolkitagent is the admin password prompt in both shells.
-polkit_agent = false
+# Noctalia's themed admin password prompt while Noctalia runs;
+# hyprpolkitagent only runs with the classic shell (rice-classic.target).
+polkit_agent = true
 
 [theme]
 mode   = "dark"
