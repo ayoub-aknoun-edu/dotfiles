@@ -1,0 +1,111 @@
+#!/usr/bin/env bash
+# Use an Android phone/tablet as an extra monitor over Wi-Fi.
+#
+#   second-screen start   create a virtual monitor and stream it with wayvnc
+#   second-screen stop    stop streaming and remove the virtual monitor
+#   second-screen status  show connection details
+#
+# Hyprland creates a headless output; wayvnc streams only that output, and a
+# VNC app on the phone (AVNC, free on F-Droid/Play) shows it; touch = mouse.
+#
+# Security: wayvnc listens on the Wi-Fi address only, requires a username +
+# password, and encrypts with TLS (VeNCrypt). Credentials and the self-signed
+# certificate are generated per machine in ~/.config/wayvnc (not in git).
+# It only runs while started; avoid public networks.
+#
+# Settings (env overrides): SECOND_SCREEN_MODE (default 2340x1080@60, Galaxy
+# S23 landscape), SECOND_SCREEN_SCALE (default 1.5), SECOND_SCREEN_IFACE
+# (default wlan0), SECOND_SCREEN_PORT (default 5900).
+
+set -euo pipefail
+
+OUTPUT="PHONE-1"
+MODE="${SECOND_SCREEN_MODE:-2340x1080@60}"
+SCALE="${SECOND_SCREEN_SCALE:-1.5}"
+IFACE="${SECOND_SCREEN_IFACE:-wlan0}"
+PORT="${SECOND_SCREEN_PORT:-5900}"
+UNIT="second-screen-vnc"
+CONF_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/wayvnc"
+CONF="$CONF_DIR/config"
+CERT_DAYS=3650
+
+die() { echo "second-screen: $*" >&2; exit 1; }
+
+lan_address() {
+    ip -4 -o addr show dev "$IFACE" scope global 2>/dev/null | awk '{print $4}' | cut -d/ -f1 | head -n1
+}
+
+# One-time: random password + self-signed TLS certificate, readable only by you.
+ensure_credentials() {
+    [[ -s "$CONF" ]] && return
+    command -v openssl >/dev/null || die "openssl is required"
+    mkdir -p "$CONF_DIR"
+    chmod 700 "$CONF_DIR"
+    openssl req -x509 -newkey ec -pkeyopt ec_paramgen_curve:secp384r1 -nodes -sha384 \
+        -days "$CERT_DAYS" -subj "/CN=$(hostname)-second-screen" \
+        -keyout "$CONF_DIR/tls_key.pem" -out "$CONF_DIR/tls_cert.pem" 2>/dev/null
+    umask 077
+    cat > "$CONF" <<EOF
+enable_auth=true
+username=$USER
+password=$(openssl rand -base64 18 | tr -d '/+=' | cut -c1-16)
+private_key_file=$CONF_DIR/tls_key.pem
+certificate_file=$CONF_DIR/tls_cert.pem
+EOF
+    chmod 600 "$CONF" "$CONF_DIR"/tls_*.pem
+}
+
+output_exists() {
+    hyprctl -j monitors all | jq -e --arg o "$OUTPUT" 'any(.[]; .name == $o)' >/dev/null
+}
+
+cmd_status() {
+    local addr password
+    addr="$(lan_address)"
+    password="$(sed -n 's/^password=//p' "$CONF" 2>/dev/null)"
+    if systemctl --user is-active --quiet "$UNIT"; then
+        echo "Streaming $OUTPUT ($MODE, scale $SCALE)"
+        echo "  AVNC → address ${addr:-?}  port $PORT  security: VeNCrypt (TLS)"
+        echo "  user: $USER   password: ${password:-?}"
+    else
+        echo "Not running (second-screen start)"
+    fi
+}
+
+cmd_start() {
+    command -v wayvnc >/dev/null || die "wayvnc is not installed (sudo pacman -S wayvnc)"
+    local addr
+    addr="$(lan_address)"
+    [[ -n "$addr" ]] || die "no IPv4 address on $IFACE (connect to Wi-Fi first)"
+    ensure_credentials
+
+    output_exists || hyprctl output create headless "$OUTPUT" >/dev/null
+    hyprctl eval "hl.monitor({ output = \"$OUTPUT\", mode = \"$MODE\", position = \"auto-right\", scale = $SCALE })" >/dev/null
+
+    systemctl --user stop "$UNIT" 2>/dev/null || true
+    systemctl --user reset-failed "$UNIT" 2>/dev/null || true
+    systemd-run --user --quiet --unit="$UNIT" --collect \
+        wayvnc --config="$CONF" --output="$OUTPUT" --max-fps=60 "$addr" "$PORT"
+
+    sleep 0.5
+    systemctl --user is-active --quiet "$UNIT" \
+        || die "wayvnc failed to start: journalctl --user -u $UNIT"
+    cmd_status
+    notify-send -a second-screen -i video-display "Second screen ready" \
+        "Connect AVNC to $addr:$PORT" 2>/dev/null || true
+}
+
+cmd_stop() {
+    systemctl --user stop "$UNIT" 2>/dev/null || true
+    if output_exists; then
+        hyprctl output remove "$OUTPUT" >/dev/null
+    fi
+    echo "Second screen stopped"
+}
+
+case "${1:-}" in
+    start)  cmd_start ;;
+    stop)   cmd_stop ;;
+    status) cmd_status ;;
+    *) sed -n '2,19p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
+esac

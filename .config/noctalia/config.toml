@@ -33,6 +33,13 @@ end    = ["caffeine", "privacy", "media", "tray", "cpu", "ram", "notifications",
           "network", "bluetooth", "volume", "brightness", "power_profile",
           "battery", "control-center", "session"]
 
+[widget.launcher]
+type                  = "launcher"
+# Arch logo from the base `filesystem` package (present on every Arch
+# install), tinted with the widget color so it follows the wallpaper palette.
+custom_image          = "/usr/share/pixmaps/archlinux-logo.svg"
+custom_image_colorize = true
+
 [widget.clock]
 type           = "clock"
 format         = "{:%H:%M}"
