@@ -1,0 +1,6 @@
+# /etc/udev/rules.d/99-battery-threshold.rules — installed by
+# scripts/setup-system.sh battery. Lets the `battery_ctl` group set the charge
+# cap (Noctalia plugin damian-ds7/battery-threshold) without sudo.
+SUBSYSTEM=="power_supply", KERNEL=="BAT*", \
+    RUN+="/bin/chgrp battery_ctl /sys$devpath/charge_control_end_threshold", \
+    RUN+="/bin/chmod g+w /sys$devpath/charge_control_end_threshold"

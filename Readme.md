@@ -113,6 +113,20 @@ The shell layer is switchable; Hyprland, hypridle/hyprlock and hyprsunset stay t
   (gitignored) and live-reloads Hyprland borders, kitty, tmux, waybar, swaync, eww, rofi and hyprlock.
   `.config/theme/defaults/` is the Catppuccin Macchiato fallback.
 
+## System-level setup (sudo, not stowed)
+
+Files under `system/` are installed by `scripts/setup-system.sh` (idempotent, backs up what it replaces):
+
+```bash
+yay -S --needed noctalia-greeter greetd greetd-tuigreet accountsservice
+sudo scripts/setup-system.sh battery greeter   # charge-cap udev rule + greetd/Noctalia Greeter
+sudo scripts/setup-system.sh greeter-rollback  # back to SDDM (from a TTY if login breaks)
+```
+
+Noctalia's Settings-window state (`.local/state/noctalia/settings.toml`) is stowed from this repo,
+so GUI changes show up in `git diff`. Plugins listed in `.config/noctalia/config.toml` are fetched
+on first enable: `noctalia msg plugins enable damian-ds7/battery-threshold rxtsel/portctl`.
+
 ## Customization
 
 | What                      | Where                                              |

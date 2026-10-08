@@ -1,0 +1,166 @@
+config_version = 14
+
+[bar.default]
+background_opacity = 0.2799999937415123
+center = [ "clock", "spacer_2", "media" ]
+end = [
+    "group:g1",
+    "caffeine",
+    "cpu",
+    "ram",
+    "portctl",
+    "notifications",
+    "network",
+    "bluetooth",
+    "volume",
+    "brightness",
+    "power_profile",
+    "battery",
+    "control-center",
+    "session"
+]
+padding = 0
+thickness = 28
+
+    [[bar.default.capsule_group]]
+    accordion = false
+    accordion_direction = "end"
+    border_width = 1.0
+    enabled = true
+    fill = "surface_variant"
+    id = "g1"
+    members = [ "privacy", "tray" ]
+    opacity = 1.0
+    padding = 6.0
+
+[control_center]
+hidden_tabs = [ "weather" ]
+
+[desktop_widgets]
+schema_version = 2
+widget_order = []
+
+    [desktop_widgets.grid]
+    cell_size = 16
+    major_interval = 4
+    visible = true
+
+    [desktop_widgets.widget]
+
+[lockscreen]
+blur_intensity = 0.31999999284744263
+
+[lockscreen_widgets]
+enabled = false
+schema_version = 2
+widget_order = [ "lockscreen-login-box@PHONE-1", "lockscreen-login-box@eDP-1" ]
+
+    [lockscreen_widgets.grid]
+    cell_size = 16
+    major_interval = 4
+    visible = true
+
+    [lockscreen_widgets.widget."lockscreen-login-box@PHONE-1"]
+    box_height = 196.0
+    box_width = 810.0
+    cx = 780.0
+    cy = 598.66668701171875
+    output = "PHONE-1"
+    placement_height = 720.0
+    placement_width = 1560.0
+    rotation = 0.0
+    type = "login_box"
+
+        [lockscreen_widgets.widget."lockscreen-login-box@PHONE-1".settings]
+        background_color = "surface_variant"
+        background_opacity = 0.88
+        background_radius = 12.0
+        center_password_text = false
+        input_opacity = 1.0
+        input_radius = 6.0
+        layout = "regular"
+        show_caps_lock = true
+        show_keyboard_layout = true
+        show_login_button = true
+        show_media = true
+        show_session_buttons = true
+        show_unlock_hint = true
+        show_weather = true
+
+    [lockscreen_widgets.widget."lockscreen-login-box@eDP-1"]
+    box_height = 196.0
+    box_width = 810.0
+    cx = 960.0
+    cy = 898.0
+    output = "eDP-1"
+    placement_height = 1080.0
+    placement_width = 1920.0
+    rotation = 0.0
+    type = "login_box"
+
+        [lockscreen_widgets.widget."lockscreen-login-box@eDP-1".settings]
+        background_color = "surface_variant"
+        background_opacity = 0.88
+        background_radius = 12.0
+        center_password_text = false
+        input_opacity = 1.0
+        input_radius = 6.0
+        layout = "regular"
+        show_caps_lock = true
+        show_keyboard_layout = true
+        show_login_button = true
+        show_media = true
+        show_session_buttons = true
+        show_unlock_hint = true
+        show_weather = true
+
+[shell.panel]
+control_center_placement = "floating"
+open_near_click_control_center = true
+transparency_mode = "soft"
+
+[shell.session]
+grid_columns = 4
+
+[theme]
+builtin = "Noctalia"
+community_palette = "Oxocarbon"
+mode = "dark"
+source = "builtin"
+wallpaper_scheme = "m3-content"
+
+[wallpaper]
+directory = "/home/ayoub/Pictures/Wallpapers"
+
+    [wallpaper.default]
+    path = "/home/ayoub/Pictures/Wallpapers/anime-scenery-jeeq3q.png"
+
+    [wallpaper.last]
+    path = "/home/ayoub/Pictures/Wallpapers/anime-scenery-jeeq3q.png"
+
+    [wallpaper.monitors.eDP-1]
+    path = "/home/ayoub/Pictures/Wallpapers/anime-scenery-jeeq3q.png"
+
+[weather]
+enabled = false
+
+[widget.bluetooth]
+enabled = false
+
+[widget.brightness]
+enabled = false
+
+[widget.launcher]
+glyph = "cube"
+
+[widget.network]
+enabled = false
+
+[widget.notifications]
+enabled = false
+
+[widget.power_profile]
+enabled = false
+
+[widget.spacer_2]
+type = "spacer"

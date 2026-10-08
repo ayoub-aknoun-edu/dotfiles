@@ -16,6 +16,7 @@ README\.md
 ^/packages
 ^/docs
 ^/scripts
+^/system
 
 # Windows-specific config kept in repo:
 windows11
