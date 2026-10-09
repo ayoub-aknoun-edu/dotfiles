@@ -43,6 +43,18 @@ enabled = true
 [control_center]
 hidden_tabs = [ "weather" ]
 
+    [[control_center.shortcuts]]
+    type = "wifi"
+
+    [[control_center.shortcuts]]
+    type = "bluetooth"
+
+    [[control_center.shortcuts]]
+    type = "nightlight"
+
+    [[control_center.shortcuts]]
+    type = "notification"
+
 [desktop_widgets]
 schema_version = 2
 widget_order = []
