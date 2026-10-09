@@ -1,4 +1,4 @@
-# KVM/QEMU virtual machines (setup-system.sh vm enables libvirtd + `libvirt` group).
+# KVM/QEMU virtual machines (setup-system.sh vm socket-activates libvirtd + `libvirt` group).
 qemu-desktop
 libvirt
 virt-manager

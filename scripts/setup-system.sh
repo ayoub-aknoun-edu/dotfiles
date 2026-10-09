@@ -11,8 +11,8 @@
 #   sudo scripts/setup-system.sh greeter           login screen: greetd + Noctalia Greeter
 #   sudo scripts/setup-system.sh greeter-config    reinstall only greeter.toml (login screen look)
 #   sudo scripts/setup-system.sh greeter-fallback  greetd with the plain tuigreet (if the greeter breaks)
-#   sudo scripts/setup-system.sh docker            enable Docker + add you to the docker group
-#   sudo scripts/setup-system.sh vm                enable libvirtd + libvirt group + IPv4 forwarding
+#   sudo scripts/setup-system.sh docker            socket-activate Docker + add you to the docker group
+#   sudo scripts/setup-system.sh vm                socket-activate libvirtd + libvirt group + IPv4 forwarding
 #
 # Idempotent; every replaced file is backed up as <file>.bak-<date>.
 # Display-manager changes apply on the next boot (never --now: that would kill
@@ -126,7 +126,10 @@ cmd_logind() {
 
 cmd_docker() {
     require_pkgs docker
-    enable_units docker.service
+    # Start on first use: docker.socket launches dockerd (and containerd) the
+    # first time something talks to /run/docker.sock.
+    systemctl disable docker.service containerd.service >/dev/null 2>&1 || true
+    enable_units docker.socket
     usermod -aG docker "$TARGET_USER"
     ok "$TARGET_USER added to docker (log out/in to apply)"
 }
@@ -135,7 +138,11 @@ cmd_vm() {
     require_pkgs libvirt qemu-desktop
     install_file "$SYS/sysctl/30-ipforward.conf" /etc/sysctl.d/30-ipforward.conf
     sysctl -q --system
-    enable_units libvirtd.service
+    # Start on first use: the sockets launch libvirtd, which exits again after
+    # 120s idle with no running VMs. Disabling the service also disables the
+    # sockets listed in its Also=, so enable them after.
+    systemctl disable libvirtd.service >/dev/null 2>&1 || true
+    enable_units libvirtd.socket libvirtd-ro.socket libvirtd-admin.socket virtlogd.socket virtlockd.socket
     usermod -aG libvirt "$TARGET_USER"
     ok "$TARGET_USER added to libvirt (log out/in to apply)"
 }
