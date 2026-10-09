@@ -4,7 +4,17 @@
 #
 HYPRIDLE="/usr/bin/hypridle"
 
-if [[ "$(cat /sys/class/power_supply/AC/online 2>/dev/null)" == "1" ]]; then
+# Online state of the mains adapter (AC, ADP1, ACAD… — named per vendor).
+ac_online() {
+    local d
+    for d in /sys/class/power_supply/*; do
+        [[ "$(cat "$d/type" 2>/dev/null)" == Mains ]] || continue
+        cat "$d/online" 2>/dev/null && return
+    done
+    echo 1  # desktops / unknown: treat as plugged in
+}
+
+if [[ "$(ac_online)" == "1" ]]; then
     exec "$HYPRIDLE" -c ~/.config/hypr/hypridle-ac.conf
 else
     exec "$HYPRIDLE" -c ~/.config/hypr/hypridle-battery.conf

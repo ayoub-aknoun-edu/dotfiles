@@ -1,0 +1,25 @@
+[Added Associations]
+application/pdf=org.pwmt.zathura-pdf-mupdf.desktop;thorium-browser.desktop;libreoffice-draw.desktop;
+application/x-ipynb+json=code.desktop;
+video/mp4=celluloid.desktop;
+text/html=thorium-browser.desktop;code.desktop;
+application/json=code.desktop;
+text/x-python=code.desktop;
+application/yaml=code.desktop;
+text/markdown=code.desktop;libreoffice-writer.desktop;
+text/vnd.trolltech.linguist=code.desktop;
+text/plain=code.desktop;
+application/x-tiled-tsx=code.desktop;
+application/xml=code.desktop;
+text/x-tex=code.desktop;
+text/csv=code.desktop;
+inode/directory=thunar.desktop;code.desktop;
+
+[Default Applications]
+application/pdf=org.pwmt.zathura-pdf-mupdf.desktop
+application/x-ipynb+json=code.desktop
+video/mp4=celluloid.desktop
+inode/directory=thunar.desktop
+text/x-python=code.desktop
+text/markdown=code.desktop
+x-scheme-handler/claude-cli=claude-code-url-handler.desktop
