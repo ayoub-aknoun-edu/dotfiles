@@ -2,15 +2,14 @@
 # Wallpaper + wallpaper-driven colors for the whole desktop.
 #
 #   rice-wall set <image>   set wallpaper, regenerate palette, reload apps
-#   rice-wall pick          rofi thumbnail grid of $WALLPAPER_DIR
+#   rice-wall pick          open Noctalia's wallpaper panel
 #   rice-wall random        random wallpaper from $WALLPAPER_DIR
-#   rice-wall restore       re-apply the saved wallpaper (login / shell switch)
+#   rice-wall restore       adopt Noctalia's wallpaper at login
 #   rice-wall adopt <image> take a wallpaper set elsewhere (Noctalia hook)
 #   rice-wall current       print the saved wallpaper path
 #   rice-wall init          create theme/generated from defaults if missing
 #
-# The wallpaper is drawn by whichever shell is active (see rice-shell):
-# Noctalia (everyday) or awww for the classic waybar/eww fallback.
+# The wallpaper is drawn by Noctalia.
 # Colors: matugen → ~/.config/theme/generated/* (config in theme/matugen).
 
 set -euo pipefail
@@ -18,24 +17,20 @@ set -euo pipefail
 WALLPAPER_DIR="${WALLPAPER_DIR:-$HOME/Pictures/Wallpapers}"
 STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/rice"
 STATE_FILE="$STATE_DIR/wallpaper"
-THUMB_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/rice/thumbs"
 THEME_DIR="$HOME/.config/theme"
 MATUGEN_CONFIG="$THEME_DIR/matugen/config.toml"
 GENERATED_DIR="$THEME_DIR/generated"
 LOCK_FILE="${XDG_RUNTIME_DIR:-/tmp}/rice-wall.lock"
-THUMB_SIZE=320x180
 IMAGE_GLOB_RE='.*\.\(jpe?g\|png\|webp\)$'
 
 die() { echo "rice-wall: $*" >&2; exit 1; }
-
-active_shell() { "$HOME/.local/bin/rice-shell" get 2>/dev/null || echo noctalia; }
 
 list_wallpapers() {
     [[ -d "$WALLPAPER_DIR" ]] || die "no wallpaper directory: $WALLPAPER_DIR"
     find -L "$WALLPAPER_DIR" -maxdepth 2 -type f -iregex "$IMAGE_GLOB_RE" | sort
 }
 
-# Make sure generated/ exists so CSS/rasi/scss imports never dangle.
+# Make sure generated/ exists so theme imports never dangle.
 ensure_generated() {
     mkdir -p "$GENERATED_DIR"
     local f
@@ -53,36 +48,14 @@ wait_for() {  # wait_for <command...>: poll up to 10s until it succeeds
     return 1
 }
 
-# Path the active shell is currently showing (empty if unknown).
+# Path Noctalia is currently showing (empty if unknown).
 shown_wallpaper() {
-    case "$(active_shell)" in
-        noctalia) noctalia msg wallpaper-get 2>/dev/null | head -n1 ;;
-        *)        awww query 2>/dev/null | sed -n 's/.*image: //p' | head -n1 ;;
-    esac
+    noctalia msg wallpaper-get 2>/dev/null | head -n1
 }
 
-# draw_wallpaper <image> [animate|instant]
 draw_wallpaper() {
-    local img="$1" mode="${2:-animate}"
-    case "$(active_shell)" in
-        noctalia)
-            wait_for noctalia msg wallpaper-get || die "Noctalia is not running"
-            noctalia msg wallpaper-set "$img" >/dev/null ;;
-        *)
-            wait_for awww query || die "awww-daemon is not running (rice-classic.target)"
-            if [[ "$mode" == instant ]]; then
-                awww img "$img" --transition-type none
-                return
-            fi
-            # Grow the new wallpaper out from the cursor.
-            local pos
-            pos="$(hyprctl cursorpos 2>/dev/null | tr -d ' ' || echo center)"
-            awww img "$img" \
-                --transition-type grow --transition-pos "${pos:-center}" --invert-y \
-                --transition-duration 1.2 --transition-fps 60 \
-                --transition-bezier 0.43,1.19,1,0.4
-            ;;
-    esac
+    wait_for noctalia msg wallpaper-get || die "Noctalia is not running"
+    noctalia msg wallpaper-set "$1" >/dev/null
 }
 
 generate_palette() {
@@ -104,17 +77,8 @@ reload_consumers() {
 
     pkill -USR1 -x kitty 2>/dev/null || true
     pkill -USR1 -x nvim 2>/dev/null || true
-    if systemctl --user is-active --quiet waybar.service; then
-        systemctl --user reload waybar.service || true
-    fi
-    if pgrep -x swaync >/dev/null; then
-        swaync-client --reload-css >/dev/null 2>&1 || true
-    fi
     if tmux info >/dev/null 2>&1; then
         tmux source-file "$HOME/.config/tmux/tmux.conf" >/dev/null 2>&1 || true
-    fi
-    if eww ping >/dev/null 2>&1; then
-        eww reload >/dev/null 2>&1 || true
     fi
 }
 
@@ -158,26 +122,12 @@ cmd_current() {
     [[ -f "$STATE_FILE" ]] && cat "$STATE_FILE"
 }
 
+# Noctalia's wallpaper is the source of truth (its picker may have changed
+# it): adopt it instead of overwriting it.
 cmd_restore() {
     ensure_generated
-    local img
-    img="$(cmd_current || true)"
-    if [[ -z "$img" || ! -f "$img" ]]; then
-        img="$HOME/.config/hypr/wallpaper/wallhaven-3lrdyv_1920x1080.png"
-    fi
-    # Palette is already on disk and the daemons show their own last image.
-    case "$(active_shell)" in
-        noctalia)
-            # Noctalia's wallpaper is the source of truth (its picker may have
-            # changed it): adopt it instead of overwriting it.
-            wait_for noctalia msg wallpaper-get || return 0
-            cmd_adopt "$(shown_wallpaper)"
-            ;;
-        *)
-            wait_for awww query || return 0
-            [[ "$(shown_wallpaper)" == "$img" ]] || draw_wallpaper "$img" instant
-            ;;
-    esac
+    wait_for noctalia msg wallpaper-get || return 0
+    cmd_adopt "$(shown_wallpaper)"
 }
 
 cmd_random() {
@@ -188,35 +138,8 @@ cmd_random() {
     cmd_set "$img"
 }
 
-thumbnail() {
-    local img="$1" thumb
-    thumb="$THUMB_DIR/$(printf '%s' "$img" | md5sum | cut -c1-16).jpg"
-    if [[ ! -s "$thumb" || "$img" -nt "$thumb" ]]; then
-        mkdir -p "$THUMB_DIR"
-        vipsthumbnail "$img" -s "$THUMB_SIZE" --smartcrop attention -o "$thumb" 2>/dev/null \
-            || ffmpeg -loglevel error -y -i "$img" -vf "scale=$THUMB_SIZE:force_original_aspect_ratio=increase,crop=$THUMB_SIZE" "$thumb" \
-            || thumb="$img"
-    fi
-    printf '%s' "$thumb"
-}
-
 cmd_pick() {
-    local -a files=()
-    mapfile -t files < <(list_wallpapers)
-    (( ${#files[@]} )) || die "no wallpapers in $WALLPAPER_DIR"
-
-    local choice
-    choice="$(
-        for f in "${files[@]}"; do
-            printf '%s\0icon\x1f%s\n' "$(basename "${f%.*}")" "$(thumbnail "$f")"
-        done | rofi -dmenu -i -p "Wallpaper" -format i -show-icons \
-            -theme-str 'window { width: 1180px; }
-                        listview { columns: 4; lines: 3; flow: horizontal; spacing: 12px; }
-                        element { orientation: vertical; padding: 8px; border-radius: 12px; }
-                        element-icon { size: 250px; }
-                        element-text { horizontal-align: 0.5; }'
-    )" || exit 0
-    [[ -n "$choice" ]] && cmd_set "${files[$choice]}"
+    noctalia msg panel-toggle wallpaper >/dev/null
 }
 
 case "${1:-}" in

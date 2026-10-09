@@ -5,7 +5,7 @@ local mainMod     = "SUPER"
 local terminal    = "kitty"
 local fileManager = "thunar"
 local browser     = os.getenv("HOME") .. "/.local/bin/browser"
-local shell       = require("shell")  -- routes to the active shell (rice-shell)
+local shell       = require("shell")  -- Noctalia actions (shell.lua)
 local locker      = "~/.config/hypr/scripts/lock"
 
 
@@ -26,37 +26,6 @@ hl.bind(mainMod .. " + ALT + SPACE",   shell.action("launcher"))
 hl.bind(mainMod .. " + N",        shell.action("control_center"))
 hl.bind(mainMod .. " + SHIFT + N",shell.action("do_not_disturb"))
 hl.bind(mainMod .. " + CTRL + N", shell.action("notifications"))
-
--- These binds fire on every Esc / left-click, so they check the CC layer
--- in-process and only spawn the close script when the panel is actually open.
--- eww sometimes maps its first window before applying :namespace, leaving
--- gtk-layer-shell's default name; eww is the only gtk-layer-shell client here.
-local CONTROL_CENTER_NAMESPACES = { ["eww-control-center"] = true, ["gtk-layer-shell"] = true }
-
-local function control_center_layer()
-    for _, layer in ipairs(hl.get_layers()) do
-        if CONTROL_CENTER_NAMESPACES[layer.namespace] then return layer end
-    end
-end
-
-local function close_control_center()
-    hl.exec_cmd("~/.config/eww/scripts/close-control-center")
-end
-
--- ESC closes the CC (passes through so apps still get ESC).
-hl.bind("escape", function()
-    if control_center_layer() then close_control_center() end
-end, { non_consuming = true })
-
--- Left-click outside the CC closes it (passes through to the clicked app).
-hl.bind("mouse:272", function()
-    local cc = control_center_layer()
-    if not cc then return end
-    local pos = hl.get_cursor_pos()
-    local inside = pos and pos.x >= cc.x and pos.x <= cc.x + cc.w
-                       and pos.y >= cc.y and pos.y <= cc.y + cc.h
-    if not inside then close_control_center() end
-end, { non_consuming = true, mouse = true })
 
 
 -- ─── Screenshot ───────────────────────────────────────────────────────────────
@@ -107,8 +76,8 @@ hl.bind(mainMod .. " + SHIFT + down",  hl.dsp.window.swap({ direction = "d" }))
 
 
 -- ─── Alt-Tab ──────────────────────────────────────────────────────────────────
-hl.bind("ALT + TAB",         shell.window_switcher(false))
-hl.bind("ALT + SHIFT + TAB", shell.window_switcher(true))
+hl.bind("ALT + TAB",         shell.window_switcher())
+hl.bind("ALT + SHIFT + TAB", shell.window_switcher())
 
 
 -- ─── Resize ───────────────────────────────────────────────────────────────────
@@ -159,16 +128,12 @@ hl.bind("XF86AudioPlay",         hl.dsp.exec_cmd("playerctl play-pause"), { lock
 hl.bind("XF86AudioPause",        hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
 
 
--- ─── Reload Waybar ────────────────────────────────────────────────────────────
+-- ─── Reload shell ─────────────────────────────────────────────────────────────
 hl.bind(mainMod .. " + SHIFT + SPACE", shell.action("reload"))
 
 
 -- ─── Desktop shell & wallpaper ──────────────────────────────────────────────
--- ThinkPad: without Fn-lock the F-row sends media keys, so Super+F12 only
--- works with Fn; Super+Alt+S ("shell") always does.
-hl.bind(mainMod .. " + ALT + S",      hl.dsp.exec_cmd("~/.local/bin/rice-shell next"))
-hl.bind(mainMod .. " + F12",          hl.dsp.exec_cmd("~/.local/bin/rice-shell next"))
 hl.bind(mainMod .. " + comma",        shell.action("settings"))
 hl.bind(mainMod .. " + ALT + N",      shell.action("eye_comfort"))  -- Eye Comfort Shield
-hl.bind(mainMod .. " + SHIFT + W",    hl.dsp.exec_cmd("~/.local/bin/rice-wall pick"))
+hl.bind(mainMod .. " + SHIFT + W",    shell.action("wallpaper"))
 hl.bind(mainMod .. " + ALT + W",      hl.dsp.exec_cmd("~/.local/bin/rice-wall random"))

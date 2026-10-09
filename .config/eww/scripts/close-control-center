@@ -1,2 +1,0 @@
-#!/usr/bin/env bash
-eww close control-center 2>/dev/null

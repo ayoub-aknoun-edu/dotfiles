@@ -1,4 +1,0 @@
-/* Wrapper file.
- * Main Rofi theme lives in: ~/.config/theme/apps/rofi/config.rasi
- */
-@import "../theme/apps/rofi/config.rasi"
