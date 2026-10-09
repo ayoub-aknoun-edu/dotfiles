@@ -1,0 +1,4 @@
+# Flutter + Android (install.sh adds you to the `flutter` group).
+aur:flutter-bin
+jdk17-openjdk
+android-udev

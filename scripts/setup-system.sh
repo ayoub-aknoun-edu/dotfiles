@@ -2,18 +2,22 @@
 # System-level (/etc, /var) parts of the rice that stow can't link.
 # Run with sudo from the repo:
 #
+#   sudo scripts/setup-system.sh services          enable NetworkManager, iwd, bluetooth, fstrim + paccache timers
+#   sudo scripts/setup-system.sh network           NetworkManager on iwd + systemd-resolved (stub resolv.conf)
+#   sudo scripts/setup-system.sh logind            lid close suspends; lock every session before sleep
 #   sudo scripts/setup-system.sh bluetooth         don't power Bluetooth on at every boot
-#   sudo scripts/setup-system.sh charge-limit      battery care: charge 75→80 % (applied at every boot)
+#   sudo scripts/setup-system.sh charge-limit      battery care: charge 75→80 % (skipped if unsupported)
 #   sudo scripts/setup-system.sh battery-cleanup   remove the old battery-threshold plugin's udev rule + group
-#   sudo scripts/setup-system.sh greeter           switch login screen SDDM → greetd + Noctalia Greeter
+#   sudo scripts/setup-system.sh greeter           login screen: greetd + Noctalia Greeter
 #   sudo scripts/setup-system.sh greeter-config    reinstall only greeter.toml (login screen look)
 #   sudo scripts/setup-system.sh greeter-fallback  greetd with the plain tuigreet (if the greeter breaks)
-#   sudo scripts/setup-system.sh greeter-rollback  back to SDDM
+#   sudo scripts/setup-system.sh docker            enable Docker + add you to the docker group
+#   sudo scripts/setup-system.sh vm                enable libvirtd + libvirt group + IPv4 forwarding
 #
 # Idempotent; every replaced file is backed up as <file>.bak-<date>.
 # Display-manager changes apply on the next boot (never --now: that would kill
 # the running session). Recovery from a broken login: Ctrl+Alt+F2, log in,
-# run `sudo ~/dotfiles/scripts/setup-system.sh greeter-rollback`, reboot.
+# run `sudo ~/dotfiles/scripts/setup-system.sh greeter-fallback`, reboot.
 
 set -euo pipefail
 
@@ -60,14 +64,80 @@ cmd_battery_cleanup() {
 }
 
 cmd_charge_limit() {
+    local bat="" b
+    for b in /sys/class/power_supply/BAT*; do
+        [[ -w "$b/charge_control_end_threshold" ]] && { bat="$b"; break; }
+    done
+    if [[ -z "$bat" ]]; then
+        info "charge-limit: no battery with charge_control_*_threshold here — skipped"
+        return 0
+    fi
     install_file "$SYS/udev/90-charge-limit.rules" /etc/udev/rules.d/90-charge-limit.rules
     udevadm control --reload-rules
     udevadm trigger --action=change --subsystem-match=power_supply
     sleep 1
     systemctl restart upower.service
     sleep 1
-    local bat=/sys/class/power_supply/BAT0
-    ok "battery now: start=$(cat $bat/charge_control_start_threshold)% end=$(cat $bat/charge_control_end_threshold)%"
+    ok "$(basename "$bat") now: start=$(cat "$bat/charge_control_start_threshold" 2>/dev/null || echo ?)% end=$(cat "$bat/charge_control_end_threshold")%"
+}
+
+# enable_units <unit...>: enable for next boot (never --now: safe from a live session).
+enable_units() {
+    local u
+    for u in "$@"; do
+        if systemctl list-unit-files "$u" >/dev/null 2>&1; then
+            systemctl enable "$u" >/dev/null 2>&1 && ok "enabled $u" || info "could not enable $u"
+        else
+            info "$u not installed — skipped"
+        fi
+    done
+}
+
+cmd_services() {
+    enable_units NetworkManager.service iwd.service bluetooth.service \
+                 systemd-timesyncd.service fstrim.timer paccache.timer
+    # iwd is NetworkManager's Wi-Fi backend (see `network`); wpa_supplicant must not compete.
+    systemctl disable wpa_supplicant.service >/dev/null 2>&1 || true
+}
+
+cmd_network() {
+    require_pkgs networkmanager iwd
+    local f
+    for f in "$SYS"/networkmanager/*.conf; do
+        install_file "$f" "/etc/NetworkManager/conf.d/$(basename "$f")"
+    done
+    systemctl enable --now systemd-resolved.service
+    if [[ "$(readlink /etc/resolv.conf)" != /run/systemd/resolve/stub-resolv.conf ]]; then
+        [[ -e /etc/resolv.conf && ! -L /etc/resolv.conf ]] && cp -a /etc/resolv.conf "/etc/resolv.conf.bak-$STAMP"
+        ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
+        ok "/etc/resolv.conf → systemd-resolved stub"
+    else
+        ok "/etc/resolv.conf already uses systemd-resolved"
+    fi
+    info "NetworkManager picks up the iwd backend after a reboot."
+}
+
+cmd_logind() {
+    install_file "$SYS/logind/lid.conf" /etc/systemd/logind.conf.d/lid.conf
+    install_file "$SYS/system-sleep/lock-before-sleep.sh" /etc/systemd/system-sleep/lock-before-sleep.sh 755
+    systemctl kill -s HUP systemd-logind
+    ok "logind reloaded"
+}
+
+cmd_docker() {
+    require_pkgs docker
+    enable_units docker.service
+    usermod -aG docker "$TARGET_USER"
+    ok "$TARGET_USER added to docker (log out/in to apply)"
+}
+
+cmd_vm() {
+    require_pkgs libvirt qemu-desktop
+    install_file "$SYS/sysctl/30-ipforward.conf" /etc/sysctl.d/30-ipforward.conf
+    sysctl -q --system
+    enable_units libvirtd.service
+    usermod -aG libvirt "$TARGET_USER"
+    ok "$TARGET_USER added to libvirt (log out/in to apply)"
 }
 
 # BlueZ powers every adapter on when it appears (AutoEnable defaults to true).
@@ -103,9 +173,12 @@ ensure_keyring_pam() {
 }
 
 switch_dm_to_greetd() {
-    systemctl disable sddm.service 2>/dev/null || true
+    local dm
+    for dm in sddm gdm lightdm ly; do
+        systemctl disable "$dm.service" >/dev/null 2>&1 || true
+    done
     systemctl enable greetd.service
-    ok "greetd enabled for next boot (SDDM disabled, still installed)"
+    ok "greetd enabled for next boot"
 }
 
 cmd_greeter_config() {
@@ -151,22 +224,20 @@ EOF
     info "Reboot (or: systemctl restart greetd from a TTY) for the text login."
 }
 
-cmd_greeter_rollback() {
-    systemctl disable greetd.service 2>/dev/null || true
-    systemctl enable sddm.service
-    ok "SDDM re-enabled for next boot"
-}
-
-[[ $# -gt 0 ]] || { sed -n '2,14p' "$0" | sed 's/^# \{0,1\}//'; exit 1; }
+[[ $# -gt 0 ]] || { sed -n '2,15p' "$0" | sed 's/^# \{0,1\}//'; exit 1; }
 for cmd in "$@"; do
     case "$cmd" in
+        services)         cmd_services ;;
+        network)          cmd_network ;;
+        logind)           cmd_logind ;;
+        docker)           cmd_docker ;;
+        vm)               cmd_vm ;;
         bluetooth)        cmd_bluetooth ;;
         charge-limit)     cmd_charge_limit ;;
         battery-cleanup)  cmd_battery_cleanup ;;
         greeter)          cmd_greeter ;;
         greeter-config)   cmd_greeter_config ;;
         greeter-fallback) cmd_greeter_fallback ;;
-        greeter-rollback) cmd_greeter_rollback ;;
         *) die "unknown command: $cmd" ;;
     esac
 done

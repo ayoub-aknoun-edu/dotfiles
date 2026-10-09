@@ -1,0 +1,5 @@
+# Docker (setup-system.sh docker enables the daemon + adds you to `docker`).
+docker
+docker-buildx
+docker-compose
+ctop

@@ -1,0 +1,8 @@
+# KVM/QEMU virtual machines (setup-system.sh vm enables libvirtd + `libvirt` group).
+qemu-desktop
+libvirt
+virt-manager
+edk2-ovmf
+swtpm
+dnsmasq
+aur:bridge-utils

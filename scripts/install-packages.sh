@@ -1,87 +1,81 @@
 #!/usr/bin/env bash
+# Install package profiles from packages/<profile>.txt.
+#
+#   scripts/install-packages.sh [--dry-run] [--yes] <profile>...
+#   e.g. scripts/install-packages.sh core hw-intel dev
+#
+# One package per line; `#` starts a comment; `aur:` marks an AUR package
+# (installed with yay, which is bootstrapped when missing). Re-runnable:
+# everything uses --needed. install.sh calls this with the chosen profiles.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
-REPO_DIR="$(cd -- "$SCRIPT_DIR/.." && pwd -P)"
+PKG_DIR="$(cd -- "$SCRIPT_DIR/../packages" && pwd -P)"
 
-PACMAN_FILE="$REPO_DIR/packages/pacman.txt"
-AUR_FILE="$REPO_DIR/packages/aur.txt"
+DRY_RUN=0
+YES=0
+PROFILES=()
+for arg in "$@"; do
+  case "$arg" in
+    --dry-run) DRY_RUN=1 ;;
+    --yes|-y)  YES=1 ;;
+    -h|--help) sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    -*)        echo "unknown option: $arg" >&2; exit 1 ;;
+    *)         PROFILES+=("$arg") ;;
+  esac
+done
+(( ${#PROFILES[@]} )) || { echo "usage: $0 [--dry-run] [--yes] <profile>..." >&2; exit 1; }
 
-read_pkg_file() {
-  local file="$1"
-  local -n out="$2"
-
-  if [[ ! -f "$file" ]]; then
-    return 0
+run() {
+  if (( DRY_RUN )); then
+    printf '[dry-run] %s\n' "$*"
+  else
+    "$@"
   fi
+}
 
+NOCONFIRM=()
+(( YES )) && NOCONFIRM=(--noconfirm)
+
+NATIVE=()
+AUR=()
+for profile in "${PROFILES[@]}"; do
+  file="$PKG_DIR/$profile.txt"
+  [[ -f "$file" ]] || { echo "no such profile: $profile ($file)" >&2; exit 1; }
   while IFS= read -r line || [[ -n "$line" ]]; do
-    # Strip comments and trim whitespace
     line="${line%%#*}"
-    line="${line#"${line%%[![:space:]]*}"}"
-    line="${line%"${line##*[![:space:]]}"}"
+    line="${line//[[:space:]]/}"
     [[ -z "$line" ]] && continue
-    out+=("$line")
+    if [[ "$line" == aur:* ]]; then
+      AUR+=("${line#aur:}")
+    else
+      NATIVE+=("$line")
+    fi
   done < "$file"
+done
+
+ensure_yay() {
+  command -v yay >/dev/null 2>&1 && return 0
+  echo ":: Bootstrapping yay (AUR helper)"
+  run sudo pacman -S --needed "${NOCONFIRM[@]}" git base-devel
+  local tmp
+  tmp="$(mktemp -d)"
+  run git clone --depth=1 https://aur.archlinux.org/yay-bin.git "$tmp/yay-bin"
+  if (( DRY_RUN )); then
+    printf '[dry-run] (cd %s && makepkg -si %s)\n' "$tmp/yay-bin" "${NOCONFIRM[*]}"
+  else
+    (cd "$tmp/yay-bin" && makepkg -si "${NOCONFIRM[@]}")
+  fi
+  rm -rf "$tmp"
 }
 
-ensure_sudo() {
-  if [[ "${EUID:-$(id -u)}" -ne 0 ]]; then
-    sudo -v
-  fi
-}
+if (( ${#NATIVE[@]} )); then
+  echo ":: Installing ${#NATIVE[@]} repo packages (${PROFILES[*]})"
+  run sudo pacman -S --needed "${NOCONFIRM[@]}" "${NATIVE[@]}"
+fi
 
-install_pacman() {
-  local -a pkgs=()
-  read_pkg_file "$PACMAN_FILE" pkgs
-  if (( ${#pkgs[@]} == 0 )); then
-    return 0
-  fi
-
-  ensure_sudo
-  sudo pacman -S --needed "${pkgs[@]}"
-}
-
-ensure_aur_helper() {
-  if command -v yay >/dev/null 2>&1; then
-    echo "yay"
-    return 0
-  fi
-  if command -v paru >/dev/null 2>&1; then
-    echo "paru"
-    return 0
-  fi
-
-  read -rp "No AUR helper found. Install yay now? [y/N] " ans
-  if [[ "$ans" =~ ^[Yy]$ ]]; then
-    ensure_sudo
-    sudo pacman -S --needed git base-devel
-    tmpdir="$(mktemp -d)"
-    git clone https://aur.archlinux.org/yay.git "$tmpdir/yay"
-    (cd "$tmpdir/yay" && makepkg -si)
-    rm -rf "$tmpdir"
-    echo "yay"
-    return 0
-  fi
-
-  return 1
-}
-
-install_aur() {
-  local -a pkgs=()
-  read_pkg_file "$AUR_FILE" pkgs
-  if (( ${#pkgs[@]} == 0 )); then
-    return 0
-  fi
-
-  local helper
-  if ! helper="$(ensure_aur_helper)"; then
-    echo "Skipping AUR packages (no helper installed)." >&2
-    return 0
-  fi
-
-  "$helper" -S --needed "${pkgs[@]}"
-}
-
-install_pacman
-install_aur
+if (( ${#AUR[@]} )); then
+  ensure_yay
+  echo ":: Installing ${#AUR[@]} AUR packages: ${AUR[*]}"
+  run yay -S --needed "${NOCONFIRM[@]}" "${AUR[@]}"
+fi

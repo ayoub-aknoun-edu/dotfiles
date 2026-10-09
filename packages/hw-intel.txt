@@ -1,0 +1,6 @@
+# Intel graphics (auto-selected by install.sh from lspci). intel-ucode / amd-ucode
+# is picked separately from the CPU vendor.
+intel-media-driver
+vulkan-intel
+vpl-gpu-rt
+sof-firmware

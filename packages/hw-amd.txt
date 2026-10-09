@@ -1,0 +1,2 @@
+# AMD graphics (auto-selected by install.sh from lspci).
+vulkan-radeon

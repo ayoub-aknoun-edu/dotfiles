@@ -1,0 +1,13 @@
+# Desktop apps.
+aur:thorium-browser-bin
+aur:visual-studio-code-bin
+obsidian
+discord
+spotify-launcher
+libreoffice-fresh
+obs-studio
+celluloid
+yt-dlp
+guvcview
+libcamera
+aur:anydesk-bin
