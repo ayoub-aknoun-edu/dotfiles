@@ -5,9 +5,17 @@
 
 set -euo pipefail
 
-AC_STATE_FILE="/sys/class/power_supply/AC/online"
+# Online state of the mains adapter (AC, ADP1, ACAD… — named per vendor).
+ac_online() {
+    local d
+    for d in /sys/class/power_supply/*; do
+        [[ "$(cat "$d/type" 2>/dev/null)" == Mains ]] || continue
+        cat "$d/online" 2>/dev/null && return
+    done
+    echo 1  # desktops / unknown: treat as plugged in
+}
 
-last_state=$(cat "$AC_STATE_FILE" 2>/dev/null || echo "1")
+last_state=$(ac_online)
 waiter_pid=""
 
 # Locked by either locker: Noctalia, which sets
@@ -30,7 +38,7 @@ do_restart() {
 
 restart_if_changed() {
     local state
-    state=$(cat "$AC_STATE_FILE" 2>/dev/null || echo "1")
+    state=$(ac_online)
     if [[ "$state" != "$last_state" ]]; then
         last_state="$state"
         # Cancel any previous pending restart, start a fresh one

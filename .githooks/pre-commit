@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# This repo is public: refuse commits that contain secrets or large files.
+# Enabled with `git config core.hooksPath .githooks` (install.sh / dots).
+set -euo pipefail
+
+MAX_BYTES=$((5 * 1024 * 1024))
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+    echo "pre-commit: gitleaks is not installed; refusing to commit to a public repo" >&2
+    exit 1
+fi
+
+if ! gitleaks git --pre-commit --staged --redact --no-banner --log-level warn .; then
+    echo "pre-commit: gitleaks found a secret in the staged changes (see above)" >&2
+    exit 1
+fi
+
+while IFS= read -r -d '' path; do
+    size="$(git cat-file -s ":$path" 2>/dev/null || echo 0)"
+    if (( size > MAX_BYTES )); then
+        echo "pre-commit: $path is $((size / 1024 / 1024)) MiB (limit 5 MiB)" >&2
+        exit 1
+    fi
+done < <(git diff --cached --name-only --diff-filter=AM -z)

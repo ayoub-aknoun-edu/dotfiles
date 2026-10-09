@@ -1,0 +1,10 @@
+[Unit]
+Description=Sync ~/dotfiles with GitHub every few minutes
+
+[Timer]
+OnBootSec=3min
+OnUnitActiveSec=5min
+RandomizedDelaySec=30s
+
+[Install]
+WantedBy=timers.target

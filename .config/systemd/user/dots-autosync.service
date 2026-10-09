@@ -1,0 +1,8 @@
+[Unit]
+Description=Commit and push ~/dotfiles changes (dots sync --auto)
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/dots sync --auto
+Nice=10
+IOSchedulingClass=idle

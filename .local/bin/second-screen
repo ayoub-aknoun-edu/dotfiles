@@ -15,14 +15,22 @@
 #
 # Settings (env overrides): SECOND_SCREEN_MODE (default 2340x1080@60, Galaxy
 # S23 landscape), SECOND_SCREEN_SCALE (default 1.5), SECOND_SCREEN_IFACE
-# (default wlan0), SECOND_SCREEN_PORT (default 5900).
+# (default: first wireless interface), SECOND_SCREEN_PORT (default 5900).
 
 set -euo pipefail
 
 OUTPUT="PHONE-1"
 MODE="${SECOND_SCREEN_MODE:-2340x1080@60}"
 SCALE="${SECOND_SCREEN_SCALE:-1.5}"
-IFACE="${SECOND_SCREEN_IFACE:-wlan0}"
+# First wireless interface (wlan0 with iwd, wlp* otherwise).
+default_iface() {
+    local d
+    for d in /sys/class/net/*/wireless; do
+        [[ -e "$d" ]] && { basename "$(dirname "$d")"; return; }
+    done
+    echo wlan0
+}
+IFACE="${SECOND_SCREEN_IFACE:-$(default_iface)}"
 PORT="${SECOND_SCREEN_PORT:-5900}"
 UNIT="second-screen-vnc"
 CONF_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/wayvnc"

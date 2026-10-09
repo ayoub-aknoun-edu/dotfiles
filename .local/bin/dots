@@ -1,0 +1,137 @@
+#!/usr/bin/env bash
+# Keep ~/dotfiles in sync with GitHub.
+#
+#   dots status     changes waiting to sync, last sync, timer state
+#   dots sync       commit + pull --rebase + push now
+#   dots log        recent commits
+#   dots diff       uncommitted changes
+#   dots pause      stop auto-sync (e.g. while experimenting)
+#   dots resume     re-enable auto-sync
+#
+# Stow symlinks put every edit straight into the repo; dots-autosync.timer
+# runs `dots sync --auto` every few minutes. Commits go through
+# .githooks/pre-commit (gitleaks + size limit), since the repo is public.
+# Any secret, rebase conflict or wrong branch pauses auto-sync and notifies.
+
+set -euo pipefail
+
+REPO="${DOTS_REPO:-$HOME/dotfiles}"
+BRANCH=main
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/dots"
+PAUSE_FILE="$STATE_DIR/paused"
+LAST_FILE="$STATE_DIR/last-sync"
+SETTLE_SECONDS=60  # leave files alone while they are still being edited
+
+git_() { git -C "$REPO" "$@"; }
+log()  { printf 'dots: %s\n' "$*"; }
+
+notify() {  # notify <urgency> <message>
+    notify-send -a dots -u "$1" -i git "Dotfiles sync" "$2" 2>/dev/null || true
+}
+
+pause() {  # pause <reason>: stop auto-sync until `dots resume`
+    mkdir -p "$STATE_DIR"
+    printf '%s\n' "$1" > "$PAUSE_FILE"
+    log "paused: $1"
+    notify critical "Auto-sync paused: $1
+Fix it, then run: dots resume"
+}
+
+# Paths changed since HEAD, including untracked files.
+changed_paths() {
+    git_ status --porcelain=v1 -z --untracked-files=all \
+        | tr '\0' '\n' | grep -E '^.. ' | cut -c4-
+}
+
+# True if any changed file was modified within SETTLE_SECONDS.
+still_settling() {
+    local now path mtime
+    now="$(date +%s)"
+    while IFS= read -r path; do
+        mtime="$(stat -c %Y -- "$REPO/$path" 2>/dev/null || echo 0)"
+        (( now - mtime < SETTLE_SECONDS )) && return 0
+    done < <(changed_paths)
+    return 1
+}
+
+# "hypr, noctalia +2 more" from the changed paths.
+summary() {
+    local -a parts
+    mapfile -t parts < <(changed_paths \
+        | awk -F/ '{ if ($1 == ".config") print $2; else if ($1 == ".local") print $3; else print $1 }' \
+        | sort -u)
+    local shown="${parts[*]:0:3}"
+    shown="${shown// /, }"
+    (( ${#parts[@]} > 3 )) && shown+=" +$(( ${#parts[@]} - 3 )) more"
+    printf '%s' "$shown"
+}
+
+preflight() {
+    [[ -d "$REPO/.git" ]] || { log "no repo at $REPO"; exit 1; }
+    git_ config core.hooksPath .githooks
+    local branch
+    branch="$(git_ symbolic-ref --short -q HEAD || echo detached)"
+    if [[ "$branch" != "$BRANCH" ]]; then
+        pause "repo is on '$branch', not $BRANCH"; exit 1
+    fi
+    if [[ -e "$REPO/.git/MERGE_HEAD" || -d "$REPO/.git/rebase-merge" || -d "$REPO/.git/rebase-apply" ]]; then
+        pause "a merge/rebase is in progress in $REPO"; exit 1
+    fi
+}
+
+cmd_sync() {
+    local auto="${1:-}"
+    if [[ "$auto" == --auto && -e "$PAUSE_FILE" ]]; then
+        log "paused ($(cat "$PAUSE_FILE")); skipping"; return 0
+    fi
+    preflight
+
+    if [[ -n "$(changed_paths)" ]]; then
+        if [[ "$auto" == --auto ]] && still_settling; then
+            log "files still changing; retrying next run"; return 0
+        fi
+        local msg
+        msg="chore(autosync): $(summary) [$(uname -n)]"
+        git_ add -A
+        if ! git_ commit -q -m "$msg"; then
+            git_ reset -q
+            pause "commit blocked by the pre-commit check (secret or large file); see: journalctl --user -u dots-autosync"
+            exit 1
+        fi
+        log "committed: $msg"
+    fi
+
+    if ! git_ pull -q --rebase origin "$BRANCH"; then
+        git_ rebase --abort 2>/dev/null || true
+        pause "pull --rebase conflicted with GitHub; resolve it in $REPO"
+        exit 1
+    fi
+
+    if [[ -n "$(git_ rev-list "origin/$BRANCH..HEAD")" ]]; then
+        # Offline is normal on a laptop: just retry next run.
+        GIT_TERMINAL_PROMPT=0 git_ push -q origin "$BRANCH" || { log "push failed; retrying next run"; return 0; }
+        log "pushed"
+    fi
+    mkdir -p "$STATE_DIR"
+    date '+%F %T' > "$LAST_FILE"
+}
+
+cmd_status() {
+    git_ status --short
+    printf '\nlast sync : %s\n' "$(cat "$LAST_FILE" 2>/dev/null || echo never)"
+    printf 'auto-sync : %s\n' "$(systemctl --user is-active dots-autosync.timer 2>/dev/null || true)"
+    [[ -e "$PAUSE_FILE" ]] && printf 'PAUSED    : %s\n' "$(cat "$PAUSE_FILE")"
+    local ahead
+    ahead="$(git_ rev-list --count "origin/$BRANCH..HEAD" 2>/dev/null || echo '?')"
+    printf 'unpushed  : %s commit(s)\n' "$ahead"
+}
+
+case "${1:-status}" in
+    status) cmd_status ;;
+    sync)   shift; cmd_sync "${1:-}" ;;
+    log)    git_ log --oneline -n "${2:-15}" ;;
+    diff)   git_ diff ;;
+    pause)  pause "paused by hand" ;;
+    resume) rm -f "$PAUSE_FILE"; log "resumed"; cmd_sync ;;
+    *) sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
+esac
