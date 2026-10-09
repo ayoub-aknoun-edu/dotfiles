@@ -1,14 +1,11 @@
 #!/usr/bin/env bash
-# Lock the session with the active shell's lock screen (see rice-shell):
-#   noctalia → Noctalia's lock screen
-#   classic  → hyprlock
-# Used by Super+L, the power button, wlogout and hypridle (idle + before sleep).
-# Falls back to hyprlock whenever Noctalia isn't running, so a lock request
-# never leaves the screen unlocked.
+# Lock the session with Noctalia's lock screen.
+# Used by Super+L, the power button and hypridle (idle + before sleep).
+# Falls back to hyprlock whenever Noctalia isn't running or the lock IPC
+# fails, so a lock request never leaves the screen unlocked.
 set -euo pipefail
 
-if [[ "$("$HOME/.local/bin/rice-shell" get 2>/dev/null)" == noctalia ]] \
-    && systemctl --user is-active --quiet noctalia.service; then
+if systemctl --user is-active --quiet noctalia.service; then
     noctalia msg session lock && exit 0
 fi
 

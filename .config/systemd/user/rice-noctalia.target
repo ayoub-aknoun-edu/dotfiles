@@ -1,6 +1,0 @@
-[Unit]
-Description=Rice shell: Noctalia
-Conflicts=rice-classic.target
-PartOf=graphical-session.target
-After=graphical-session.target
-Wants=noctalia.service

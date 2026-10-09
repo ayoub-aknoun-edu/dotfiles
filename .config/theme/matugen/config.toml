@@ -3,18 +3,6 @@
 # Catppuccin Macchiato fallback used before the first run.
 [config]
 
-[templates.palette-css]
-input_path  = "~/.config/theme/matugen/templates/palette.css"
-output_path = "~/.config/theme/generated/palette.css"
-
-[templates.palette-rasi]
-input_path  = "~/.config/theme/matugen/templates/palette.rasi"
-output_path = "~/.config/theme/generated/palette.rasi"
-
-[templates.palette-scss]
-input_path  = "~/.config/theme/matugen/templates/palette.scss"
-output_path = "~/.config/theme/generated/palette.scss"
-
 [templates.hyprlock]
 input_path  = "~/.config/theme/matugen/templates/hyprlock.conf"
 output_path = "~/.config/theme/generated/hyprlock.conf"

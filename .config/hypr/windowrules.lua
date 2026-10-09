@@ -22,55 +22,6 @@ hl.window_rule({
 })
 
 
--- ─── Layer Rules ──────────────────────────────────────────────────────────────
-
--- SwayNC control center blur
-hl.layer_rule({
-    name        = "swaync-control-center-effects",
-    match       = { namespace = "swaync-control-center" },
-    blur        = true,
-    ignore_alpha = 0.2,
-})
-
--- SwayNC notification popup blur
-hl.layer_rule({
-    name         = "swaync-notification-effects",
-    match        = { namespace = "swaync-notification-window" },
-    blur         = true,
-    ignore_alpha = 0.2,
-})
-
--- Wlogout blur
-hl.layer_rule({
-    name         = "wlogout-blur-logout_dialog",
-    match        = { namespace = "logout_dialog" },
-    blur         = true,
-    ignore_alpha = 0.2,
-})
-hl.layer_rule({
-    name         = "wlogout-blur-wlogout",
-    match        = { namespace = "wlogout" },
-    blur         = true,
-    ignore_alpha = 0.2,
-})
-
--- Rofi blur
-hl.layer_rule({
-    name         = "rofi-blur",
-    match        = { namespace = "rofi" },
-    blur         = true,
-    ignore_alpha = 0.5,
-})
-
--- eww control center blur
-hl.layer_rule({
-    name         = "eww-control-center-blur",
-    match        = { namespace = "^(eww-control-center|gtk-layer-shell)$" },
-    blur         = true,
-    ignore_alpha = 0.05,
-})
-
-
 -- ─── Picture-in-Picture ───────────────────────────────────────────────────────
 -- Covers Firefox ("Picture-in-Picture") and Chromium-based ("Picture in Picture")
 hl.window_rule({
@@ -214,7 +165,7 @@ hl.window_rule({
 })
 
 
--- ─── Noctalia (rice-shell) ───────────────────────────────────────────────────
+-- ─── Noctalia ───────────────────────────────────────────────────────────────
 hl.window_rule({
     name   = "shell-settings-float",
     match  = { class = "^dev\\.noctalia\\.Noctalia$" },

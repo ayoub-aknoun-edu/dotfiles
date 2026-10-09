@@ -1,6 +1,0 @@
-#!/usr/bin/env bash
-if eww active-windows 2>/dev/null | grep -q "control-center"; then
-    ~/.config/eww/scripts/close-control-center
-else
-    eww open control-center
-fi

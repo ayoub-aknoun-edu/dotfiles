@@ -38,9 +38,6 @@ hyprutils
 hyprwayland-scanner
 hypridle
 hyprlock
-hyprsunset
-hyprpolkitagent
-awww
 wayland
 xorg-xwayland
 xdg-desktop-portal
@@ -48,17 +45,10 @@ xdg-desktop-portal-hyprland
 xdg-desktop-portal-gtk
 xdg-utils
 
-# Bar / launcher / logout
-waybar
-rofi
-
-# Notifications
-swaync
 libnotify
 
 # Clipboard
 wl-clipboard
-cliphist
 
 # Audio / media
 pipewire
@@ -77,7 +67,6 @@ upower
 
 # Network / bluetooth
 networkmanager
-networkmanager-dmenu
 nm-connection-editor
 bluez
 bluez-utils

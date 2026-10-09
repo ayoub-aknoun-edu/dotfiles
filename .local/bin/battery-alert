@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Low battery notifications for Wayland (works with swaync / any notification daemon).
+# Low battery notifications for Wayland (any notification daemon; Noctalia here).
 # Triggers once per discharge cycle at 20% and 5%.
 
 set -euo pipefail

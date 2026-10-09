@@ -1,7 +1,6 @@
 [Unit]
 Description=Noctalia desktop shell
-# Started/stopped by ~/.local/bin/rice-shell (not enabled on its own).
-PartOf=rice-noctalia.target
+PartOf=graphical-session.target
 After=graphical-session.target
 ConditionEnvironment=WAYLAND_DISPLAY
 
@@ -13,3 +12,6 @@ Type=simple
 ExecStart=/bin/sh -c 'XDG_SESSION_ID="$$(loginctl show-user "$$USER" -p Display --value)" exec /usr/bin/noctalia'
 Restart=on-failure
 RestartSec=2
+
+[Install]
+WantedBy=graphical-session.target

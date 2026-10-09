@@ -13,7 +13,7 @@ hl.permission({ binary = "/usr/(bin|local/bin)/hyprpm", type = "plugin", mode = 
 
 -- Lock screens capture the screen for their background / lock transition.
 -- Without these, Hyprland asks on every login ("Remember" only lasts until
--- Hyprland restarts). hyprlock = classic shell, noctalia = everyday shell.
+-- Hyprland restarts). hyprlock = fallback locker, noctalia = shell.
 hl.permission({ binary = "/usr/(bin|local/bin)/hyprlock", type = "screencopy", mode = "allow" })
 hl.permission({ binary = "/usr/(bin|local/bin)/noctalia", type = "screencopy", mode = "allow" })
 -- ~/.local/bin/second-screen streams a virtual monitor to a phone.

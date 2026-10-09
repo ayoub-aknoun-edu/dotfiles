@@ -1,10 +1,9 @@
-# Noctalia — the everyday shell (see ~/.local/bin/rice-shell; classic = fallback).
+# Noctalia — the desktop shell (bar, launcher, notifications, lock, wallpaper).
 # Only keys that differ from upstream defaults; GUI changes go to
 # ~/.local/state/noctalia/settings.toml. Reference: noctalia example.toml.
 
 [shell]
-# Noctalia's themed admin password prompt while Noctalia runs;
-# hyprpolkitagent only runs with the classic shell (rice-classic.target).
+# Noctalia's themed admin password prompt (the only polkit agent).
 polkit_agent = true
 
 [theme]
@@ -12,11 +11,11 @@ mode   = "dark"
 source = "wallpaper"                  # Material You colors from the wallpaper
 
 [theme.templates]
-# Apps follow the wallpaper palette while Noctalia is active.
+# Apps follow the wallpaper palette.
 #   gtk3/gtk4: writes gtk-*/noctalia.css + imports it in gtk.css (adw-gtk3)
 #   vscode:    read by the "NoctaliaTheme" extension (Noctalia.noctaliatheme)
-# Kitty, tmux, Hyprland borders and Neovim are themed by rice-wall/matugen
-# instead, so they follow the wallpaper in the classic shell too.
+# Kitty, tmux, Hyprland borders, hyprlock and Neovim are themed by
+# rice-wall/matugen instead (wallpaper_changed hook below).
 builtin_ids   = ["gtk3", "gtk4"]
 community_ids = ["vscode"]
 
@@ -53,7 +52,7 @@ all_day_digest_time  = "09:00"    # one notification listing today's all-day eve
 enabled           = false
 force             = false
 temperature_day   = 3300          # must be > night; 100K apart is invisible
-temperature_night = 3200          # same warmth as the classic eyecare-toggle
+temperature_night = 3200
 
 [location]
 custom_schedule = true            # times barely matter (day ≈ night temp);
@@ -61,9 +60,9 @@ sunset          = "20:00"         # no location is looked up or sent
 sunrise         = "07:00"
 
 [lockscreen]
-# Noctalia's lock screen is the locker while Noctalia is the active shell
-# (hypr/scripts/lock routes Super+L / hypridle here; the classic shell uses
-# hyprlock). It also locks on `loginctl lock-session` and before suspend.
+# Noctalia's lock screen is the locker (hypr/scripts/lock routes Super+L /
+# hypridle here; hyprlock only if Noctalia is down). It also locks on
+# `loginctl lock-session` and before suspend.
 enabled = true
 
 # ── Plugins ──────────────────────────────────────────────────────────────────
