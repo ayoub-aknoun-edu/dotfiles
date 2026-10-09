@@ -1,0 +1,149 @@
+# Core: everything the rice, login, shell and terminal need. Always installed.
+# One package per line; `aur:` prefix = AUR (installed with yay).
+# The base system (base, linux, linux-firmware, bootloader, zram) comes from
+# archinstall and is intentionally not listed.
+
+# Base tools
+base-devel
+git
+stow
+sudo
+less
+nano
+openssh
+rsync
+curl
+wget
+file
+unzip
+zip
+7zip
+unrar
+time
+pacman-contrib
+smartmontools
+
+# Hyprland session
+hyprland
+uwsm
+hyprland-protocols
+hyprlang
+hyprutils
+hyprwayland-scanner
+hypridle
+hyprlock
+xorg-xwayland
+xdg-desktop-portal
+xdg-desktop-portal-hyprland
+xdg-desktop-portal-gtk
+xdg-utils
+xdg-user-dirs
+archlinux-xdg-menu
+qt5-wayland
+qt6-wayland
+
+# Shell layer + login (Noctalia, greetd + Noctalia Greeter)
+noctalia
+aur:noctalia-greeter
+greetd
+greetd-tuigreet
+accountsservice
+libnotify
+upower
+power-profiles-daemon
+brightnessctl
+gnome-keyring
+
+# Wallpaper colors (rice-wall), avatar + thumbnails
+matugen
+libvips
+ffmpeg
+
+# Network (NetworkManager on the iwd backend, systemd-resolved)
+networkmanager
+iwd
+nm-connection-editor
+networkmanager-openvpn
+openvpn
+openresolv
+inetutils
+openbsd-netcat
+wayvnc
+
+# Bluetooth
+bluez
+bluez-utils
+blueman
+
+# Audio / media keys
+pipewire
+pipewire-alsa
+pipewire-pulse
+pipewire-jack
+pipewire-v4l2
+wireplumber
+gst-plugin-pipewire
+libpulse
+alsa-utils
+pamixer
+pavucontrol
+playerctl
+
+# Terminal + CLI
+kitty
+zsh
+zsh-autosuggestions
+zsh-syntax-highlighting
+tmux
+neovim
+fzf
+zoxide
+direnv
+eza
+bat
+ripgrep
+fd
+jq
+btop
+fastfetch
+wl-clipboard
+github-cli
+gitleaks
+
+# Screenshots
+grim
+slurp
+hyprshot
+satty
+
+# Files + viewers
+thunar
+thunar-archive-plugin
+thunar-volman
+gvfs
+gvfs-mtp
+tumbler
+zathura
+zathura-pdf-mupdf
+imv
+mpv
+
+# Theming
+adw-gtk-theme
+gnome-themes-extra
+nwg-look
+qt6ct
+kvantum
+papirus-icon-theme
+
+# Fonts
+otf-font-awesome
+ttf-jetbrains-mono-nerd
+ttf-ibm-plex
+noto-fonts-emoji
+aur:vazirmatn-fonts
+aur:ttf-material-symbols-variable-git
+
+# GPU diagnostics (vendor-neutral)
+mesa-utils
+libva-utils

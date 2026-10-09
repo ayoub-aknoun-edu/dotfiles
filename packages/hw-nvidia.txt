@@ -1,0 +1,6 @@
+# NVIDIA graphics (auto-selected by install.sh from lspci). Open kernel modules
+# for the stock `linux` kernel (Turing / GTX 16xx and newer); older cards need
+# the legacy drivers from the AUR instead.
+nvidia-open
+nvidia-utils
+egl-wayland

@@ -1,0 +1,11 @@
+# Dev: languages, build tools, CLIs.
+nodejs
+npm
+uv
+rust
+cmake
+graphviz
+plantuml
+postgresql-libs
+wireshark-cli
+aur:ngrok
