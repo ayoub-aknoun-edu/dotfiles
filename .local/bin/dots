@@ -131,7 +131,7 @@ case "${1:-status}" in
     sync)   shift; cmd_sync "${1:-}" ;;
     log)    git_ log --oneline -n "${2:-15}" ;;
     diff)   git_ diff ;;
-    pause)  pause "paused by hand" ;;
+    pause)  mkdir -p "$STATE_DIR"; echo "paused by hand" > "$PAUSE_FILE"; log "paused; run 'dots resume' to sync again" ;;
     resume) rm -f "$PAUSE_FILE"; log "resumed"; cmd_sync ;;
     *) sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
 esac
