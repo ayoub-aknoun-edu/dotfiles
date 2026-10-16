@@ -77,6 +77,7 @@ transition_duration = 500
 enabled = true
 schema_version = 2
 widget_order = [
+    "lockscreen-login-box@PHONE-1",
     "lockscreen-widget-time",
     "lockscreen-widget-date",
     "lockscreen-widget-avatar",
@@ -88,6 +89,34 @@ widget_order = [
     cell_size = 16
     major_interval = 4
     visible = false
+
+    [lockscreen_widgets.widget."lockscreen-login-box@PHONE-1"]
+    box_height = 196.0
+    box_width = 810.0
+    cx = 780.0
+    cy = 598.66668701171875
+    output = "PHONE-1"
+    placement_height = 720.0
+    placement_width = 1560.0
+    rotation = 0.0
+    type = "login_box"
+
+        [lockscreen_widgets.widget."lockscreen-login-box@PHONE-1".settings]
+        background_color = "surface_variant"
+        background_opacity = 0.88
+        background_radius = 12.0
+        center_password_text = false
+        input_opacity = 1.0
+        input_radius = 6.0
+        layout = "regular"
+        show_caps_lock = true
+        show_keyboard_layout = true
+        show_login_button = true
+        show_media = true
+        show_password_reveal = true
+        show_session_buttons = true
+        show_unlock_hint = true
+        show_weather = true
 
     [lockscreen_widgets.widget."lockscreen-login-box@eDP-1"]
     box_height = 196.0
@@ -101,8 +130,6 @@ widget_order = [
     type = "login_box"
 
         [lockscreen_widgets.widget."lockscreen-login-box@eDP-1".settings]
-
-            show_password_reveal = false
         background_color = "surface"
         background_opacity = 0.55000000000000004
         background_radius = 22.0
@@ -114,6 +141,7 @@ widget_order = [
         show_keyboard_layout = false
         show_login_button = true
         show_media = true
+        show_password_reveal = false
         show_session_buttons = true
         show_unlock_hint = false
         show_weather = false
