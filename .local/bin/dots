@@ -2,7 +2,7 @@
 # Keep ~/dotfiles in sync with GitHub.
 #
 #   dots status     changes waiting to sync, last sync, timer state
-#   dots sync       commit + pull --rebase + push now
+#   dots sync       commit + fetch/rebase + push now
 #   dots log        recent commits
 #   dots diff       uncommitted changes
 #   dots pause      stop auto-sync (e.g. while experimenting)
@@ -163,7 +163,15 @@ cmd_sync() {
     fi
 
     local out files
-    if ! out="$(git_ -c advice.mergeConflict=false pull -q --rebase origin "$BRANCH" 2>&1)"; then
+    # Fetch and rebase separately: a failed fetch means offline / GitHub
+    # unreachable (normal on a laptop) and is retried quietly; only the
+    # local rebase step can mean a real conflict.
+    if ! out="$(GIT_TERMINAL_PROMPT=0 git_ fetch -q origin "$BRANCH" 2>&1)"; then
+        log "fetch failed (offline?): ${out%%$'\n'*}; retrying next run"
+        return 0
+    fi
+    if ! out="$(git_ -c advice.mergeConflict=false rebase -q "origin/$BRANCH" 2>&1)"; then
+        log "rebase failed: ${out%%$'\n'*}"
         git_ rebase --abort 2>/dev/null || true
         files="$(sed -n 's/^CONFLICT .* in //p' <<<"$out" | sort -u | paste -sd, - | sed 's/,/, /g')"
         pause conflict "local and GitHub changes conflict${files:+ in $files}; fix: cd $REPO && git pull --rebase"
