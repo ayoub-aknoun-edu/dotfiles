@@ -11,7 +11,11 @@
 # Stow symlinks put every edit straight into the repo; dots-autosync.timer
 # runs `dots sync --auto` every few minutes. Commits go through
 # .githooks/pre-commit (gitleaks + size limit), since the repo is public.
-# Any secret, rebase conflict or wrong branch pauses auto-sync and notifies.
+# A secret, rebase conflict, merge in progress or wrong branch pauses
+# auto-sync and notifies. Those pauses heal themselves: every run re-checks
+# (an aborted rebase / unstaged commit leaves the repo untouched), resumes
+# with a notification once the cause is gone, and reminds every few hours
+# while it isn't. Only `dots pause` waits for `dots resume`.
 
 set -euo pipefail
 
@@ -20,7 +24,9 @@ BRANCH=main
 STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/dots"
 PAUSE_FILE="$STATE_DIR/paused"
 LAST_FILE="$STATE_DIR/last-sync"
-SETTLE_SECONDS=60  # leave files alone while they are still being edited
+SETTLE_SECONDS=60          # leave files alone while they are still being edited
+REMIND_SECONDS=$((6 * 3600))       # re-notify while an automatic pause persists
+REMIND_MANUAL_SECONDS=$((24 * 3600))
 
 git_() { git -C "$REPO" "$@"; }
 log()  { printf 'dots: %s\n' "$*"; }
@@ -29,12 +35,62 @@ notify() {  # notify <urgency> <message>
     notify-send -a dots -u "$1" -i git "Dotfiles sync" "$2" 2>/dev/null || true
 }
 
-pause() {  # pause <reason>: stop auto-sync until `dots resume`
+# Pause state: kind (manual|branch|rebase|secret|conflict), since, last
+# notification, reason. A legacy one-line file counts as an automatic pause.
+P_KIND="" P_SINCE=0 P_NOTIFIED=0 P_REASON=""
+read_pause() {
+    P_KIND="" P_SINCE=0 P_NOTIFIED=0 P_REASON=""
+    [[ -e "$PAUSE_FILE" ]] || return 1
+    local key value
+    while IFS='=' read -r key value; do
+        case "$key" in
+            kind) P_KIND="$value" ;; since) P_SINCE="$value" ;;
+            notified) P_NOTIFIED="$value" ;; reason) P_REASON="$value" ;;
+        esac
+    done < "$PAUSE_FILE"
+    if [[ -z "$P_KIND" ]]; then  # legacy format
+        P_KIND=legacy P_REASON="$(head -n1 "$PAUSE_FILE")"
+        P_SINCE="$(stat -c %Y "$PAUSE_FILE")" P_NOTIFIED="$P_SINCE"
+    fi
+}
+
+write_pause() {
     mkdir -p "$STATE_DIR"
-    printf '%s\n' "$1" > "$PAUSE_FILE"
-    log "paused: $1"
-    notify critical "Auto-sync paused: $1
-Fix it, then run: dots resume"
+    printf 'kind=%s\nsince=%s\nnotified=%s\nreason=%s\n' \
+        "$P_KIND" "$P_SINCE" "$P_NOTIFIED" "$P_REASON" > "$PAUSE_FILE"
+}
+
+age() {  # age <epoch>: "3h 12m"
+    local s=$(( $(date +%s) - $1 ))
+    if (( s >= 86400 )); then printf '%dd %dh' $((s / 86400)) $((s % 86400 / 3600))
+    else printf '%dh %dm' $((s / 3600)) $((s % 3600 / 60)); fi
+}
+
+pause() {  # pause <kind> <reason>: notify on a new pause, remind while it lasts
+    local kind="$1" reason="$2" now
+    now="$(date +%s)"
+    if read_pause && [[ "$P_KIND" == "$kind" ]]; then
+        P_REASON="$reason"
+        if (( now - P_NOTIFIED >= REMIND_SECONDS )); then
+            P_NOTIFIED="$now"
+            notify critical "Auto-sync still paused ($(age "$P_SINCE")): $reason"
+        fi
+    else
+        P_KIND="$kind" P_SINCE="$now" P_NOTIFIED="$now" P_REASON="$reason"
+        notify critical "Auto-sync paused: $reason
+It resumes by itself once fixed."
+    fi
+    write_pause
+    log "paused: $reason"
+}
+
+# After a fully successful sync: lift an automatic pause.
+resume_if_healed() {
+    read_pause || return 0
+    [[ "$P_KIND" == manual ]] && return 0
+    rm -f "$PAUSE_FILE"
+    log "resumed (was paused $(age "$P_SINCE"): $P_REASON)"
+    notify normal "Auto-sync resumed after $(age "$P_SINCE") (was: $P_REASON)"
 }
 
 # Paths changed since HEAD, including untracked files.
@@ -72,18 +128,23 @@ preflight() {
     local branch
     branch="$(git_ symbolic-ref --short -q HEAD || echo detached)"
     if [[ "$branch" != "$BRANCH" ]]; then
-        pause "repo is on '$branch', not $BRANCH"; exit 1
+        pause branch "repo is on '$branch', not $BRANCH"; exit 1
     fi
     if [[ -e "$REPO/.git/MERGE_HEAD" || -d "$REPO/.git/rebase-merge" || -d "$REPO/.git/rebase-apply" ]]; then
-        pause "a merge/rebase is in progress in $REPO"; exit 1
+        pause rebase "a merge/rebase is in progress in $REPO"; exit 1
     fi
 }
 
 cmd_sync() {
     local auto="${1:-}"
-    if [[ "$auto" == --auto && -e "$PAUSE_FILE" ]]; then
-        log "paused ($(cat "$PAUSE_FILE")); skipping"; return 0
+    if [[ "$auto" == --auto ]] && read_pause && [[ "$P_KIND" == manual ]]; then
+        if (( $(date +%s) - P_NOTIFIED >= REMIND_MANUAL_SECONDS )); then
+            P_NOTIFIED="$(date +%s)"; write_pause
+            notify normal "Auto-sync is still paused by hand ($(age "$P_SINCE")). Run: dots resume"
+        fi
+        log "paused by hand; skipping"; return 0
     fi
+    # Any other pause: retry; the checks below re-pause if the cause remains.
     preflight
 
     if [[ -n "$(changed_paths)" ]]; then
@@ -95,15 +156,17 @@ cmd_sync() {
         git_ add -A
         if ! git_ commit -q -m "$msg"; then
             git_ reset -q
-            pause "commit blocked by the pre-commit check (secret or large file); see: journalctl --user -u dots-autosync"
+            pause secret "commit blocked by the pre-commit check (secret or large file); see: journalctl --user -u dots-autosync"
             exit 1
         fi
         log "committed: $msg"
     fi
 
-    if ! git_ pull -q --rebase origin "$BRANCH"; then
+    local out files
+    if ! out="$(git_ -c advice.mergeConflict=false pull -q --rebase origin "$BRANCH" 2>&1)"; then
         git_ rebase --abort 2>/dev/null || true
-        pause "pull --rebase conflicted with GitHub; resolve it in $REPO"
+        files="$(sed -n 's/^CONFLICT .* in //p' <<<"$out" | sort -u | paste -sd, - | sed 's/,/, /g')"
+        pause conflict "local and GitHub changes conflict${files:+ in $files}; fix: cd $REPO && git pull --rebase"
         exit 1
     fi
 
@@ -114,13 +177,18 @@ cmd_sync() {
     fi
     mkdir -p "$STATE_DIR"
     date '+%F %T' > "$LAST_FILE"
+    resume_if_healed
 }
 
 cmd_status() {
     git_ status --short
     printf '\nlast sync : %s\n' "$(cat "$LAST_FILE" 2>/dev/null || echo never)"
     printf 'auto-sync : %s\n' "$(systemctl --user is-active dots-autosync.timer 2>/dev/null || true)"
-    [[ -e "$PAUSE_FILE" ]] && printf 'PAUSED    : %s\n' "$(cat "$PAUSE_FILE")"
+    if read_pause; then
+        printf 'PAUSED    : %s\n' "$P_REASON"
+        printf '            %s for %s; %s\n' "$P_KIND" "$(age "$P_SINCE")" \
+            "$([[ "$P_KIND" == manual ]] && echo "run: dots resume" || echo "retrying every run, resumes by itself")"
+    fi
     local ahead
     ahead="$(git_ rev-list --count "origin/$BRANCH..HEAD" 2>/dev/null || echo '?')"
     printf 'unpushed  : %s commit(s)\n' "$ahead"
@@ -131,7 +199,8 @@ case "${1:-status}" in
     sync)   shift; cmd_sync "${1:-}" ;;
     log)    git_ log --oneline -n "${2:-15}" ;;
     diff)   git_ diff ;;
-    pause)  mkdir -p "$STATE_DIR"; echo "paused by hand" > "$PAUSE_FILE"; log "paused; run 'dots resume' to sync again" ;;
+    pause)  P_KIND=manual P_SINCE="$(date +%s)" P_NOTIFIED="$P_SINCE" P_REASON="paused by hand"
+            write_pause; log "paused; run 'dots resume' to sync again" ;;
     resume) rm -f "$PAUSE_FILE"; log "resumed"; cmd_sync ;;
     *) sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
 esac
