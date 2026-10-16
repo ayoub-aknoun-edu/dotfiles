@@ -1,4 +1,4 @@
-config_version = 14
+config_version = 15
 
 [bar.default]
 background_opacity = 0.2799999937415123
@@ -101,6 +101,8 @@ widget_order = [
     type = "login_box"
 
         [lockscreen_widgets.widget."lockscreen-login-box@eDP-1".settings]
+
+            show_password_reveal = false
         background_color = "surface"
         background_opacity = 0.55000000000000004
         background_radius = 22.0

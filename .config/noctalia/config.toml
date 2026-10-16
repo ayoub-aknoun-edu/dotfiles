@@ -113,6 +113,11 @@ type                  = "launcher"
 custom_image          = "/usr/share/pixmaps/archlinux-logo.svg"
 custom_image_colorize = true
 
+[widget.media]
+type               = "media"
+hide_when_no_media = true         # no player open → no widget
+hide_when_idle     = true         # paused/stopped → hidden too (5.3.0+)
+
 [widget.clock]
 type           = "clock"
 format         = "{:%H:%M}"
