@@ -43,6 +43,9 @@ enabled = true
 [control_center]
 hidden_tabs = [ "weather" ]
 
+    [control_center.calendar]
+    show_events_card = false
+
     [[control_center.shortcuts]]
     type = "wifi"
 
