@@ -13,6 +13,7 @@
 #   sudo scripts/setup-system.sh greeter-fallback  greetd with the plain tuigreet (if the greeter breaks)
 #   sudo scripts/setup-system.sh docker            socket-activate Docker + add you to the docker group
 #   sudo scripts/setup-system.sh vm                socket-activate libvirtd + libvirt group + IPv4 forwarding
+#   sudo scripts/setup-system.sh memory            systemd-oomd (kill the hog early, not freeze) + zram tuning
 #
 # Idempotent; every replaced file is backed up as <file>.bak-<date>.
 # Display-manager changes apply on the next boot (never --now: that would kill
@@ -134,6 +135,17 @@ cmd_docker() {
     ok "$TARGET_USER added to docker (log out/in to apply)"
 }
 
+cmd_memory() {
+    install_file "$SYS/sysctl/99-zram.conf" /etc/sysctl.d/99-zram.conf
+    sysctl -q --system
+    install_file "$SYS/oomd/user-oomd.conf" /etc/systemd/system/user@.service.d/90-oomd.conf
+    install_file "$SYS/oomd/root-slice-oomd.conf" /etc/systemd/system/-.slice.d/90-oomd.conf
+    systemctl daemon-reload
+    systemctl enable --now systemd-oomd.service
+    ok "systemd-oomd active; zram tuning applied (swappiness=$(sysctl -n vm.swappiness))"
+    oomctl | head -n 20
+}
+
 cmd_vm() {
     require_pkgs libvirt qemu-desktop
     install_file "$SYS/sysctl/30-ipforward.conf" /etc/sysctl.d/30-ipforward.conf
@@ -239,6 +251,7 @@ for cmd in "$@"; do
         logind)           cmd_logind ;;
         docker)           cmd_docker ;;
         vm)               cmd_vm ;;
+        memory)           cmd_memory ;;
         bluetooth)        cmd_bluetooth ;;
         charge-limit)     cmd_charge_limit ;;
         battery-cleanup)  cmd_battery_cleanup ;;

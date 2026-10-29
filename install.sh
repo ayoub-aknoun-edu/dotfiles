@@ -113,7 +113,7 @@ esac
 run bash "$REPO/stow.sh"
 
 # ── 5. System files + services ───────────────────────────────────────────────
-SYSTEM_CMDS=(services network logind bluetooth charge-limit greeter)
+SYSTEM_CMDS=(services network logind bluetooth charge-limit memory greeter)
 has_profile docker && SYSTEM_CMDS+=(docker)
 has_profile vm && SYSTEM_CMDS+=(vm)
 run sudo "$REPO/scripts/setup-system.sh" "${SYSTEM_CMDS[@]}"

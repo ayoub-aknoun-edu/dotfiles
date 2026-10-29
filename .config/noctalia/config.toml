@@ -3,6 +3,10 @@
 # ~/.local/state/noctalia/settings.toml. Reference: noctalia example.toml.
 
 [shell]
+# Launcher/dock/taskbar apps run as their own systemd units (app-*@*.service)
+# instead of inside noctalia.service: they survive a Noctalia restart, get
+# their own memory accounting, and systemd-oomd can target the offender.
+launch_apps_as_systemd_services = true
 # Noctalia's themed admin password prompt (the only polkit agent).
 polkit_agent = true
 
