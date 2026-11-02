@@ -102,5 +102,15 @@ fi
 # direnv: per-directory environments
 (( $+commands[direnv] )) && eval "$(direnv hook zsh)"
 
+# claude-acct: multi-account Claude Code (profiles bound per directory). See: claude-acct help
+if (( $+commands[claude-acct] )); then
+  claude() { claude-acct run -- "$@"; }
+  # one-off overrides: claude-personal, claude-work2, ... (refused inside bound dirs)
+  for _p in ${(f)"$(claude-acct list 2>/dev/null | awk 'NR>1{print $1}')"}; do
+    [[ $_p == main ]] && continue
+    eval "claude-${_p}() { claude-acct run -p ${_p} -- \"\$@\"; }"
+  done; unset _p
+fi
+
 # zoxide: smarter directory jumping. Keep last: it hooks chpwd/precmd.
 (( $+commands[zoxide] )) && eval "$(zoxide init zsh)"
