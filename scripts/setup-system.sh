@@ -173,7 +173,8 @@ cmd_crash_trace() {
     install_file "$SYS/crash-trace/hypr-signal-trace.bt" /etc/hypr-signal-trace.bt
     install_file "$SYS/crash-trace/hypr-signal-trace.service" /etc/systemd/system/hypr-signal-trace.service
     systemctl daemon-reload
-    systemctl enable --now hypr-signal-trace.service
+    systemctl enable hypr-signal-trace.service
+    systemctl restart hypr-signal-trace.service   # pick up a changed probe
     sleep 3
     systemctl is-active --quiet hypr-signal-trace.service \
         && ok "tracing signals to Hyprland (journalctl -u hypr-signal-trace)" \
