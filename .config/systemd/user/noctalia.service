@@ -17,6 +17,8 @@ ExecStart=/bin/sh -c 'XDG_SESSION_ID="$$(loginctl show-user "$$USER" -p Display 
 # cleanly (status 0) on the broken Wayland pipe; this brings the bar back.
 # A logout still stops it for good (PartOf=graphical-session.target).
 Restart=always
+# After a Hyprland crash (safe-mode restart) save its log before a reboot wipes it.
+ExecStartPost=-/bin/sh -c 'sleep 3; exec "$HOME/.local/bin/hypr-crashlog"'
 RestartSec=2
 
 [Install]

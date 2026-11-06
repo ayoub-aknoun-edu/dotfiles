@@ -1,0 +1,13 @@
+#!/usr/bin/env bpftrace
+// /etc/hypr-signal-trace.bt — scripts/setup-system.sh crash-trace
+// Logs every terminating signal sent to Hyprland and WHO sent it, so a silent
+// "exit not-cleanly" (no crash report, no core) can be traced to its sender.
+// Ignored: SIGCHLD(17), SIGALRM(14), SIGWINCH(28) — routine, not fatal.
+tracepoint:signal:signal_generate
+/ args->comm == "Hyprland" && args->sig != 17 && args->sig != 14 && args->sig != 28 /
+{
+    time("%H:%M:%S ");
+    printf("hypr-signal: sig=%d -> Hyprland pid=%d | sender comm=%s pid=%d argv0=%s | parent comm=%s pid=%d | result=%d\n",
+        args->sig, args->pid, comm, pid, str(uptr(curtask->mm->arg_start), 120),
+        curtask->real_parent->comm, curtask->real_parent->tgid, args->result);
+}

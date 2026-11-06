@@ -1,0 +1,11 @@
+# /etc/systemd/system/hypr-signal-trace.service — scripts/setup-system.sh crash-trace
+[Unit]
+Description=Log signals sent to Hyprland and their sender (crash investigation)
+
+[Service]
+ExecStart=/usr/bin/bpftrace /etc/hypr-signal-trace.bt
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

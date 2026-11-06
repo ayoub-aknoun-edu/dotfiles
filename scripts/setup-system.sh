@@ -15,6 +15,7 @@
 #   sudo scripts/setup-system.sh vm                socket-activate libvirtd + libvirt group + IPv4 forwarding
 #   sudo scripts/setup-system.sh memory            systemd-oomd (kill the hog early, not freeze) + zram tuning
 #   sudo scripts/setup-system.sh monitor-control   DDC/CI: control external monitors (brightness, input) from the PC
+#   sudo scripts/setup-system.sh crash-trace       log who sends kill signals to Hyprland (debugging; 'crash-trace-off' undoes)
 #
 # Idempotent; every replaced file is backed up as <file>.bak-<date>.
 # Display-manager changes apply on the next boot (never --now: that would kill
@@ -165,6 +166,27 @@ cmd_monitor_control() {
     ok "monitor control ready (enable 'DDC/CI' in the monitor's OSD if nothing was detected)"
 }
 
+# Debug aid for silent Hyprland deaths: a bpftrace probe logs every
+# terminating signal sent to Hyprland with the sender's name/pid (journal).
+cmd_crash_trace() {
+    require_pkgs bpftrace
+    install_file "$SYS/crash-trace/hypr-signal-trace.bt" /etc/hypr-signal-trace.bt
+    install_file "$SYS/crash-trace/hypr-signal-trace.service" /etc/systemd/system/hypr-signal-trace.service
+    systemctl daemon-reload
+    systemctl enable --now hypr-signal-trace.service
+    sleep 3
+    systemctl is-active --quiet hypr-signal-trace.service \
+        && ok "tracing signals to Hyprland (journalctl -u hypr-signal-trace)" \
+        || die "tracer failed: journalctl -u hypr-signal-trace -n 20"
+}
+
+cmd_crash_trace_off() {
+    systemctl disable --now hypr-signal-trace.service 2>/dev/null || true
+    rm -f /etc/systemd/system/hypr-signal-trace.service /etc/hypr-signal-trace.bt
+    systemctl daemon-reload
+    ok "Hyprland signal tracing removed"
+}
+
 cmd_vm() {
     require_pkgs libvirt qemu-desktop
     install_file "$SYS/sysctl/30-ipforward.conf" /etc/sysctl.d/30-ipforward.conf
@@ -262,7 +284,7 @@ EOF
     info "Reboot (or: systemctl restart greetd from a TTY) for the text login."
 }
 
-[[ $# -gt 0 ]] || { sed -n '2,17p' "$0" | sed 's/^# \{0,1\}//'; exit 1; }
+[[ $# -gt 0 ]] || { sed -n '2,18p' "$0" | sed 's/^# \{0,1\}//'; exit 1; }
 for cmd in "$@"; do
     case "$cmd" in
         services)         cmd_services ;;
@@ -272,6 +294,8 @@ for cmd in "$@"; do
         vm)               cmd_vm ;;
         memory)           cmd_memory ;;
         monitor-control)  cmd_monitor_control ;;
+        crash-trace)      cmd_crash_trace ;;
+        crash-trace-off)  cmd_crash_trace_off ;;
         bluetooth)        cmd_bluetooth ;;
         charge-limit)     cmd_charge_limit ;;
         battery-cleanup)  cmd_battery_cleanup ;;
