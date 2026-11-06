@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# hypr-crashlog: keep the evidence when Hyprland crashes.
+#
+# start-hyprland restarts a crashed Hyprland with --safe-mode. Its log lives in
+# $XDG_RUNTIME_DIR/hypr/<instance>/ (RAM, gone after reboot), so at startup in
+# safe mode this saves the previous instance's log + the system journal around
+# the crash to ~/.local/state/hypr/crash-logs/ and sends a notification.
+# Run from hypr/autostart.lua on hyprland.start; harmless on a normal start.
+set -euo pipefail
+
+KEEP=10
+OUT="${XDG_STATE_HOME:-$HOME/.local/state}/hypr/crash-logs"
+RUNTIME="${XDG_RUNTIME_DIR:?}/hypr"
+CURRENT="${HYPRLAND_INSTANCE_SIGNATURE:-}"
+
+pid="$(pgrep -x -u "$USER" Hyprland | head -n1 || true)"
+[[ -n "$pid" ]] || exit 0
+tr '\0' ' ' < "/proc/$pid/cmdline" | grep -q -- '--safe-mode' || exit 0
+
+# Newest instance directory that isn't the running one = the crashed session.
+crashed=""
+while IFS= read -r dir; do
+    [[ "$(basename "$dir")" == "$CURRENT" ]] && continue
+    [[ -f "$dir/hyprland.log" ]] && { crashed="$dir"; break; }
+done < <(ls -1dt "$RUNTIME"/*/ 2>/dev/null | sed 's:/$::')
+[[ -n "$crashed" ]] || exit 0
+
+ended="$(stat -c %Y "$crashed/hyprland.log")"
+stamp="$(date -d "@$ended" +%Y%m%d-%H%M%S)"
+dest="$OUT/$stamp"
+[[ -e "$dest" ]] && exit 0   # already saved (config reload re-runs autostart)
+
+mkdir -p "$dest"
+cp "$crashed/hyprland.log" "$dest/hyprland.log"
+since="$(date -d "@$((ended - 120))" '+%F %T')"
+until="$(date -d "@$((ended + 10))" '+%F %T')"
+journalctl -b --since "$since" --until "$until" --no-pager > "$dest/journal.txt" 2>&1 || true
+journalctl -k -b --since "$since" --until "$until" --no-pager > "$dest/kernel.txt" 2>&1 || true
+coredumpctl list --since "$since" --no-pager > "$dest/coredumps.txt" 2>&1 || true
+
+# Keep only the newest $KEEP crashes.
+ls -1dt "$OUT"/*/ 2>/dev/null | tail -n +$((KEEP + 1)) | xargs -r rm -rf
+
+notify-send -a Hyprland -i dialog-warning -u critical "Hyprland crashed and restarted" \
+    "Log saved to ~/.local/state/hypr/crash-logs/$stamp. Log out and back in to leave safe mode."

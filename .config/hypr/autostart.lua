@@ -28,4 +28,8 @@ hl.on("hyprland.start", function()
     -- Wallpaper palette: seed theme/generated, then adopt Noctalia's wallpaper
     -- once it is up (Noctalia keeps its own clipboard history).
     hl.exec_cmd("~/.local/bin/rice-wall init; setsid -f ~/.local/bin/rice-wall restore")
+
+    -- After a crash (watchdog restart in safe mode): save the crashed
+    -- session's log before a reboot wipes it.
+    hl.exec_cmd("sleep 5; ~/.local/bin/hypr-crashlog")
 end)
