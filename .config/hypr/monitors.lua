@@ -28,13 +28,43 @@ hl.monitor({
     vrr      = 2,
 })
 
--- Laptop panel to the right of the MSI, bottom edges aligned (1440 - 1080 = 360).
-hl.monitor({
-    output   = LAPTOP,
-    mode     = "preferred",
-    position = "2560x360",
-    scale    = 1,
-})
+-- ─── Laptop panel + clamshell mode ─────────────────────────────────────────
+-- Right of the MSI, bottom edges aligned (1440 - 1080 = 360).
+-- Lid closed while an external screen is on → laptop panel off (its workspaces
+-- move to the MSI). Lid open, or last external screen gone → panel back on.
+-- (logind ignores the lid while docked, so the laptop keeps running.)
+local LID_STATE = "/proc/acpi/button/lid/LID/state"
+
+local function lid_closed()
+    local f = io.open(LID_STATE, "r")
+    if not f then return false end
+    local state = f:read("*a") or ""
+    f:close()
+    return state:find("closed") ~= nil
+end
+
+local function external_connected()
+    for _, m in ipairs(hl.get_monitors()) do
+        if m.name ~= LAPTOP and m.enabled then return true end
+    end
+    return false
+end
+
+local function apply_laptop_panel()
+    hl.monitor({
+        output   = LAPTOP,
+        mode     = "preferred",
+        position = "2560x360",
+        scale    = 1,
+        disabled = lid_closed() and external_connected(),
+    })
+end
+
+apply_laptop_panel()
+hl.bind("switch:on:Lid Switch",  apply_laptop_panel, { locked = true })
+hl.bind("switch:off:Lid Switch", apply_laptop_panel, { locked = true })
+hl.on("monitor.added",   apply_laptop_panel)
+hl.on("monitor.removed", apply_laptop_panel)
 
 -- Warn when a monitor is plugged into a port too weak for its native
 -- resolution (e.g. the cheap USB-C hub's HDMI). Delay: let modes settle.
