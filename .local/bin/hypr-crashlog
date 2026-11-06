@@ -25,7 +25,13 @@ while IFS= read -r dir; do
 done < <(ls -1dt "$RUNTIME"/*/ 2>/dev/null | sed 's:/$::')
 [[ -n "$crashed" ]] || exit 0
 
-ended="$(stat -c %Y "$crashed/hyprland.log")"
+# Crash time = the watchdog's last "exit not-cleanly" line; fall back to the
+# log's mtime (which later writes can move past the crash).
+ended="$(journalctl -b --user-unit 'wayland-wm@*' -o short-unix --no-pager 2>/dev/null \
+    | awk '/exit not-cleanly/ {t=$1} END {if (t) printf "%d", t}')"
+[[ -n "$ended" ]] || ended="$(journalctl -b -o short-unix --no-pager -g 'exit not-cleanly' 2>/dev/null \
+    | awk 'NF {t=$1} END {if (t) printf "%d", t}')"
+[[ -n "$ended" ]] || ended="$(stat -c %Y "$crashed/hyprland.log")"
 stamp="$(date -d "@$ended" +%Y%m%d-%H%M%S)"
 dest="$OUT/$stamp"
 [[ -e "$dest" ]] && exit 0   # already saved (config reload re-runs autostart)
