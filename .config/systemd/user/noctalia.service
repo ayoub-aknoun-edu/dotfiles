@@ -3,6 +3,9 @@ Description=Noctalia desktop shell
 PartOf=graphical-session.target
 After=graphical-session.target
 ConditionEnvironment=WAYLAND_DISPLAY
+# Give up after 5 quick restarts (no compositor to connect to).
+StartLimitIntervalSec=60
+StartLimitBurst=5
 
 [Service]
 Type=simple
@@ -10,7 +13,10 @@ Type=simple
 # by PID; hand it the graphical session id (logind lock monitor, LockedHint,
 # lock-before-suspend and brightness all need it).
 ExecStart=/bin/sh -c 'XDG_SESSION_ID="$$(loginctl show-user "$$USER" -p Display --value)" exec /usr/bin/noctalia'
-Restart=on-failure
+# always: when Hyprland crashes and its watchdog restarts it, Noctalia exits
+# cleanly (status 0) on the broken Wayland pipe; this brings the bar back.
+# A logout still stops it for good (PartOf=graphical-session.target).
+Restart=always
 RestartSec=2
 
 [Install]
