@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# hypr-no-rt: run Hyprland's main thread at normal (SCHED_OTHER) priority.
+#
+# Why: Hyprland takes real-time priority (SCHED_RR) via rtkit, which comes with
+# a kernel RLIMIT_RTTIME of 150/200 ms. Under heavy load (e.g. Docker dotnet
+# builds) one stalled frame exceeds 200 ms and the kernel SIGKILLs Hyprland —
+# the whole session dies, with no crash report. Traced 2026-11-06 with
+# bpftrace (SIGKILL, sender = Hyprland itself). Normal priority has no such
+# limit; worst case is a little cursor stutter under load.
+#
+# -R keeps SCHED_RESET_ON_FORK (clearing it needs root). Idempotent.
+# Called from hypr/autostart.lua (hyprland.start) and noctalia.service.
+set -u
+for pid in $(pgrep -x -u "$USER" Hyprland); do
+    chrt -p "$pid" 2>/dev/null | grep -qE 'SCHED_(RR|FIFO)' || continue
+    if chrt -o -R -p 0 "$pid"; then
+        echo "hypr-no-rt: Hyprland $pid -> SCHED_OTHER"
+    else
+        echo "hypr-no-rt: failed to demote Hyprland $pid" >&2
+    fi
+done

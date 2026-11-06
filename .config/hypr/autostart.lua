@@ -17,6 +17,10 @@ local SESSION_UNITS = {
 }
 
 hl.on("hyprland.start", function()
+    -- Drop Hyprland's real-time priority: its 200 ms RT CPU limit gets the
+    -- compositor SIGKILLed under heavy load (see ~/.local/bin/hypr-no-rt).
+    hl.exec_cmd("sleep 2; ~/.local/bin/hypr-no-rt")
+
     if not UWSM then
         -- Direct launch fallback: export the environment and start the units
         -- ourselves, since nothing reaches graphical-session.target.

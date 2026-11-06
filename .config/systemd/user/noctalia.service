@@ -19,6 +19,8 @@ ExecStart=/bin/sh -c 'XDG_SESSION_ID="$$(loginctl show-user "$$USER" -p Display 
 Restart=always
 # After a Hyprland crash (safe-mode restart) save its log before a reboot wipes it.
 ExecStartPost=-/bin/sh -c 'sleep 3; exec "$HOME/.local/bin/hypr-crashlog"'
+# Also (re)apply normal priority to Hyprland after a watchdog restart.
+ExecStartPost=-/bin/sh -c 'sleep 2; exec "$HOME/.local/bin/hypr-no-rt"'
 RestartSec=2
 
 [Install]
