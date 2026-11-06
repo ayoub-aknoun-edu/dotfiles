@@ -51,12 +51,14 @@ all_day_digest_time  = "09:00"    # one notification listing today's all-day eve
 [nightlight]
 # "Eye Comfort Shield": a plain manual on/off on the Control Center's Night
 # Light button (left-click) and Super+Alt+N. Day and night temperatures are
-# (almost) equal, so the schedule below changes nothing: on ≈ 3200K, off =
+# (almost) equal, so the schedule below changes nothing: on ≈ 4500K, off =
 # neutral. (Noctalia only toggles when some schedule exists.)
+# Warmth: lower = warmer/more orange (3200 strong, 4500 mild, 5500 subtle).
+# Applies to every screen, so the MSI's own anti-blue mode stays OFF.
 enabled           = false
 force             = false
-temperature_day   = 3300          # must be > night; 100K apart is invisible
-temperature_night = 3200
+temperature_day   = 4600          # keep 100K above night (must be > night)
+temperature_night = 4500
 
 [location]
 custom_schedule = true            # times barely matter (day ≈ night temp);
