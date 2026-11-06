@@ -68,6 +68,12 @@ hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }))
 hl.bind(mainMod .. " + mouse_up",   hl.dsp.focus({ workspace = "e-1" }))
 
 
+-- ─── Monitors ─────────────────────────────────────────────────────────────────
+-- Super+.  jump to the other screen · +Shift: send window · +Ctrl: send workspace
+hl.bind(mainMod .. " + period",          hl.dsp.focus({ monitor = "+1" }))
+hl.bind(mainMod .. " + SHIFT + period",  hl.dsp.window.move({ monitor = "+1" }))
+hl.bind(mainMod .. " + CTRL + period",   hl.dsp.workspace.move({ monitor = "+1" }))
+
 -- ─── Swap windows ─────────────────────────────────────────────────────────────
 hl.bind(mainMod .. " + SHIFT + left",  hl.dsp.window.swap({ direction = "l" }))
 hl.bind(mainMod .. " + SHIFT + right", hl.dsp.window.swap({ direction = "r" }))
