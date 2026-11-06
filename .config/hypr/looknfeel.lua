@@ -59,6 +59,12 @@ hl.config({
         -- 0 = don't load Hyprland's built-in wallpapers at startup (the
         -- shell's wallpaper daemon covers the screen right away anyway).
         force_default_wallpaper      = 0,
+        -- No "App not responding → Terminate/Wait" dialog. Under heavy load
+        -- (Docker builds) it fires, and its Terminate path does an unguarded
+        -- kill(pid, SIGKILL) — prime suspect for the silent Hyprland deaths
+        -- of 2026-11-06 (tracer saw Hyprland SIGKILL itself). Slow apps just
+        -- catch up instead.
+        enable_anr_dialog            = false,
         disable_splash_rendering     = true,
         disable_hyprland_logo        = true,
         allow_session_lock_restore   = true,

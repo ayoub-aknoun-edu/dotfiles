@@ -31,6 +31,16 @@ tracepoint:signal:signal_deliver
     printf("hypr-signal DELIVER ustack:%s\n", ustack(perf, 24));
 }
 
+// Every kill() Hyprland issues: target pid 0 / own pid / negative = kills itself.
+tracepoint:syscalls:sys_enter_kill
+/ str(curtask->group_leader->comm) == "Hyprland" /
+{
+    time("%H:%M:%S ");
+    printf("hypr-signal KILL(): target_pid=%d sig=%d | from thread=%s tid=%d tgid=%d\n",
+        args->pid, args->sig, comm, tid, pid);
+    printf("hypr-signal KILL() ustack:%s\n", ustack(perf, 24));
+}
+
 // A Hyprland thread ending the whole process (exit()/abort paths, libraries).
 tracepoint:syscalls:sys_enter_exit_group
 / str(curtask->group_leader->comm) == "Hyprland" /
