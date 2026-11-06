@@ -52,6 +52,7 @@ libnotify
 upower
 power-profiles-daemon
 brightnessctl
+ddcutil            # external monitor brightness/input over DDC/CI (Noctalia slider)
 gnome-keyring
 
 # Wallpaper colors (rice-wall), avatar + thumbnails

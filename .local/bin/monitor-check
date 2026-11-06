@@ -1,0 +1,120 @@
+#!/usr/bin/env -S python3 -I
+"""monitor-check: tell whether each external monitor gets its full picture.
+
+  monitor-check            print a summary of every external monitor
+  monitor-check --notify   desktop notification only when a monitor is held back
+                           (Hyprland runs this on monitor.added, see hypr/monitors.lua)
+
+A monitor is "held back" when the connection can't carry its native resolution
+(e.g. a cheap USB-C hub HDMI port), so it falls back to something like
+1680x1050. Then the notification says which port to use instead.
+"""
+import glob
+import json
+import os
+import re
+import subprocess
+import sys
+import time
+
+DEDUP_SECONDS = 60  # hyprland.start + monitor.added can both fire at login
+STATE = os.path.join(os.environ.get("XDG_RUNTIME_DIR", "/tmp"), "monitor-check.last")
+MODE_RE = re.compile(r"^(\d+)x(\d+)@([\d.]+)Hz$")
+
+PORT_HINTS = {
+    "HDMI": "laptop HDMI port (HDMI 1.4b: up to 2560x1440@60)",
+    "DP": "USB-C / Thunderbolt port (DisplayPort)",
+}
+FIX_HINT = ("Plug it into the laptop's own HDMI port (1440p@60), or use a "
+            "USB-C → DisplayPort 1.4 adapter for the full refresh rate.")
+
+
+def hypr_monitors():
+    out = subprocess.run(["hyprctl", "monitors", "-j"], capture_output=True,
+                         text=True, check=True).stdout
+    return json.loads(out)
+
+
+def native_resolution(connector):
+    """First detailed timing in the EDID = the panel's native mode."""
+    for path in glob.glob(f"/sys/class/drm/card*-{connector}/edid"):
+        try:
+            edid = open(path, "rb").read()
+        except OSError:
+            continue
+        if len(edid) >= 72:
+            d = edid[54:72]
+            if d[0] | d[1]:
+                return d[2] | (d[4] >> 4) << 8, d[5] | (d[7] >> 4) << 8
+    return None
+
+
+def parse_modes(mon):
+    modes = []
+    for m in mon.get("availableModes", []):
+        hit = MODE_RE.match(m)
+        if hit:
+            modes.append((int(hit[1]), int(hit[2]), float(hit[3])))
+    return modes
+
+
+def assess(mon):
+    """Return (held_back: bool, message: str) for one external monitor."""
+    name = mon["name"]
+    model = mon.get("model") or mon.get("description") or name
+    port = PORT_HINTS["HDMI"] if name.startswith("HDMI") else PORT_HINTS["DP"]
+    current = f'{mon["width"]}x{mon["height"]}@{mon["refreshRate"]:.0f}Hz'
+    native = native_resolution(name)
+    modes = parse_modes(mon)
+
+    if native and modes and not any((w, h) == native for w, h, _ in modes):
+        best = max(modes, key=lambda m: (m[0] * m[1], m[2]))
+        return True, (f"{model} on {name} is limited to {best[0]}x{best[1]}@{best[2]:.0f}Hz "
+                      f"(native {native[0]}x{native[1]}). This connection is too weak. {FIX_HINT}")
+
+    top_rr = max((rr for w, h, rr in modes if native and (w, h) == native), default=mon["refreshRate"])
+    return False, f"{model} on {name} ({port}): {current}, best possible here {top_rr:.0f}Hz"
+
+
+def recently_notified(key):
+    try:
+        last_key, last_t = open(STATE).read().split("\t")
+        return last_key == key and time.time() - float(last_t) < DEDUP_SECONDS
+    except (OSError, ValueError):
+        return False
+
+
+def notify(message, key):
+    if recently_notified(key):
+        return
+    subprocess.run(["notify-send", "-a", "Display", "-i", "video-display", "-u", "critical",
+                    "Monitor connection too weak", message], check=False)
+    try:
+        with open(STATE, "w") as f:
+            f.write(f"{key}\t{time.time()}")
+    except OSError:
+        pass
+
+
+def main():
+    notify_mode = "--notify" in sys.argv[1:]
+    try:
+        externals = [m for m in hypr_monitors() if not m["name"].startswith("eDP")]
+    except (subprocess.CalledProcessError, FileNotFoundError, json.JSONDecodeError) as err:
+        print(f"monitor-check: cannot query Hyprland: {err}", file=sys.stderr)
+        return 1
+
+    if not externals and not notify_mode:
+        print("No external monitor connected.")
+    for mon in externals:
+        held_back, message = assess(mon)
+        if notify_mode:
+            if held_back:
+                notify(message, f'{mon["name"]}:{mon["width"]}x{mon["height"]}')
+        else:
+            print(("⚠ " if held_back else "✓ ") + message)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -35,6 +35,7 @@ thickness = 28
     padding = 6.0
 
 [brightness]
+enable_ddcutil = true
 minimum_brightness = 0.0099999997764825821
 
 [calendar]
@@ -98,11 +99,11 @@ widget_order = [
     [lockscreen_widgets.widget."lockscreen-login-box@DP-1"]
     box_height = 196.0
     box_width = 810.0
-    cx = 840.0
-    cy = 917.2916259765625
+    cx = 512.0
+    cy = 670.93328857421875
     output = "DP-1"
-    placement_height = 1050.0
-    placement_width = 1680.0
+    placement_height = 768.0
+    placement_width = 1024.0
     rotation = 0.0
     type = "login_box"
 

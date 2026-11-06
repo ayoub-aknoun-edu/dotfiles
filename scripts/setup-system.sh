@@ -14,6 +14,7 @@
 #   sudo scripts/setup-system.sh docker            socket-activate Docker + add you to the docker group
 #   sudo scripts/setup-system.sh vm                socket-activate libvirtd + libvirt group + IPv4 forwarding
 #   sudo scripts/setup-system.sh memory            systemd-oomd (kill the hog early, not freeze) + zram tuning
+#   sudo scripts/setup-system.sh monitor-control   DDC/CI: control external monitors (brightness, input) from the PC
 #
 # Idempotent; every replaced file is backed up as <file>.bak-<date>.
 # Display-manager changes apply on the next boot (never --now: that would kill
@@ -146,6 +147,24 @@ cmd_memory() {
     oomctl | head -n 20
 }
 
+# DDC/CI over the display cable: ddcutil needs /dev/i2c-* (i2c-dev module).
+# Access for the logged-in user comes from ddcutil's own udev rule (uaccess).
+cmd_monitor_control() {
+    require_pkgs ddcutil
+    install_file "$SYS/modules-load/i2c-dev.conf" /etc/modules-load.d/i2c-dev.conf
+    modprobe i2c-dev
+    udevadm control --reload-rules
+    udevadm trigger --action=add --subsystem-match=i2c-dev
+    udevadm settle
+    local rule
+    rule="$(compgen -G '/usr/lib/udev/rules.d/*ddcutil*.rules' | head -n1 || true)"
+    [[ -n "$rule" ]] && ok "user access via $rule" \
+        || info "no ddcutil udev rule found: ddcutil may need sudo"
+    info "detected displays (as $TARGET_USER):"
+    sudo -u "$TARGET_USER" ddcutil detect --brief 2>&1 | sed 's/^/   /' || true
+    ok "monitor control ready (enable 'DDC/CI' in the monitor's OSD if nothing was detected)"
+}
+
 cmd_vm() {
     require_pkgs libvirt qemu-desktop
     install_file "$SYS/sysctl/30-ipforward.conf" /etc/sysctl.d/30-ipforward.conf
@@ -243,7 +262,7 @@ EOF
     info "Reboot (or: systemctl restart greetd from a TTY) for the text login."
 }
 
-[[ $# -gt 0 ]] || { sed -n '2,15p' "$0" | sed 's/^# \{0,1\}//'; exit 1; }
+[[ $# -gt 0 ]] || { sed -n '2,17p' "$0" | sed 's/^# \{0,1\}//'; exit 1; }
 for cmd in "$@"; do
     case "$cmd" in
         services)         cmd_services ;;
@@ -252,6 +271,7 @@ for cmd in "$@"; do
         docker)           cmd_docker ;;
         vm)               cmd_vm ;;
         memory)           cmd_memory ;;
+        monitor-control)  cmd_monitor_control ;;
         bluetooth)        cmd_bluetooth ;;
         charge-limit)     cmd_charge_limit ;;
         battery-cleanup)  cmd_battery_cleanup ;;

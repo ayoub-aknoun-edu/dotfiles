@@ -36,6 +36,12 @@ hl.monitor({
     scale    = 1,
 })
 
+-- Warn when a monitor is plugged into a port too weak for its native
+-- resolution (e.g. the cheap USB-C hub's HDMI). Delay: let modes settle.
+local CHECK = "sleep 3; ~/.local/bin/monitor-check --notify"
+hl.on("monitor.added",  function() hl.exec_cmd(CHECK) end)
+hl.on("hyprland.start", function() hl.exec_cmd(CHECK) end)
+
 -- Workspaces: 1-5 live on the MSI, 6-10 on the laptop.
 -- Unplugged MSI → its workspaces simply open on the laptop.
 for i = 1, 10 do
