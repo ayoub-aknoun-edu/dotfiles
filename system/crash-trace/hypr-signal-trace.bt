@@ -1,13 +1,41 @@
 #!/usr/bin/env bpftrace
 // /etc/hypr-signal-trace.bt — scripts/setup-system.sh crash-trace
-// Logs every terminating signal sent to Hyprland and WHO sent it, so a silent
-// "exit not-cleanly" (no crash report, no core) can be traced to its sender.
-// Ignored: SIGCHLD(17), SIGALRM(14), SIGWINCH(28) — routine, not fatal.
+// Silent Hyprland deaths: log every fatal signal/exit inside the Hyprland
+// process (any thread) with the thread name, the kernel's reason and stacks,
+// so the journal shows WHAT killed it. Routine signals are ignored:
+// SIGCHLD(17), SIGALRM(14), SIGWINCH(28), SIGCONT(18).
+
+// Signals generated for Hyprland (target main thread) or by any Hyprland thread.
 tracepoint:signal:signal_generate
-/ args->comm == "Hyprland" && args->sig != 17 && args->sig != 14 && args->sig != 28 /
+/ (args->comm == "Hyprland" || str(curtask->group_leader->comm) == "Hyprland")
+  && args->sig != 17 && args->sig != 14 && args->sig != 28 && args->sig != 18 /
 {
     time("%H:%M:%S ");
-    printf("hypr-signal: sig=%d -> Hyprland pid=%d | sender comm=%s pid=%d argv0=%s | parent comm=%s pid=%d | result=%d\n",
-        args->sig, args->pid, comm, pid, str(uptr(curtask->mm->arg_start), 120),
-        curtask->real_parent->comm, curtask->real_parent->tgid, args->result);
+    printf("hypr-signal GEN: sig=%d code=%d errno=%d -> target comm=%s tid=%d | sender thread=%s tid=%d tgid=%d leader=%s argv0=%s | result=%d\n",
+        args->sig, args->code, args->errno, args->comm, args->pid,
+        comm, tid, pid, curtask->group_leader->comm, str(uptr(curtask->mm->arg_start), 80), args->result);
+    if (str(curtask->group_leader->comm) == "Hyprland") {
+        printf("hypr-signal GEN kstack:%s\n", kstack(12));
+        printf("hypr-signal GEN ustack:%s\n", ustack(perf, 24));
+    }
+}
+
+// A fatal signal actually being delivered to a Hyprland thread.
+tracepoint:signal:signal_deliver
+/ str(curtask->group_leader->comm) == "Hyprland"
+  && args->sig != 17 && args->sig != 14 && args->sig != 28 && args->sig != 18 /
+{
+    time("%H:%M:%S ");
+    printf("hypr-signal DELIVER: sig=%d code=%d errno=%d handler=0x%lx flags=0x%lx thread=%s tid=%d\n",
+        args->sig, args->code, args->errno, args->sa_handler, args->sa_flags, comm, tid);
+    printf("hypr-signal DELIVER ustack:%s\n", ustack(perf, 24));
+}
+
+// A Hyprland thread ending the whole process (exit()/abort paths, libraries).
+tracepoint:syscalls:sys_enter_exit_group
+/ str(curtask->group_leader->comm) == "Hyprland" /
+{
+    time("%H:%M:%S ");
+    printf("hypr-signal EXIT_GROUP: code=%d thread=%s tid=%d\n", args->error_code, comm, tid);
+    printf("hypr-signal EXIT_GROUP ustack:%s\n", ustack(perf, 24));
 }
