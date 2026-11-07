@@ -46,6 +46,17 @@ hl.window_rule({
 })
 
 
+-- ─── Shortcut cheat sheet (Super+/ → keybinds) ───────────────────────────────
+hl.window_rule({
+    name   = "keybinds-cheatsheet",
+    match  = { class = "^keybinds$" },
+    float  = true,
+    center = true,
+    pin    = true,
+    size   = "1000 680",
+})
+
+
 -- ─── Permission / Auth Dialogs ────────────────────────────────────────────────
 hl.window_rule({
     name              = "browser-permission-dialogs",

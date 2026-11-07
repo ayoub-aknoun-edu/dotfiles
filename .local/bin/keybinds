@@ -1,0 +1,91 @@
+#!/usr/bin/env -S python3 -I
+"""keybinds: searchable list of the Hyprland shortcuts, read live from Hyprland.
+
+  keybinds           interactive search (fzf) when run in a terminal
+  keybinds --print   plain list (e.g. `keybinds --print | grep -i screen`)
+
+Descriptions come from hypr/binding.lua (`description = "Group: text"`), so the
+list always matches what is really configured. Super+/ opens it in a floating
+window (window rule "keybinds" in windowrules.lua).
+"""
+import json
+import os
+import shutil
+import subprocess
+import sys
+
+MODS = [(64, "Super"), (4, "Ctrl"), (8, "Alt"), (1, "Shift")]  # display order
+KEY_NAMES = {
+    "period": ".", "comma": ",", "slash": "/", "minus": "-", "equal": "=",
+    "return": "Enter", "space": "Space", "tab": "Tab",
+    "left": "←", "right": "→", "up": "↑", "down": "↓",
+    "mouse:272": "Left drag", "mouse:273": "Right drag",
+    "mouse_down": "Scroll down", "mouse_up": "Scroll up",
+    "xf86audioraisevolume": "Volume+ key", "xf86audiolowervolume": "Volume- key",
+    "xf86audiomute": "Mute key", "xf86audiomicmute": "Mic mute key",
+    "xf86monbrightnessup": "Brightness+ key", "xf86monbrightnessdown": "Brightness- key",
+    "xf86audionext": "Next key", "xf86audioprev": "Previous key",
+    "xf86audioplay": "Play key", "xf86audiopause": "Pause key",
+    "xf86poweroff": "Power button",
+}
+
+
+def load_binds():
+    out = subprocess.run(["hyprctl", "binds", "-j"], capture_output=True, text=True, check=True).stdout
+    return json.loads(out)
+
+
+def combo(bind):
+    mods = [name for bit, name in MODS if bind.get("modmask", 0) & bit]
+    key = bind.get("key", "")
+    pretty = KEY_NAMES.get(key.lower(), key.upper() if len(key) == 1 else key)
+    return " + ".join(mods + [pretty])
+
+
+def rows(binds):
+    seen = set()
+    for b in binds:
+        if b.get("key", "").startswith("switch:"):
+            continue  # lid switch etc. are not shortcuts
+        desc = b.get("description") or f"Other: {b.get('dispatcher', '?')}"
+        group, _, text = desc.partition(": ")
+        if not text:
+            group, text = "Other", desc
+        row = (group, combo(b), text)
+        if row not in seen:
+            seen.add(row)
+            yield row
+
+
+def render(table):
+    gw = max(len(g) for g, _, _ in table)
+    kw = max(len(k) for _, k, _ in table)
+    return [f"{g:<{gw}}  {k:<{kw}}  {t}" for g, k, t in table]
+
+
+def main():
+    try:
+        table = list(rows(load_binds()))
+    except (OSError, subprocess.CalledProcessError, json.JSONDecodeError) as err:
+        print(f"keybinds: cannot read shortcuts from Hyprland: {err}", file=sys.stderr)
+        return 1
+    if not table:
+        print("keybinds: no shortcuts found")
+        return 1
+
+    lines = render(table)
+    if "--print" in sys.argv[1:] or not sys.stdout.isatty() or not shutil.which("fzf"):
+        print("\n".join(lines))
+        return 0
+
+    header = f"{len(lines)} shortcuts · type to search · Esc to close"
+    subprocess.run(
+        ["fzf", "--reverse", "--no-sort", "--exact", "-i", "--no-multi",
+         "--prompt", "shortcut › ", "--header", header, "--bind", "enter:ignore",
+         "--color", "header:italic"],
+        input="\n".join(lines), text=True, env={**os.environ, "FZF_DEFAULT_OPTS": ""})
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
