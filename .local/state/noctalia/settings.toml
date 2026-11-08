@@ -343,6 +343,9 @@ directory = "/home/ayoub/Pictures/Wallpapers"
     [wallpaper.last]
     path = "/home/ayoub/Pictures/Wallpapers/anime-scenery-jeeq3q.png"
 
+    [wallpaper.monitors.HDMI-A-1]
+    path = "/home/ayoub/Pictures/Wallpapers/anime-scenery-jeeq3q.png"
+
     [wallpaper.monitors.eDP-1]
     path = "/home/ayoub/Pictures/Wallpapers/anime-scenery-jeeq3q.png"
 
