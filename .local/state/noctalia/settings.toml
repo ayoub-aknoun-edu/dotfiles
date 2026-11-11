@@ -338,16 +338,16 @@ wallpaper_scheme = "vibrant"
 directory = "/home/ayoub/Pictures/Wallpapers"
 
     [wallpaper.default]
-    path = "/home/ayoub/Pictures/Wallpapers/anime-girls-j56wpw.jpg"
+    path = "/home/ayoub/Pictures/Wallpapers/solo-leveling-m3vlo8.png"
 
     [wallpaper.last]
-    path = "/home/ayoub/Pictures/Wallpapers/anime-girls-j56wpw.jpg"
+    path = "/home/ayoub/Pictures/Wallpapers/solo-leveling-m3vlo8.png"
 
     [wallpaper.monitors.HDMI-A-1]
-    path = "/home/ayoub/Pictures/Wallpapers/anime-girls-j56wpw.jpg"
+    path = "/home/ayoub/Pictures/Wallpapers/solo-leveling-m3vlo8.png"
 
     [wallpaper.monitors.eDP-1]
-    path = "/home/ayoub/Pictures/Wallpapers/anime-girls-j56wpw.jpg"
+    path = "/home/ayoub/Pictures/Wallpapers/solo-leveling-m3vlo8.png"
 
 [weather]
 enabled = false
