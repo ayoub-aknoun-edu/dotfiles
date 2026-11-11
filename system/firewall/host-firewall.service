@@ -1,0 +1,17 @@
+# /etc/systemd/system/host-firewall.service — scripts/setup-system.sh firewall
+# Not Arch's nftables.service: that one flushes the WHOLE ruleset on stop,
+# which wipes Docker's rules. This manages only the inet host_fw table.
+[Unit]
+Description=Host firewall (incoming filter, inet host_fw table)
+Wants=network-pre.target
+Before=network-pre.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/nft -f /etc/nftables.d/host-firewall.nft
+ExecReload=/usr/bin/nft -f /etc/nftables.d/host-firewall.nft
+ExecStop=/usr/bin/nft delete table inet host_fw
+
+[Install]
+WantedBy=multi-user.target

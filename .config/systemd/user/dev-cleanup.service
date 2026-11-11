@@ -1,0 +1,8 @@
+[Unit]
+Description=Weekly cleanup of Docker/yay/uv developer caches
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/dev-cleanup
+Nice=19
+IOSchedulingClass=idle

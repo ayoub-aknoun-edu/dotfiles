@@ -3,6 +3,13 @@
 # The base system (base, linux, linux-firmware, bootloader, zram) comes from
 # archinstall and is intentionally not listed.
 
+# Fallback kernel: second boot entry if a `linux` update breaks booting
+# (entry created by `setup-system.sh fallback-kernel`)
+linux-lts
+
+# Firmware updates from Lenovo/LVFS (`fwupdmgr get-updates` only reports)
+fwupd
+
 # Base tools
 base-devel
 git

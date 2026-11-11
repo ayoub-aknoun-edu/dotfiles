@@ -37,6 +37,7 @@ UNITS=(
     hypridle-power-watcher.service
     battery-alert.timer
     dots-autosync.timer
+    dev-cleanup.timer
 )
 
 for unit in "${UNITS[@]}"; do

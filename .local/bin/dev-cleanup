@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# dev-cleanup: weekly trim of developer caches that grow without limit.
+# Run by dev-cleanup.timer (systemd --user); safe to run by hand any time.
+#   - Docker build cache older than 7 days      (rebuilt on demand)
+#   - anonymous Docker volumes not in use        (NAMED volumes = project data: never touched)
+#   - yay AUR build folders untouched 30+ days   (re-cloned on next update)
+#   - uv cache entries no project references
+# Each step is skipped when its tool is missing or busy; failures don't stop the rest.
+set -u
+
+BUILD_CACHE_AGE="168h"   # 7 days
+YAY_MAX_AGE_DAYS=30
+YAY_CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/yay"
+
+home_free() { df -h --output=avail "$HOME" | tail -n1 | tr -d ' '; }
+log() { printf 'dev-cleanup: %s\n' "$*"; }
+
+log "start, free in /home: $(home_free)"
+
+if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
+    log "docker build cache: $(docker builder prune -af --filter "until=$BUILD_CACHE_AGE" 2>&1 | tail -n1)"
+    # Without -a, `volume prune` removes only anonymous volumes.
+    log "docker anonymous volumes: $(docker volume prune -f 2>&1 | tail -n1)"
+else
+    log "docker not running: skipped"
+fi
+
+if pgrep -x yay >/dev/null 2>&1; then
+    log "yay is running: skipped"
+elif [[ -d "$YAY_CACHE" ]]; then
+    n=$(find "$YAY_CACHE" -mindepth 1 -maxdepth 1 -type d -mtime +"$YAY_MAX_AGE_DAYS" | wc -l)
+    find "$YAY_CACHE" -mindepth 1 -maxdepth 1 -type d -mtime +"$YAY_MAX_AGE_DAYS" -exec rm -rf {} +
+    log "yay: removed $n build folder(s) older than $YAY_MAX_AGE_DAYS days"
+fi
+
+if command -v uv >/dev/null 2>&1; then
+    log "uv: $(uv cache prune 2>&1 | tail -n1)"
+fi
+
+log "done, free in /home: $(home_free)"

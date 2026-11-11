@@ -12,6 +12,8 @@
 #   sudo scripts/setup-system.sh greeter-config    reinstall only greeter.toml (login screen look)
 #   sudo scripts/setup-system.sh greeter-sync      let Noctalia sync wallpaper/colors to the login screen without a password
 #   sudo scripts/setup-system.sh thorium-theme     Thorium's theme color follows the wallpaper (BrowserThemeColor policy)
+#   sudo scripts/setup-system.sh firewall          block incoming connections (keeps Docker, mDNS, second-screen, LAN dev ports) + LLMNR off
+#   sudo scripts/setup-system.sh fallback-kernel   boot menu entry for linux-lts (install it first), in case a kernel update breaks boot
 #   sudo scripts/setup-system.sh greeter-fallback  greetd with the plain tuigreet (if the greeter breaks)
 #   sudo scripts/setup-system.sh docker            socket-activate Docker + add you to the docker group
 #   sudo scripts/setup-system.sh vm                socket-activate libvirtd + libvirt group + IPv4 forwarding
@@ -290,6 +292,44 @@ cmd_thorium_theme() {
     ok "Thorium theme follows the wallpaper (policy: /etc/chromium/policies/managed/noctalia-theme.json)"
 }
 
+# Incoming firewall in its own nftables table (never flushes Docker's rules)
+# and LLMNR off in systemd-resolved.
+cmd_firewall() {
+    require_pkgs nftables
+    nft -c -f "$SYS/firewall/host-firewall.nft" || die "firewall rules failed the syntax check; nothing changed"
+    install_file "$SYS/firewall/host-firewall.nft" /etc/nftables.d/host-firewall.nft
+    install_file "$SYS/firewall/host-firewall.service" /etc/systemd/system/host-firewall.service
+    install_file "$SYS/resolved/no-llmnr.conf" /etc/systemd/resolved.conf.d/no-llmnr.conf
+    systemctl daemon-reload
+    systemctl enable host-firewall.service
+    systemctl restart host-firewall.service
+    systemctl restart systemd-resolved.service
+    ok "firewall active: $(nft list chain inet host_fw input | grep -c accept) allow rules, default drop"
+    ok "LLMNR: $(resolvectl status | grep -m1 -o '[+-]LLMNR')"
+}
+
+# Second boot entry for the LTS kernel, cloned from the main linux entry so it
+# keeps this machine's root= and kernel options (systemd-boot, manual entries).
+cmd_fallback_kernel() {
+    require_pkgs linux-lts
+    local entries=/boot/loader/entries main lts=/boot/loader/entries/arch-linux-lts.conf
+    main="$(grep -l '^linux[[:space:]]\+/vmlinuz-linux$' "$entries"/*.conf 2>/dev/null | grep -v linux-lts | head -n1 || true)"
+    [[ -n "$main" ]] || die "no systemd-boot entry for /vmlinuz-linux found in $entries"
+    [[ -f /boot/vmlinuz-linux-lts && -f /boot/initramfs-linux-lts.img ]] \
+        || die "linux-lts images missing in /boot (did the pacman install finish?)"
+    local tmp
+    tmp="$(mktemp)"
+    sed -e 's#^title .*#title   Arch Linux (linux-lts, fallback)#' \
+        -e 's#/vmlinuz-linux$#/vmlinuz-linux-lts#' \
+        -e 's#/initramfs-linux\.img$#/initramfs-linux-lts.img#' \
+        -e '/^# Created/d' "$main" > "$tmp"
+    sed -i '1i # Fallback kernel — scripts/setup-system.sh fallback-kernel (cloned from '"$(basename "$main")"')' "$tmp"
+    install_file "$tmp" "$lts"
+    rm -f "$tmp"
+    ok "boot menu: '$(sed -n 's/^title[[:space:]]*//p' "$main")' (default) + 'Arch Linux (linux-lts, fallback)'"
+    bootctl list --no-pager 2>/dev/null | grep -E 'title:' || true
+}
+
 cmd_greeter_fallback() {
     require_pkgs greetd greetd-tuigreet
     local tmp
@@ -309,7 +349,7 @@ EOF
     info "Reboot (or: systemctl restart greetd from a TTY) for the text login."
 }
 
-[[ $# -gt 0 ]] || { sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'; exit 1; }
+[[ $# -gt 0 ]] || { sed -n '2,22p' "$0" | sed 's/^# \{0,1\}//'; exit 1; }
 for cmd in "$@"; do
     case "$cmd" in
         services)         cmd_services ;;
@@ -328,6 +368,8 @@ for cmd in "$@"; do
         greeter-config)   cmd_greeter_config ;;
         greeter-sync)     cmd_greeter_sync ;;
         thorium-theme)    cmd_thorium_theme ;;
+        firewall)         cmd_firewall ;;
+        fallback-kernel)  cmd_fallback_kernel ;;
         greeter-fallback) cmd_greeter_fallback ;;
         *) die "unknown command: $cmd" ;;
     esac
