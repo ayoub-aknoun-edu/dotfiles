@@ -10,6 +10,10 @@ linux-lts
 # Firmware updates from Lenovo/LVFS (`fwupdmgr get-updates` only reports)
 fwupd
 
+# Encrypted backups (~/.local/bin/backup → MEGA via rclone)
+restic
+rclone
+
 # Base tools
 base-devel
 git

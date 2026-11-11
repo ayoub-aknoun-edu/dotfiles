@@ -1,0 +1,71 @@
+# Skipped by `backup` (restic --exclude-file). Everything here can be
+# re-downloaded or rebuilt. Files over 100 MB are also skipped (datasets,
+# archives, videos): see BACKUP_MAX_FILE in ~/.local/bin/backup.
+
+# Dependencies / build outputs
+node_modules
+.venv
+venv
+__pycache__
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.next
+.nuxt
+.turbo
+.pnpm-store
+.dart_tool
+.gradle
+.expo
+Pods
+DerivedData
+target
+coverage
+dist
+build
+obj
+**/bin/Debug
+**/bin/Release
+
+# Agent worktrees (copies of repos)
+**/.claude/worktrees
+
+# Unity regenerated folders
+**/Library/ShaderCache
+**/Library/Artifacts
+**/Temp
+
+# Datasets / model weights (by type)
+*.parquet
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.onnx
+*.h5
+*.npy
+*.npz
+
+# Wallpapers: re-downloaded by scripts/fetch-wallpapers.sh
+$HOME/Pictures/Wallpapers
+
+# App caches and huge app data under ~/.config (settings are kept)
+$HOME/.config/thorium
+$HOME/.config/discord
+$HOME/.config/google-chrome-for-testing
+$HOME/.config/content_shell
+$HOME/.config/Code/Cache
+$HOME/.config/Code/CachedData
+$HOME/.config/Code/CachedExtensionVSIXs
+$HOME/.config/Code/CachedProfilesData
+$HOME/.config/Code/Code Cache
+$HOME/.config/Code/GPUCache
+$HOME/.config/Code/Service Worker
+$HOME/.config/Code/WebStorage
+$HOME/.config/Code/logs
+$HOME/.config/Code/User/workspaceStorage
+$HOME/.config/Code/User/History
+**/Cache
+**/Code Cache
+**/GPUCache
+**/Crashpad

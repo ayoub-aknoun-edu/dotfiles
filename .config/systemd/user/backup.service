@@ -1,0 +1,10 @@
+[Unit]
+Description=Encrypted restic backup to MEGA (~/.local/bin/backup)
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/backup run
+Nice=19
+IOSchedulingClass=idle

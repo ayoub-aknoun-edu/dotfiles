@@ -1,0 +1,15 @@
+# What `backup` saves (restic --files-from). One path per line; ~ is expanded.
+# Secrets (restic password, rclone/MEGA login) are NOT here: see `backup help`.
+$HOME/Dev
+$HOME/Documents
+$HOME/Pictures
+$HOME/.ssh
+$HOME/.gnupg
+$HOME/.local/share/keyrings
+$HOME/.claude
+$HOME/.claude-profiles
+$HOME/.config
+$HOME/.docker/config.json
+$HOME/.gitconfig
+$HOME/.zsh_history
+$HOME/.local/share/backup/stage

@@ -1,0 +1,105 @@
+#!/usr/bin/env bash
+# backup — encrypted, incremental backups with restic (daily via backup.timer).
+#
+#   backup run        back up now (+ prune old snapshots once a week)
+#   backup dry-run    show what would be uploaded and how big, upload nothing
+#   backup snapshots  list backups
+#   backup restore <snapshot|latest> <target-dir> [path...]   restore files
+#   backup init       create the repository (first time only)
+#   backup help
+#
+# What: ~/.config/backup/paths  Skipped: ~/.config/backup/excludes + files > 100 MB
+# Secrets live OUTSIDE the public dotfiles repo:
+#   restic password : ~/.local/share/backup/restic-password  (keep a copy in a password manager!)
+#   MEGA login      : ~/.config/rclone/rclone.conf  (remote named "mega")
+set -euo pipefail
+
+CONF_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/backup"
+DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/backup"
+STAGE_DIR="$DATA_DIR/stage"
+STAMP_FILE="$DATA_DIR/last-success"
+PRUNE_STAMP="$DATA_DIR/last-prune"
+BACKUP_MAX_FILE="100M"
+PRUNE_EVERY_DAYS=7
+
+export RESTIC_REPOSITORY="${RESTIC_REPOSITORY:-rclone:mega:arch-backup}"
+export RESTIC_PASSWORD_FILE="${RESTIC_PASSWORD_FILE:-$DATA_DIR/restic-password}"
+export RESTIC_COMPRESSION=max
+
+die() { echo "backup: $*" >&2; exit 1; }
+notify() { notify-send -a Backup -i drive-harddisk "$@" 2>/dev/null || true; }
+
+check_setup() {
+    command -v restic >/dev/null || die "restic not installed (sudo pacman -S restic rclone)"
+    command -v rclone >/dev/null || die "rclone not installed (sudo pacman -S restic rclone)"
+    [[ -s "$RESTIC_PASSWORD_FILE" ]] || die "no password file: $RESTIC_PASSWORD_FILE (run: backup init)"
+    rclone listremotes 2>/dev/null | grep -qx 'mega:' || die "no rclone remote 'mega' (run: rclone config)"
+}
+
+# Small things that live inside excluded folders.
+stage_extras() {
+    mkdir -p "$STAGE_DIR"
+    local bm="$HOME/.config/thorium/Default/Bookmarks"
+    [[ -f "$bm" ]] && cp -f "$bm" "$STAGE_DIR/thorium-bookmarks.json"
+    pacman -Qqe > "$STAGE_DIR/pacman-explicit.txt" 2>/dev/null || true
+}
+
+paths_file() {  # paths with $HOME expanded, existing ones only
+    local p
+    while IFS= read -r p; do
+        [[ -z "$p" || "$p" == \#* ]] && continue
+        p="${p//\$HOME/$HOME}"
+        [[ -e "$p" ]] && printf '%s\n' "$p"
+    done < "$CONF_DIR/paths"
+}
+
+backup_args() {
+    echo --files-from-verbatim "$1" --exclude-file "$CONF_DIR/excludes" \
+         --exclude-larger-than "$BACKUP_MAX_FILE" --exclude-caches --one-file-system
+}
+
+cmd_run() {
+    check_setup
+    stage_extras
+    local list; list="$(mktemp)"; paths_file > "$list"
+    # shellcheck disable=SC2046
+    if ! nice -n 19 ionice -c3 restic backup --tag auto $(backup_args "$list"); then
+        rm -f "$list"; notify -u critical "Backup failed" "Run 'backup run' in a terminal to see why."; exit 1
+    fi
+    rm -f "$list"
+    date +%s > "$STAMP_FILE"
+    if [[ ! -f "$PRUNE_STAMP" ]] || (( $(date +%s) - $(cat "$PRUNE_STAMP") > PRUNE_EVERY_DAYS * 86400 )); then
+        restic forget --prune --keep-daily 7 --keep-weekly 4 --keep-monthly 6 && date +%s > "$PRUNE_STAMP"
+    fi
+}
+
+cmd_dry_run() {
+    check_setup
+    stage_extras
+    local list; list="$(mktemp)"; paths_file > "$list"
+    # shellcheck disable=SC2046
+    restic backup --dry-run -v $(backup_args "$list") | tail -n 6
+    rm -f "$list"
+}
+
+cmd_init() {
+    command -v restic >/dev/null || die "restic not installed"
+    mkdir -p "$DATA_DIR"; chmod 700 "$DATA_DIR"
+    if [[ ! -s "$RESTIC_PASSWORD_FILE" ]]; then
+        (umask 077; head -c 32 /dev/urandom | base64 | tr -d '/+=' | head -c 40 > "$RESTIC_PASSWORD_FILE")
+        echo "Generated a password in $RESTIC_PASSWORD_FILE"
+        echo ">>> SAVE IT in a password manager now. Without it the backup can't be restored. <<<"
+    fi
+    restic init
+}
+
+case "${1:-help}" in
+    run)       cmd_run ;;
+    dry-run)   cmd_dry_run ;;
+    snapshots) check_setup; restic snapshots ;;
+    restore)   check_setup; shift; snap="${1:?snapshot id or latest}"; tgt="${2:?target dir}"; shift 2
+               inc=(); for p in "$@"; do inc+=(--include "$p"); done
+               restic restore "$snap" --target "$tgt" "${inc[@]}" ;;
+    init)      cmd_init ;;
+    *)         sed -n '2,16p' "$0" | sed 's/^# \{0,1\}//' ;;
+esac
