@@ -338,16 +338,19 @@ wallpaper_scheme = "faithful"
 directory = "/home/ayoub/Pictures/Wallpapers"
 
     [wallpaper.default]
-    path = "/home/ayoub/Pictures/Wallpapers/forest-6lpkl7.jpg"
+    path = "/home/ayoub/Pictures/Wallpapers/adventure-time-9d1o88.jpg"
 
     [wallpaper.last]
-    path = "/home/ayoub/Pictures/Wallpapers/forest-6lpkl7.jpg"
+    path = "/home/ayoub/Pictures/Wallpapers/adventure-time-9d1o88.jpg"
 
     [wallpaper.monitors.HDMI-A-1]
-    path = "/home/ayoub/Pictures/Wallpapers/forest-6lpkl7.jpg"
+    path = "/home/ayoub/Pictures/Wallpapers/adventure-time-9d1o88.jpg"
 
     [wallpaper.monitors.eDP-1]
-    path = "/home/ayoub/Pictures/Wallpapers/forest-6lpkl7.jpg"
+    path = "/home/ayoub/Pictures/Wallpapers/adventure-time-9d1o88.jpg"
+
+    [[wallpaper.favorite]]
+    path = "/home/ayoub/Pictures/Wallpapers/bleach-o5pejm.png"
 
 [weather]
 enabled = false
