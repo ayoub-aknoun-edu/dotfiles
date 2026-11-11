@@ -332,22 +332,22 @@ builtin = "Noctalia"
 community_palette = "Oxocarbon"
 mode = "dark"
 source = "wallpaper"
-wallpaper_scheme = "vibrant"
+wallpaper_scheme = "faithful"
 
 [wallpaper]
 directory = "/home/ayoub/Pictures/Wallpapers"
 
     [wallpaper.default]
-    path = "/home/ayoub/Pictures/Wallpapers/solo-leveling-m3vlo8.png"
+    path = "/home/ayoub/Pictures/Wallpapers/forest-6lpkl7.jpg"
 
     [wallpaper.last]
-    path = "/home/ayoub/Pictures/Wallpapers/solo-leveling-m3vlo8.png"
+    path = "/home/ayoub/Pictures/Wallpapers/forest-6lpkl7.jpg"
 
     [wallpaper.monitors.HDMI-A-1]
-    path = "/home/ayoub/Pictures/Wallpapers/solo-leveling-m3vlo8.png"
+    path = "/home/ayoub/Pictures/Wallpapers/forest-6lpkl7.jpg"
 
     [wallpaper.monitors.eDP-1]
-    path = "/home/ayoub/Pictures/Wallpapers/solo-leveling-m3vlo8.png"
+    path = "/home/ayoub/Pictures/Wallpapers/forest-6lpkl7.jpg"
 
 [weather]
 enabled = false
