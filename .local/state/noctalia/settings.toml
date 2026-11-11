@@ -337,16 +337,16 @@ source = "wallpaper"
 directory = "/home/ayoub/Pictures/Wallpapers"
 
     [wallpaper.default]
-    path = "/home/ayoub/Pictures/Wallpapers/anime-boys-rrz76w.jpg"
+    path = "/home/ayoub/Pictures/Wallpapers/berserk-pow9e3.png"
 
     [wallpaper.last]
-    path = "/home/ayoub/Pictures/Wallpapers/anime-boys-rrz76w.jpg"
+    path = "/home/ayoub/Pictures/Wallpapers/berserk-pow9e3.png"
 
     [wallpaper.monitors.HDMI-A-1]
-    path = "/home/ayoub/Pictures/Wallpapers/anime-boys-rrz76w.jpg"
+    path = "/home/ayoub/Pictures/Wallpapers/berserk-pow9e3.png"
 
     [wallpaper.monitors.eDP-1]
-    path = "/home/ayoub/Pictures/Wallpapers/anime-boys-rrz76w.jpg"
+    path = "/home/ayoub/Pictures/Wallpapers/berserk-pow9e3.png"
 
 [weather]
 enabled = false
