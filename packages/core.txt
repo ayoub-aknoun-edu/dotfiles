@@ -55,8 +55,7 @@ brightnessctl
 ddcutil            # external monitor brightness/input over DDC/CI (Noctalia slider)
 gnome-keyring
 
-# Wallpaper colors (rice-wall), avatar + thumbnails
-matugen
+# Avatar + thumbnails (wallpaper colors come from Noctalia's templates)
 libvips
 ffmpeg
 

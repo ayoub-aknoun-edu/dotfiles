@@ -1,6 +1,6 @@
 -- Wallpaper-driven colors: ~/.config/theme/generated/nvim.lua is a base16
--- palette written by matugen (theme/matugen, via ~/.local/bin/rice-wall),
--- which sends SIGUSR1 to running nvims after a wallpaper change.
+-- palette written by Noctalia's user templates (~/.config/noctalia/templates);
+-- `rice-wall reload` then sends SIGUSR1 to running nvims after a wallpaper change.
 -- No palette yet → LazyVim's default tokyonight.
 
 local PALETTE = vim.fn.expand("~/.config/theme/generated/nvim.lua")

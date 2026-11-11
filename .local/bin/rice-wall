@@ -8,9 +8,11 @@
 #   rice-wall adopt <image> take a wallpaper set elsewhere (Noctalia hook)
 #   rice-wall current       print the saved wallpaper path
 #   rice-wall init          create theme/generated from defaults if missing
+#   rice-wall reload        push the current palette into running apps
 #
-# The wallpaper is drawn by Noctalia.
-# Colors: matugen → ~/.config/theme/generated/* (config in theme/matugen).
+# Noctalia draws the wallpaper AND generates the palette: its user templates
+# (~/.config/noctalia/templates) write ~/.config/theme/generated/*, then call
+# `rice-wall reload`. One generator, so the shell and apps always match.
 
 set -euo pipefail
 
@@ -18,7 +20,6 @@ WALLPAPER_DIR="${WALLPAPER_DIR:-$HOME/Pictures/Wallpapers}"
 STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/rice"
 STATE_FILE="$STATE_DIR/wallpaper"
 THEME_DIR="$HOME/.config/theme"
-MATUGEN_CONFIG="$THEME_DIR/matugen/config.toml"
 GENERATED_DIR="$THEME_DIR/generated"
 LOCK_FILE="${XDG_RUNTIME_DIR:-/tmp}/rice-wall.lock"
 IMAGE_GLOB_RE='.*\.\(jpe?g\|png\|webp\)$'
@@ -58,11 +59,6 @@ draw_wallpaper() {
     noctalia msg wallpaper-set "$1" >/dev/null
 }
 
-generate_palette() {
-    command -v matugen >/dev/null 2>&1 || { ensure_generated; return 0; }
-    matugen image "$1" -c "$MATUGEN_CONFIG" -m dark --source-color-index 0 -q
-}
-
 # Push the new palette into everything that is running.
 reload_consumers() {
     # Hyprland borders: apply live instead of a full config reload.
@@ -92,9 +88,7 @@ cmd_set() {
 
     ensure_generated
     save_current "$img"   # first: Noctalia's wallpaper hook then sees it as applied
-    draw_wallpaper "$img"
-    generate_palette "$img"
-    reload_consumers
+    draw_wallpaper "$img" # Noctalia re-renders the palette templates + reloads
 }
 
 save_current() {
@@ -103,7 +97,7 @@ save_current() {
 }
 
 # A wallpaper chosen elsewhere (Noctalia's picker → its wallpaper_changed
-# hook): remember it and regenerate the palette, without redrawing.
+# hook): remember it. Noctalia regenerates the palette itself.
 cmd_adopt() {
     local img
     img="$(realpath -e -- "${1:?usage: rice-wall adopt <image>}" 2>/dev/null)" || return 0
@@ -114,8 +108,6 @@ cmd_adopt() {
 
     ensure_generated
     save_current "$img"
-    generate_palette "$img"
-    reload_consumers
 }
 
 cmd_current() {
@@ -150,5 +142,6 @@ case "${1:-}" in
     adopt)   shift; cmd_adopt "$@" ;;
     init)    ensure_generated ;;
     current) cmd_current ;;
-    *) sed -n '2,10p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
+    reload)  reload_consumers ;;
+    *) sed -n '2,11p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
 esac

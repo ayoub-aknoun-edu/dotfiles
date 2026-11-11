@@ -18,14 +18,38 @@ source = "wallpaper"                  # Material You colors from the wallpaper
 # Apps follow the wallpaper palette.
 #   gtk3/gtk4: writes gtk-*/noctalia.css + imports it in gtk.css (adw-gtk3)
 #   vscode:    read by the "NoctaliaTheme" extension (Noctalia.noctaliatheme)
-# Kitty, tmux, Hyprland borders, hyprlock and Neovim are themed by
-# rice-wall/matugen instead (wallpaper_changed hook below).
+# Kitty, tmux, Hyprland borders, hyprlock and Neovim use the user templates
+# below (same palette as the shell, so everything always matches). They're
+# re-rendered whenever the palette changes (new wallpaper or scheme).
 builtin_ids   = ["gtk3", "gtk4"]
 community_ids = ["vscode"]
 
+# templates/<name> → ~/.config/theme/generated/<name> (read by each app).
+[theme.templates.user.hypr]
+input_path  = "templates/hypr.lua"
+output_path = "$XDG_CONFIG_HOME/theme/generated/hypr.lua"
+
+[theme.templates.user.hyprlock]
+input_path  = "templates/hyprlock.conf"
+output_path = "$XDG_CONFIG_HOME/theme/generated/hyprlock.conf"
+
+[theme.templates.user.kitty]
+input_path  = "templates/kitty.conf"
+output_path = "$XDG_CONFIG_HOME/theme/generated/kitty.conf"
+
+[theme.templates.user.tmux]
+input_path  = "templates/tmux.conf"
+output_path = "$XDG_CONFIG_HOME/theme/generated/tmux.conf"
+
+[theme.templates.user.nvim]
+input_path  = "templates/nvim.lua"
+output_path = "$XDG_CONFIG_HOME/theme/generated/nvim.lua"
+index       = 10                      # last: then reload every app at once
+post_hook   = "~/.local/bin/rice-wall reload"
+
 [hooks]
-# Wallpapers picked in Noctalia's picker also drive the rice-wall palette
-# (kitty, tmux, Neovim, Hyprland borders) and become the saved wallpaper.
+# Wallpapers picked in Noctalia's picker become rice-wall's saved wallpaper.
+# (Colors come from the user templates above, not from this hook.)
 wallpaper_changed = "~/.local/bin/rice-wall adopt \"$NOCTALIA_WALLPAPER_PATH\""
 
 [calendar]

@@ -13,7 +13,7 @@
 .local/bin/env.fish
 .local/bin/python3*
 
-# Wallpaper-generated palettes (theme/matugen → rice-wall)
+# Wallpaper-generated palettes (Noctalia user templates)
 .config/theme/generated/
 
 # Written by Noctalia's gtk3/gtk4 templates (wallpaper palette)

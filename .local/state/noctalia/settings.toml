@@ -331,23 +331,23 @@ grid_columns = 4
 builtin = "Noctalia"
 community_palette = "Oxocarbon"
 mode = "dark"
-source = "builtin"
+source = "wallpaper"
 wallpaper_scheme = "m3-content"
 
 [wallpaper]
 directory = "/home/ayoub/Pictures/Wallpapers"
 
     [wallpaper.default]
-    path = "/home/ayoub/Pictures/Wallpapers/anime-scenery-jeeq3q.png"
+    path = "/home/ayoub/Pictures/Wallpapers/autumn-gwwkql.jpg"
 
     [wallpaper.last]
-    path = "/home/ayoub/Pictures/Wallpapers/anime-scenery-jeeq3q.png"
+    path = "/home/ayoub/Pictures/Wallpapers/autumn-gwwkql.jpg"
 
     [wallpaper.monitors.HDMI-A-1]
-    path = "/home/ayoub/Pictures/Wallpapers/anime-scenery-jeeq3q.png"
+    path = "/home/ayoub/Pictures/Wallpapers/autumn-gwwkql.jpg"
 
     [wallpaper.monitors.eDP-1]
-    path = "/home/ayoub/Pictures/Wallpapers/anime-scenery-jeeq3q.png"
+    path = "/home/ayoub/Pictures/Wallpapers/autumn-gwwkql.jpg"
 
 [weather]
 enabled = false

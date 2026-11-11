@@ -108,7 +108,7 @@ sudo ~/dotfiles/scripts/setup-system.sh greeter-config
 | **Noctalia GUI state** | `.local/state/noctalia/settings.toml`    | Overrides `config.toml`; written by the Settings window            |
 | **Hypridle**         | `.config/hypr/hypridle-{ac,battery}.conf`  | AC/battery-aware timeouts; locks via `hypr/scripts/lock`           |
 | **Lock**             | `hypr/scripts/lock`                        | Noctalia lock screen; hyprlock only if Noctalia is down            |
-| **Colors**           | `.config/theme/matugen/`                   | `rice-wall` → matugen palette for kitty, tmux, nvim, hyprlock, Hyprland borders |
+| **Colors**           | `.config/noctalia/templates/`              | Noctalia renders the wallpaper palette for kitty, tmux, nvim, hyprlock, Hyprland borders (same palette as the shell) |
 | **Kitty / tmux / Neovim** | `.config/{kitty,tmux,nvim}/`          | tmux sessions persist across reboots (resurrect + continuum)       |
 | **Shell**            | `.zshrc`, `.config/shell/`                 | Oh-My-Zsh + Powerlevel10k, shared aliases/functions                |
 
