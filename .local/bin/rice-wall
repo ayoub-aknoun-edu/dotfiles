@@ -59,8 +59,33 @@ draw_wallpaper() {
     noctalia msg wallpaper-set "$1" >/dev/null
 }
 
+# Thorium's new-tab page background: once "Customize → Upload from device"
+# has been used, Thorium serves <profile>/background.jpg on every new tab, so
+# replacing that file makes new tabs follow the desktop wallpaper live.
+# Skipped while no custom local background exists (nothing to keep in sync).
+BROWSER_BG="${BROWSER_BG:-$HOME/.config/thorium/Default/background.jpg}"
+NTP_BG_WIDTH=2560
+
+sync_browser_background() {
+    local img="$1" tmp
+    [[ -f "$BROWSER_BG" && -f "$img" ]] || return 0
+    command -v vipsthumbnail >/dev/null 2>&1 || return 0
+    tmp="$(dirname "$BROWSER_BG")/.background.$$.jpg"
+    if vipsthumbnail "$img" --size "${NTP_BG_WIDTH}x" -o "${tmp}[Q=90,strip]" 2>/dev/null; then
+        mv -f "$tmp" "$BROWSER_BG"
+    else
+        rm -f "$tmp"
+    fi
+}
+
+# Wallpaper the palette was rendered from (written by Noctalia's templates).
+rendered_wallpaper() {
+    sed -n 's/^\$wallpaper = //p' "$GENERATED_DIR/hyprlock.conf" 2>/dev/null | head -n1
+}
+
 # Push the new palette into everything that is running.
 reload_consumers() {
+    ( sync_browser_background "$(rendered_wallpaper)" ) &
     # Hyprland borders: apply live instead of a full config reload.
     hyprctl eval '
         local ok, g = pcall(dofile, os.getenv("HOME") .. "/.config/theme/generated/hypr.lua")

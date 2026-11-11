@@ -332,22 +332,22 @@ builtin = "Noctalia"
 community_palette = "Oxocarbon"
 mode = "dark"
 source = "wallpaper"
-wallpaper_scheme = "m3-content"
+wallpaper_scheme = "vibrant"
 
 [wallpaper]
 directory = "/home/ayoub/Pictures/Wallpapers"
 
     [wallpaper.default]
-    path = "/home/ayoub/Pictures/Wallpapers/bleach-m98m3m.png"
+    path = "/home/ayoub/Pictures/Wallpapers/anime-girls-j56wpw.jpg"
 
     [wallpaper.last]
-    path = "/home/ayoub/Pictures/Wallpapers/bleach-m98m3m.png"
+    path = "/home/ayoub/Pictures/Wallpapers/anime-girls-j56wpw.jpg"
 
     [wallpaper.monitors.HDMI-A-1]
-    path = "/home/ayoub/Pictures/Wallpapers/bleach-m98m3m.png"
+    path = "/home/ayoub/Pictures/Wallpapers/anime-girls-j56wpw.jpg"
 
     [wallpaper.monitors.eDP-1]
-    path = "/home/ayoub/Pictures/Wallpapers/bleach-m98m3m.png"
+    path = "/home/ayoub/Pictures/Wallpapers/anime-girls-j56wpw.jpg"
 
 [weather]
 enabled = false
