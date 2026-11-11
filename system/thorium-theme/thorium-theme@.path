@@ -1,0 +1,10 @@
+# /etc/systemd/system/thorium-theme@.path — scripts/setup-system.sh thorium-theme
+[Unit]
+Description=Watch %i's wallpaper seed color for Thorium
+
+[Path]
+PathChanged=/home/%i/.config/theme/generated/thorium-seed
+Unit=thorium-theme@%i.service
+
+[Install]
+WantedBy=multi-user.target

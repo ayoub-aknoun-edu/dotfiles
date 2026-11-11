@@ -41,6 +41,13 @@ output_path = "$XDG_CONFIG_HOME/theme/generated/kitty.conf"
 input_path  = "templates/tmux.conf"
 output_path = "$XDG_CONFIG_HOME/theme/generated/tmux.conf"
 
+# Seed color for Thorium's own Material You theme: a root watcher
+# (thorium-theme@.path, `setup-system.sh thorium-theme`) turns it into the
+# BrowserThemeColor policy, so the browser follows the wallpaper too.
+[theme.templates.user.thorium]
+input_path  = "templates/thorium-seed"
+output_path = "$XDG_CONFIG_HOME/theme/generated/thorium-seed"
+
 [theme.templates.user.nvim]
 input_path  = "templates/nvim.lua"
 output_path = "$XDG_CONFIG_HOME/theme/generated/nvim.lua"

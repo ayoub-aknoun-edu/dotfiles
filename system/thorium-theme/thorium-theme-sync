@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# /usr/local/lib/thorium-theme-sync <user> — scripts/setup-system.sh thorium-theme
+# Copy the user's wallpaper seed color (written by a Noctalia template to
+# ~/.config/theme/generated/thorium-seed) into Thorium/Chromium's managed
+# policy BrowserThemeColor, so the browser builds its Material You theme from
+# the same seed as the desktop. The user file is read AS THE USER and only a
+# strict #rrggbb value is accepted: nothing else from it reaches the policy.
+set -euo pipefail
+
+user="${1:?usage: thorium-theme-sync <user>}"
+[[ "$user" =~ ^[a-z_][a-z0-9_-]{0,31}$ ]] || { echo "bad user name" >&2; exit 1; }
+home="$(getent passwd "$user" | cut -d: -f6)"
+[[ -n "$home" ]] || { echo "no such user: $user" >&2; exit 1; }
+
+src="$home/.config/theme/generated/thorium-seed"
+dir=/etc/chromium/policies/managed
+out="$dir/noctalia-theme.json"
+
+color="$(runuser -u "$user" -- head -c 64 -- "$src" 2>/dev/null | tr -d '[:space:]' || true)"
+if [[ ! "$color" =~ ^#[0-9a-fA-F]{6}$ ]]; then
+    echo "seed file missing or not a #rrggbb color; policy left unchanged" >&2
+    exit 0
+fi
+color="${color,,}"
+
+install -d -m 755 "$dir"
+tmp="$(mktemp "$dir/.noctalia-theme.XXXXXX")"
+printf '{ "BrowserThemeColor": "%s" }\n' "$color" > "$tmp"
+chmod 644 "$tmp"
+mv -f "$tmp" "$out"
+echo "BrowserThemeColor=$color"

@@ -11,6 +11,7 @@
 #   sudo scripts/setup-system.sh greeter           login screen: greetd + Noctalia Greeter
 #   sudo scripts/setup-system.sh greeter-config    reinstall only greeter.toml (login screen look)
 #   sudo scripts/setup-system.sh greeter-sync      let Noctalia sync wallpaper/colors to the login screen without a password
+#   sudo scripts/setup-system.sh thorium-theme     Thorium's theme color follows the wallpaper (BrowserThemeColor policy)
 #   sudo scripts/setup-system.sh greeter-fallback  greetd with the plain tuigreet (if the greeter breaks)
 #   sudo scripts/setup-system.sh docker            socket-activate Docker + add you to the docker group
 #   sudo scripts/setup-system.sh vm                socket-activate libvirtd + libvirt group + IPv4 forwarding
@@ -277,6 +278,18 @@ cmd_greeter_sync() {
     ok "greeter sync no longer asks for a password (action org.noctalia.greeter.sync-appearance)"
 }
 
+# Thorium builds its Material You theme from the wallpaper seed color that a
+# Noctalia template writes; a root path unit turns it into a policy.
+cmd_thorium_theme() {
+    install_file "$SYS/thorium-theme/thorium-theme-sync" /usr/local/lib/thorium-theme-sync 755
+    install_file "$SYS/thorium-theme/thorium-theme@.service" /etc/systemd/system/thorium-theme@.service
+    install_file "$SYS/thorium-theme/thorium-theme@.path" /etc/systemd/system/thorium-theme@.path
+    systemctl daemon-reload
+    systemctl enable --now "thorium-theme@$TARGET_USER.path"
+    systemctl start "thorium-theme@$TARGET_USER.service" || true
+    ok "Thorium theme follows the wallpaper (policy: /etc/chromium/policies/managed/noctalia-theme.json)"
+}
+
 cmd_greeter_fallback() {
     require_pkgs greetd greetd-tuigreet
     local tmp
@@ -296,7 +309,7 @@ EOF
     info "Reboot (or: systemctl restart greetd from a TTY) for the text login."
 }
 
-[[ $# -gt 0 ]] || { sed -n '2,19p' "$0" | sed 's/^# \{0,1\}//'; exit 1; }
+[[ $# -gt 0 ]] || { sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'; exit 1; }
 for cmd in "$@"; do
     case "$cmd" in
         services)         cmd_services ;;
@@ -314,6 +327,7 @@ for cmd in "$@"; do
         greeter)          cmd_greeter ;;
         greeter-config)   cmd_greeter_config ;;
         greeter-sync)     cmd_greeter_sync ;;
+        thorium-theme)    cmd_thorium_theme ;;
         greeter-fallback) cmd_greeter_fallback ;;
         *) die "unknown command: $cmd" ;;
     esac

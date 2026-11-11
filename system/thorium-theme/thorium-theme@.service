@@ -1,0 +1,18 @@
+# /etc/systemd/system/thorium-theme@.service — scripts/setup-system.sh thorium-theme
+[Unit]
+Description=Sync %i's wallpaper seed color into Thorium's theme policy
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/lib/thorium-theme-sync %i
+ProtectSystem=strict
+# Creates /etc/chromium/policies/managed (0755) if missing and makes only it writable.
+ConfigurationDirectory=chromium/policies/managed
+ConfigurationDirectoryMode=0755
+ProtectHome=read-only
+PrivateTmp=yes
+PrivateNetwork=yes
+NoNewPrivileges=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
