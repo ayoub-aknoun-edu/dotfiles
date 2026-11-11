@@ -337,16 +337,16 @@ source = "wallpaper"
 directory = "/home/ayoub/Pictures/Wallpapers"
 
     [wallpaper.default]
-    path = "/home/ayoub/Pictures/Wallpapers/forest-6lpkl7.jpg"
+    path = "/home/ayoub/Pictures/Wallpapers/anime-boys-rrz76w.jpg"
 
     [wallpaper.last]
-    path = "/home/ayoub/Pictures/Wallpapers/forest-6lpkl7.jpg"
+    path = "/home/ayoub/Pictures/Wallpapers/anime-boys-rrz76w.jpg"
 
     [wallpaper.monitors.HDMI-A-1]
-    path = "/home/ayoub/Pictures/Wallpapers/forest-6lpkl7.jpg"
+    path = "/home/ayoub/Pictures/Wallpapers/anime-boys-rrz76w.jpg"
 
     [wallpaper.monitors.eDP-1]
-    path = "/home/ayoub/Pictures/Wallpapers/forest-6lpkl7.jpg"
+    path = "/home/ayoub/Pictures/Wallpapers/anime-boys-rrz76w.jpg"
 
 [weather]
 enabled = false
