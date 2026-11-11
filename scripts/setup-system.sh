@@ -10,6 +10,7 @@
 #   sudo scripts/setup-system.sh battery-cleanup   remove the old battery-threshold plugin's udev rule + group
 #   sudo scripts/setup-system.sh greeter           login screen: greetd + Noctalia Greeter
 #   sudo scripts/setup-system.sh greeter-config    reinstall only greeter.toml (login screen look)
+#   sudo scripts/setup-system.sh greeter-sync      let Noctalia sync wallpaper/colors to the login screen without a password
 #   sudo scripts/setup-system.sh greeter-fallback  greetd with the plain tuigreet (if the greeter breaks)
 #   sudo scripts/setup-system.sh docker            socket-activate Docker + add you to the docker group
 #   sudo scripts/setup-system.sh vm                socket-activate libvirtd + libvirt group + IPv4 forwarding
@@ -266,6 +267,16 @@ cmd_greeter() {
     info "Then in Noctalia: Settings → Security → Noctalia Greeter → Sync Now (and Auto-Sync)."
 }
 
+# Noctalia syncs its look to the greeter via pkexec on every palette change;
+# allow that one polkit action without a password prompt.
+cmd_greeter_sync() {
+    install_file "$SYS/polkit/50-noctalia-greeter-sync.rules" /etc/polkit-1/rules.d/50-noctalia-greeter-sync.rules
+    chmod 644 /etc/polkit-1/rules.d/50-noctalia-greeter-sync.rules
+    # polkitd watches rules.d and reloads on its own; restarting is harmless.
+    systemctl try-restart polkit.service
+    ok "greeter sync no longer asks for a password (action org.noctalia.greeter.sync-appearance)"
+}
+
 cmd_greeter_fallback() {
     require_pkgs greetd greetd-tuigreet
     local tmp
@@ -285,7 +296,7 @@ EOF
     info "Reboot (or: systemctl restart greetd from a TTY) for the text login."
 }
 
-[[ $# -gt 0 ]] || { sed -n '2,18p' "$0" | sed 's/^# \{0,1\}//'; exit 1; }
+[[ $# -gt 0 ]] || { sed -n '2,19p' "$0" | sed 's/^# \{0,1\}//'; exit 1; }
 for cmd in "$@"; do
     case "$cmd" in
         services)         cmd_services ;;
@@ -302,6 +313,7 @@ for cmd in "$@"; do
         battery-cleanup)  cmd_battery_cleanup ;;
         greeter)          cmd_greeter ;;
         greeter-config)   cmd_greeter_config ;;
+        greeter-sync)     cmd_greeter_sync ;;
         greeter-fallback) cmd_greeter_fallback ;;
         *) die "unknown command: $cmd" ;;
     esac
