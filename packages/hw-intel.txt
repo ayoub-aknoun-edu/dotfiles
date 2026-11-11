@@ -4,3 +4,7 @@ intel-media-driver
 vulkan-intel
 vpl-gpu-rt
 sof-firmware
+
+# Intel CPU thermal daemon: smarter throttling under long loads (enabled by
+# setup-system.sh services; skipped where not installed)
+thermald

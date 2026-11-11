@@ -102,7 +102,8 @@ enable_units() {
 
 cmd_services() {
     enable_units NetworkManager.service iwd.service bluetooth.service \
-                 systemd-timesyncd.service fstrim.timer paccache.timer
+                 systemd-timesyncd.service fstrim.timer paccache.timer \
+                 thermald.service
     # iwd is NetworkManager's Wi-Fi backend (see `network`); wpa_supplicant must not compete.
     systemctl disable wpa_supplicant.service >/dev/null 2>&1 || true
 }
