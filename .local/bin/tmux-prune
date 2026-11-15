@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# tmux-prune: close abandoned tmux sessions (hourly via tmux-prune.timer).
+#
+# Every `tmux` typed in a new terminal creates a session; closing the window
+# leaves it detached, and tmux-resurrect restores them all at each login
+# (72 sessions / 82 idle shells piled up by 2026-11-15). A session is closed
+# only when ALL of these hold:
+#   - no client is attached to it,
+#   - every pane runs just a shell (Claude, builds, servers… keep it alive),
+#   - no activity for TMUX_PRUNE_IDLE_HOURS (default 6).
+# Then the resurrect snapshot is saved so closed sessions don't come back.
+#   tmux-prune          prune now
+#   tmux-prune --dry    only list what would be closed
+set -u
+
+IDLE_HOURS="${TMUX_PRUNE_IDLE_HOURS:-6}"
+SHELLS_RE='^(zsh|bash|sh|fish|-zsh|-bash)$'
+RESURRECT_SAVE="$HOME/.local/share/tmux/plugins/tmux-resurrect/scripts/save.sh"
+dry=0; [[ "${1:-}" == "--dry" ]] && dry=1
+
+tmux has-session 2>/dev/null || exit 0   # no tmux server: nothing to do
+
+now=$(date +%s)
+limit=$((IDLE_HOURS * 3600))
+declare -A busy=() attached=() activity=()
+while IFS='|' read -r s att cmd act; do
+    [[ "$cmd" =~ $SHELLS_RE ]] || busy[$s]=1
+    (( att > 0 )) && attached[$s]=1
+    activity[$s]=$act
+done < <(tmux list-panes -a -F '#{session_name}|#{session_attached}|#{pane_current_command}|#{session_activity}')
+
+closed=0
+for s in "${!activity[@]}"; do
+    [[ -n "${busy[$s]:-}" || -n "${attached[$s]:-}" ]] && continue
+    (( now - activity[$s] < limit )) && continue
+    if (( dry )); then
+        echo "would close: $s (idle $(( (now - activity[$s]) / 3600 ))h)"
+    else
+        tmux kill-session -t "=$s" 2>/dev/null && closed=$((closed + 1))
+    fi
+done
+
+if (( !dry && closed > 0 )); then
+    [[ -x "$RESURRECT_SAVE" ]] && tmux run-shell "$RESURRECT_SAVE" >/dev/null 2>&1
+    echo "tmux-prune: closed $closed idle session(s) (idle >${IDLE_HOURS}h, detached, shell only)"
+fi

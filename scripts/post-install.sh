@@ -38,6 +38,7 @@ UNITS=(
     battery-alert.timer
     dots-autosync.timer
     dev-cleanup.timer
+    tmux-prune.timer
 )
 
 for unit in "${UNITS[@]}"; do

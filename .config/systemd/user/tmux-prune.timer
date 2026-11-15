@@ -1,0 +1,9 @@
+[Unit]
+Description=Hourly cleanup of abandoned idle tmux sessions
+
+[Timer]
+OnBootSec=30min
+OnUnitActiveSec=1h
+
+[Install]
+WantedBy=timers.target

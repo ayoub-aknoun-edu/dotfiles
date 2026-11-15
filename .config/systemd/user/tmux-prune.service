@@ -1,0 +1,6 @@
+[Unit]
+Description=Close abandoned idle tmux sessions (~/.local/bin/tmux-prune)
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/tmux-prune
