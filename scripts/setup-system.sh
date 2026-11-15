@@ -14,6 +14,7 @@
 #   sudo scripts/setup-system.sh thorium-theme     Thorium's theme color follows the wallpaper (BrowserThemeColor policy)
 #   sudo scripts/setup-system.sh firewall          block incoming connections (keeps Docker, mDNS, second-screen, LAN dev ports) + LLMNR off
 #   sudo scripts/setup-system.sh fallback-kernel   boot menu entry for linux-lts (install it first), in case a kernel update breaks boot
+#   sudo scripts/setup-system.sh docker-priority   containers + builds get lower CPU/IO priority than the desktop (no lag)
 #   sudo scripts/setup-system.sh greeter-fallback  greetd with the plain tuigreet (if the greeter breaks)
 #   sudo scripts/setup-system.sh docker            socket-activate Docker + add you to the docker group
 #   sudo scripts/setup-system.sh vm                socket-activate libvirtd + libvirt group + IPv4 forwarding
@@ -139,6 +140,34 @@ cmd_docker() {
     enable_units docker.socket
     usermod -aG docker "$TARGET_USER"
     ok "$TARGET_USER added to docker (log out/in to apply)"
+    cmd_docker_priority
+}
+
+# Heavy container builds (dotnet, node) used to make the desktop lag: run
+# containers in docker.slice and dockerd's builds with CPU/IO weight 20.
+# Never restarts Docker; running containers are lowered on the spot.
+cmd_docker_priority() {
+    require_pkgs docker
+    install_file "$SYS/docker/docker.slice" /etc/systemd/system/docker.slice
+    install_file "$SYS/docker/docker-priority.conf" /etc/systemd/system/docker.service.d/50-priority.conf
+    local cfg=/etc/docker/daemon.json tmp
+    tmp="$(mktemp)"
+    python3 -I - "$cfg" > "$tmp" <<'PY'
+import json, os, sys
+path = sys.argv[1]
+cfg = json.load(open(path)) if os.path.exists(path) and os.path.getsize(path) else {}
+cfg["cgroup-parent"] = "docker.slice"
+print(json.dumps(cfg, indent=2))
+PY
+    install_file "$tmp" "$cfg"
+    rm -f "$tmp"
+    systemctl daemon-reload
+    systemctl set-property --runtime docker.service CPUWeight=20 IOWeight=20 2>/dev/null || true
+    local scope n=0
+    for scope in $(systemctl list-units --type=scope --state=running --no-legend 'docker-*.scope' | awk '{print $1}'); do
+        systemctl set-property --runtime "$scope" CPUWeight=20 IOWeight=20 && n=$((n + 1))
+    done
+    ok "Docker priority lowered ($n running container(s) adjusted now; new containers use docker.slice after Docker's next start/reboot)"
 }
 
 cmd_memory() {
@@ -349,7 +378,7 @@ EOF
     info "Reboot (or: systemctl restart greetd from a TTY) for the text login."
 }
 
-[[ $# -gt 0 ]] || { sed -n '2,22p' "$0" | sed 's/^# \{0,1\}//'; exit 1; }
+[[ $# -gt 0 ]] || { sed -n '2,23p' "$0" | sed 's/^# \{0,1\}//'; exit 1; }
 for cmd in "$@"; do
     case "$cmd" in
         services)         cmd_services ;;
@@ -370,6 +399,7 @@ for cmd in "$@"; do
         thorium-theme)    cmd_thorium_theme ;;
         firewall)         cmd_firewall ;;
         fallback-kernel)  cmd_fallback_kernel ;;
+        docker-priority)  cmd_docker_priority ;;
         greeter-fallback) cmd_greeter_fallback ;;
         *) die "unknown command: $cmd" ;;
     esac

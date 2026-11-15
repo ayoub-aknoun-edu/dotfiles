@@ -1,0 +1,11 @@
+# /etc/systemd/system/docker.slice — scripts/setup-system.sh docker-priority
+# Docker containers live here (daemon.json "cgroup-parent": "docker.slice").
+# Weight 20 vs the desktop's default 100: containers still use every idle
+# core, but when you type, move the mouse or browse, the desktop wins.
+[Unit]
+Description=Docker containers (lower CPU/IO priority than the desktop)
+Before=slices.target
+
+[Slice]
+CPUWeight=20
+IOWeight=20
