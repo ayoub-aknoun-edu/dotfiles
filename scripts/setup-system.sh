@@ -15,6 +15,7 @@
 #   sudo scripts/setup-system.sh firewall          block incoming connections (keeps Docker, mDNS, second-screen, LAN dev ports) + LLMNR off
 #   sudo scripts/setup-system.sh fallback-kernel   boot menu entry for linux-lts (install it first), in case a kernel update breaks boot
 #   sudo scripts/setup-system.sh docker-priority   containers + builds get lower CPU/IO priority than the desktop (no lag)
+#   sudo scripts/setup-system.sh coredump-limit    don't process multi-GB crash dumps (crash storms froze the desktop)
 #   sudo scripts/setup-system.sh greeter-fallback  greetd with the plain tuigreet (if the greeter breaks)
 #   sudo scripts/setup-system.sh docker            socket-activate Docker + add you to the docker group
 #   sudo scripts/setup-system.sh vm                socket-activate libvirtd + libvirt group + IPv4 forwarding
@@ -359,6 +360,12 @@ cmd_fallback_kernel() {
     bootctl list --no-pager 2>/dev/null | grep -E 'title:' || true
 }
 
+cmd_coredump_limit() {
+    install_file "$SYS/coredump/50-size-limit.conf" /etc/systemd/coredump.conf.d/50-size-limit.conf
+    systemctl daemon-reload
+    ok "core dumps of processes > 1 GiB are skipped (systemd-coredump reads its config per crash)"
+}
+
 cmd_greeter_fallback() {
     require_pkgs greetd greetd-tuigreet
     local tmp
@@ -378,7 +385,7 @@ EOF
     info "Reboot (or: systemctl restart greetd from a TTY) for the text login."
 }
 
-[[ $# -gt 0 ]] || { sed -n '2,23p' "$0" | sed 's/^# \{0,1\}//'; exit 1; }
+[[ $# -gt 0 ]] || { sed -n '2,24p' "$0" | sed 's/^# \{0,1\}//'; exit 1; }
 for cmd in "$@"; do
     case "$cmd" in
         services)         cmd_services ;;
@@ -400,6 +407,7 @@ for cmd in "$@"; do
         firewall)         cmd_firewall ;;
         fallback-kernel)  cmd_fallback_kernel ;;
         docker-priority)  cmd_docker_priority ;;
+        coredump-limit)   cmd_coredump_limit ;;
         greeter-fallback) cmd_greeter_fallback ;;
         *) die "unknown command: $cmd" ;;
     esac

@@ -33,8 +33,10 @@ elif [[ -d "$YAY_CACHE" ]]; then
     log "yay: removed $n build folder(s) older than $YAY_MAX_AGE_DAYS days"
 fi
 
+# uv waits up to 5 min for its cache lock when a project is using it: give up
+# after 30 s instead (next week's run will catch it).
 if command -v uv >/dev/null 2>&1; then
-    log "uv: $(uv cache prune 2>&1 | tail -n1)"
+    log "uv: $(UV_LOCK_TIMEOUT=30 uv cache prune 2>&1 | tail -n1)"
 fi
 
 log "done, free in /home: $(home_free)"
