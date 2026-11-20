@@ -13,6 +13,7 @@ polkit_agent = true
 [theme]
 mode   = "dark"
 source = "wallpaper"                  # Material You colors from the wallpaper
+terminal_colors = "standard"            # wallpaper themes keep recognizable red/green/yellow ANSI
 
 [theme.templates]
 # Apps follow the wallpaper palette.
@@ -101,6 +102,7 @@ sunrise         = "07:00"
 # hypridle here; hyprlock only if Noctalia is down). It also locks on
 # `loginctl lock-session` and before suspend.
 enabled = true
+dnd     = true                          # Do Not Disturb while locked (restored on unlock)
 
 # ── Plugins ──────────────────────────────────────────────────────────────────
 # Plugins are unsandboxed Luau running as you: only auto-update the official
@@ -172,3 +174,7 @@ stat = "ram_pct"
 [widget.privacy]
 type          = "privacy"
 hide_inactive = true
+
+# Alt+Tab switcher look (Noctalia 5.5): "grid" = window previews in a grid.
+[shell.window_switcher]
+style = "grid"
