@@ -1,5 +1,5 @@
 # Desktop apps.
-aur:thorium-browser-bin
+aur:thorium-browser-beta-avx2-bin
 aur:visual-studio-code-bin
 obsidian
 discord
