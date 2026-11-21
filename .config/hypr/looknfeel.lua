@@ -73,6 +73,14 @@ hl.config({
     cursor = {
         hide_on_key_press = true,
     },
+
+    render = {
+        -- 0 = never switch a monitor to HDR for fullscreen apps. The default
+        -- (1) flipped the MSI into HDR on fullscreen YouTube: a modeset (black
+        -- second) and a washed-out picture, since the MSI is "HDR ready" only
+        -- and HDMI 1.4 at 1440p carries 8-bit color.
+        cm_auto_hdr = 0,
+    },
 })
 
 
